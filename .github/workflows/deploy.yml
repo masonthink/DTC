@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+  workflow_dispatch:   # 允许在 Actions 页面手动触发
 
 env:
   REGISTRY: ghcr.io
