@@ -1,0 +1,106 @@
+# 生产环境 Docker Compose
+# 使用方式：
+#   cp backend/.env.prod.example .env.prod   # 填入真实值
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# 部署更新：
+#   docker compose -f docker-compose.prod.yml run --rm migrate
+#   docker compose -f docker-compose.prod.yml up -d --no-deps --force-recreate backend
+
+version: "3.9"
+
+services:
+
+  # ── Caddy：HTTPS 反向代理（唯一暴露端口的服务）────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: dtc-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+    restart: always
+
+  # ── DB Migration（每次部署前 run --rm，不作为常驻服务）────────────────────
+  migrate:
+    image: ${BACKEND_IMAGE:-ghcr.io/mason2047/digital-twin-backend:latest}
+    container_name: dtc-migrate
+    command: ["/migrate", "-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
+    env_file: .env.prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # ── Go 后端 ───────────────────────────────────────────────────────────────
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/mason2047/digital-twin-backend:latest}
+    container_name: dtc-backend
+    env_file: .env.prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    restart: always
+
+  # ── PostgreSQL 16 ─────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: dtc-postgres
+    environment:
+      POSTGRES_USER: dtc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: digital_twin_community
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dtc -d digital_twin_community"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  # ── Redis 7 ───────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: dtc-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+  # ── Qdrant 向量数据库 ─────────────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:v1.9.0
+    container_name: dtc-qdrant
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: "6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:6333/readyz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,132 @@
+version: "3.9"
+
+# 本地开发环境：启动所有依赖服务
+# 使用方式: docker compose up -d
+
+services:
+  # ──────────────────────────────────────────────
+  # PostgreSQL 16
+  # ──────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: dtc-postgres
+    environment:
+      POSTGRES_USER: dtc
+      POSTGRES_PASSWORD: dtc_dev_password
+      POSTGRES_DB: digital_twin_community
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dtc -d digital_twin_community"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ──────────────────────────────────────────────
+  # Redis 7
+  # ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: dtc-redis
+    command: redis-server --appendonly yes --requirepass dtc_dev_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "dtc_dev_redis", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ──────────────────────────────────────────────
+  # Qdrant 向量数据库
+  # ──────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:v1.9.0
+    container_name: dtc-qdrant
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: "6334"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6333/readyz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────────────────────────────────
+  # Backend API server
+  # ──────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dtc-backend
+    environment:
+      APP_ENV: development
+      SERVER_PORT: "8080"
+      DATABASE_URL: "postgresql://dtc:dtc_dev_password@postgres:5432/digital_twin_community?sslmode=disable"
+      ANON_DATABASE_URL: "postgresql://dtc:dtc_dev_password@postgres:5432/digital_twin_community?sslmode=disable&search_path=anon"
+      REDIS_ADDR: "redis:6379"
+      REDIS_PASSWORD: "dtc_dev_redis"
+      QDRANT_HOST: "qdrant"
+      QDRANT_PORT: "6334"
+      JWT_SECRET: "local-dev-secret-change-in-production"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY:-}"
+      VOYAGE_API_KEY: "${VOYAGE_API_KEY:-}"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────
+  # Asynq Web UI (开发调试用)
+  # ──────────────────────────────────────────────
+  asynqmon:
+    image: hibiken/asynqmon:latest
+    container_name: dtc-asynqmon
+    ports:
+      - "8081:8080"
+    environment:
+      REDIS_ADDR: "redis:6379"
+      REDIS_PASSWORD: "dtc_dev_redis"
+    depends_on:
+      - redis
+
+  # ──────────────────────────────────────────────
+  # Frontend (Next.js dev server)
+  # ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: dtc-frontend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: "http://localhost:8080"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
