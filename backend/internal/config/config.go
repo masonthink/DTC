@@ -173,7 +173,7 @@ func Load() (*Config, error) {
 			},
 		},
 		LLM: LLMConfig{
-			AnthropicAPIKey:   requireEnv("ANTHROPIC_API_KEY"),
+			AnthropicAPIKey:   getEnv("ANTHROPIC_API_KEY", ""),
 			OpenAIAPIKey:      getEnv("OPENAI_API_KEY", ""),
 			DeepSeekAPIKey:    getEnv("DEEPSEEK_API_KEY", ""),
 			VoyageAPIKey:      getEnv("VOYAGE_API_KEY", ""),
