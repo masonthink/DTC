@@ -31,7 +31,8 @@ services:
   migrate:
     image: ${BACKEND_IMAGE:-ghcr.io/mason2047/digital-twin-backend:latest}
     container_name: dtc-migrate
-    command: ["/migrate", "-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
+    entrypoint: ["/migrate"]
+    command: ["-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
     env_file: .env.prod
     depends_on:
       postgres:
@@ -49,7 +50,7 @@ services:
       redis:
         condition: service_healthy
       qdrant:
-        condition: service_healthy
+        condition: service_started
     restart: always
 
   # ── PostgreSQL 16 ─────────────────────────────────────────────────────────
@@ -92,7 +93,7 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:6333/readyz || exit 1"]
+      test: ["CMD-SHELL", "bash -c ':>/dev/tcp/localhost/6333' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
