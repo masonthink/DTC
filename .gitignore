@@ -25,3 +25,6 @@ data/
 *.json
 !package.json
 !package-lock.json
+!tsconfig.json
+frontend/.next/
+frontend/node_modules/

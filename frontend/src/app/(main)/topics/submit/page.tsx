@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { agentApi, topicApi } from "@/lib/api";
 import useSWR from "swr";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 const TOPIC_TYPES = [
   { value: "business_idea", label: "💡 商业想法", desc: "创业方向、产品概念验证" },
@@ -45,15 +47,15 @@ export default function SubmitTopicPage() {
   const selectedType = watch("topic_type");
   const title = watch("title");
   const description = watch("description");
-
-  const canProceed = watch("agent_id") && selectedType && title?.length >= 5 && description?.length >= 20;
+  const canProceed =
+    watch("agent_id") && selectedType && title?.length >= 5 && description?.length >= 20;
 
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     setError(null);
     try {
       const topic = await topicApi.submit(data);
-      router.push(`/topics/${topic.id}?submitted=1`);
+      router.push(`/topics/${topic.id}`);
     } catch {
       setError("提交失败，请稍后重试");
     } finally {
@@ -62,45 +64,62 @@ export default function SubmitTopicPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* Progress */}
-      <div className="flex items-center gap-3 mb-8">
-        {[1, 2].map((s) => (
-          <div key={s} className="flex items-center gap-3 flex-1 last:flex-none">
-            <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                step >= s
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-700 text-slate-500"
-              }`}
+    <div className="min-h-screen bg-slate-950">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+        <div className="px-4 py-4 flex items-center gap-3">
+          {step === 2 ? (
+            <button
+              onClick={() => setStep(1)}
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
             >
-              {s}
-            </div>
-            <span className={`text-sm ${step >= s ? "text-slate-300" : "text-slate-500"}`}>
-              {s === 1 ? "话题详情" : "确认提交"}
-            </span>
-            {s === 1 && <div className="flex-1 h-px bg-slate-700" />}
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          ) : (
+            <Link
+              href="/dashboard"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+          )}
+          <div className="flex-1">
+            <h1 className="text-lg font-bold text-white">
+              {step === 1 ? "提交话题" : "确认提交"}
+            </h1>
           </div>
-        ))}
+          {/* Step indicator */}
+          <div className="flex gap-1.5">
+            {[1, 2].map((s) => (
+              <div
+                key={s}
+                className={`h-1.5 rounded-full transition-all ${
+                  s === step ? "w-5 bg-indigo-500" : s < step ? "w-1.5 bg-indigo-700" : "w-1.5 bg-slate-700"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Step 1 */}
         {step === 1 && (
-          <div className="space-y-6">
+          <div className="px-4 pt-5 space-y-5">
             {/* Select agent */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                使用哪个分身提交话题？
+              <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                选择分身
               </label>
               {agents && agents.length > 0 ? (
                 <div className="space-y-2">
                   {agents.map((agent) => (
                     <label
                       key={agent.id}
-                      className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all active:scale-[0.99] ${
                         watch("agent_id") === agent.id
                           ? "border-indigo-500 bg-indigo-500/10"
-                          : "border-slate-700 bg-slate-800/40 hover:border-slate-600"
+                          : "border-slate-700 bg-slate-900 hover:border-slate-600"
                       }`}
                     >
                       <input
@@ -109,121 +128,138 @@ export default function SubmitTopicPage() {
                         {...register("agent_id")}
                         className="sr-only"
                       />
-                      <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-sm flex-shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-indigo-600/20 flex items-center justify-center text-lg flex-shrink-0">
                         🤖
                       </div>
-                      <div>
-                        <p className="text-white text-sm font-medium">{agent.display_name}</p>
-                        <p className="text-slate-400 text-xs">{agent.industries.join(" · ")}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-semibold">{agent.display_name}</p>
+                        <p className="text-slate-400 text-xs mt-0.5 truncate">
+                          {agent.industries.slice(0, 2).join(" · ")}
+                        </p>
                       </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex-shrink-0 transition-colors ${
+                          watch("agent_id") === agent.id
+                            ? "border-indigo-500 bg-indigo-500"
+                            : "border-slate-600"
+                        }`}
+                      />
                     </label>
                   ))}
                 </div>
               ) : (
-                <p className="text-slate-400 text-sm">请先创建一个分身</p>
+                <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5 text-center">
+                  <p className="text-slate-400 text-sm mb-3">还没有分身，先创建一个</p>
+                  <Link
+                    href="/agents/create"
+                    className="text-indigo-400 text-sm font-medium hover:text-indigo-300"
+                  >
+                    创建分身 →
+                  </Link>
+                </div>
               )}
               {errors.agent_id && (
-                <p className="text-red-400 text-xs mt-1">{errors.agent_id.message}</p>
+                <p className="text-red-400 text-xs mt-1.5">{errors.agent_id.message}</p>
               )}
             </div>
 
             {/* Topic type */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">话题类型</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                话题类型
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 {TOPIC_TYPES.map((t) => (
                   <button
                     key={t.value}
                     type="button"
                     onClick={() => setValue("topic_type", t.value)}
-                    className={`text-left p-3 rounded-xl border text-xs transition-all ${
+                    className={`text-left p-3.5 rounded-2xl border text-xs transition-all active:scale-95 ${
                       selectedType === t.value
                         ? "border-indigo-500 bg-indigo-500/10"
-                        : "border-slate-700 bg-slate-800/40 hover:border-slate-600"
+                        : "border-slate-700 bg-slate-900 hover:border-slate-600"
                     }`}
                   >
-                    <div className="font-medium text-white mb-0.5">{t.label}</div>
-                    <div className="text-slate-400">{t.desc}</div>
+                    <div className="font-semibold text-white mb-0.5">{t.label}</div>
+                    <div className="text-slate-500 leading-tight">{t.desc}</div>
                   </button>
                 ))}
               </div>
               {errors.topic_type && (
-                <p className="text-red-400 text-xs mt-1">{errors.topic_type.message}</p>
+                <p className="text-red-400 text-xs mt-1.5">{errors.topic_type.message}</p>
               )}
             </div>
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                话题标题
-                <span className="text-slate-500 font-normal ml-2">{title?.length ?? 0}/200</span>
+              <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                话题标题{" "}
+                <span className="text-slate-600 normal-case font-normal">
+                  {title?.length ?? 0}/200
+                </span>
               </label>
               <input
                 {...register("title")}
-                placeholder="简洁地描述你想讨论的核心问题"
-                className="w-full bg-slate-800/60 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors"
+                placeholder="简洁地描述核心问题"
+                className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors"
               />
               {errors.title && (
-                <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>
+                <p className="text-red-400 text-xs mt-1.5">{errors.title.message}</p>
               )}
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                详细描述
-                <span className="text-slate-500 font-normal ml-2">{description?.length ?? 0}/2000</span>
+              <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                详细描述{" "}
+                <span className="text-slate-600 normal-case font-normal">
+                  {description?.length ?? 0}/2000
+                </span>
               </label>
               <textarea
                 {...register("description")}
-                placeholder="描述你的具体问题、当前思考、以及你最希望获得什么视角的碰撞..."
-                rows={6}
-                className="w-full bg-slate-800/60 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors resize-none"
+                placeholder="描述具体问题、当前思考、以及你最希望获得什么角度的碰撞..."
+                rows={5}
+                className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors resize-none"
               />
               {errors.description && (
-                <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>
+                <p className="text-red-400 text-xs mt-1.5">{errors.description.message}</p>
               )}
             </div>
 
-            {/* Background (optional) */}
+            {/* Background */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                补充背景 <span className="text-slate-500 font-normal">(选填)</span>
+              <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                补充背景 <span className="text-slate-600 normal-case font-normal">（选填）</span>
               </label>
               <textarea
                 {...register("background")}
-                placeholder="你的行业背景、已有资源、限制条件等..."
+                placeholder="你的行业背景、已有资源、限制条件..."
                 rows={3}
-                className="w-full bg-slate-800/60 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors resize-none"
+                className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors resize-none"
               />
             </div>
 
-            <button
-              type="button"
-              onClick={() => setStep(2)}
-              disabled={!canProceed}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors"
-            >
-              下一步：确认提交
-            </button>
+            <div className="pb-4" />
           </div>
         )}
 
+        {/* Step 2 */}
         {step === 2 && (
-          <div className="space-y-6">
-            {/* Preview card */}
-            <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-              <h3 className="text-white font-semibold mb-4">话题预览</h3>
-              <p className="text-slate-300 font-medium mb-2">{watch("title")}</p>
-              <p className="text-slate-400 text-sm line-clamp-4">{watch("description")}</p>
+          <div className="px-4 pt-5 space-y-5">
+            <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
+              <h3 className="text-white font-semibold mb-3">话题预览</h3>
+              <p className="text-white font-medium mb-2">{watch("title")}</p>
+              <p className="text-slate-400 text-sm line-clamp-5 leading-relaxed">
+                {watch("description")}
+              </p>
             </div>
 
-            {/* What happens next */}
-            <div className="space-y-3">
+            <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5 space-y-3">
               <h3 className="text-slate-300 font-medium text-sm">接下来会发生什么</h3>
               {[
                 { time: "T+0.5h", label: "为你匹配最合适的4位数字分身" },
-                { time: "T+1h", label: "推送\"匹配预告\"通知" },
+                { time: "T+1h", label: "推送「匹配预告」通知" },
                 { time: "T+1.5h~12h", label: "分身们展开4轮深度讨论" },
                 { time: "T+48h", label: "你的专属分析报告出炉" },
               ].map((item) => (
@@ -242,24 +278,31 @@ export default function SubmitTopicPage() {
               </div>
             )}
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-3 rounded-xl transition-colors"
-              >
-                返回修改
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
-              >
-                {submitting ? "提交中..." : "确认提交"}
-              </button>
-            </div>
+            <div className="pb-4" />
           </div>
         )}
+
+        {/* Sticky bottom action */}
+        <div className="sticky bottom-0 px-4 pb-8 pt-4 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent">
+          {step === 1 ? (
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              disabled={!canProceed}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20"
+            >
+              下一步：确认提交
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20"
+            >
+              {submitting ? "提交中..." : "确认提交话题"}
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
