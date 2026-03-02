@@ -547,44 +547,65 @@ func (g *Gateway) callOpenAICompatible(ctx context.Context, endpoint, apiKey, mo
 	}, nil
 }
 
-// callEmbeddingAPI calls the Voyage embedding API.
+// callEmbeddingAPI calls an OpenAI-compatible embedding API.
+// Supports Voyage, SiliconFlow, Jina, and any OpenAI-compatible endpoint
+// via LLM_EMBEDDING_BASE_URL and LLM_EMBEDDING_API_KEY env vars.
 func (g *Gateway) callEmbeddingAPI(ctx context.Context, text string) ([]float32, error) {
-	type voyageRequest struct {
-		Input          []string `json:"input"`
-		Model          string   `json:"model"`
-		InputType      string   `json:"input_type"`
+	type embeddingRequest struct {
+		Input     []string `json:"input"`
+		Model     string   `json:"model"`
+		InputType string   `json:"input_type,omitempty"`
 	}
-	type voyageEmbedding struct {
+	type embeddingItem struct {
 		Embedding []float32 `json:"embedding"`
 	}
-	type voyageResponse struct {
-		Data []voyageEmbedding `json:"data"`
+	type embeddingResponse struct {
+		Data []embeddingItem `json:"data"`
 	}
 
-	body := voyageRequest{
-		Input:     []string{text},
-		Model:     g.cfg.EmbeddingModel,
-		InputType: "document",
+	// Resolve base URL and API key
+	baseURL := g.cfg.EmbeddingBaseURL
+	apiKey := g.cfg.EmbeddingAPIKey
+
+	// Fallback to Voyage defaults if not explicitly configured
+	if baseURL == "" {
+		baseURL = "https://api.voyageai.com/v1/embeddings"
+	}
+	if apiKey == "" {
+		apiKey = g.cfg.VoyageAPIKey
+	}
+
+	if apiKey == "" {
+		return nil, fmt.Errorf("embedding API key not configured (set LLM_EMBEDDING_API_KEY or VOYAGE_API_KEY)")
+	}
+
+	body := embeddingRequest{
+		Input: []string{text},
+		Model: g.cfg.EmbeddingModel,
+	}
+	// Voyage requires input_type, other providers ignore it
+	if strings.Contains(baseURL, "voyageai.com") {
+		body.InputType = "document"
 	}
 
 	respData, statusCode, err := g.doHTTPRequest(ctx, "POST",
-		"https://api.voyageai.com/v1/embeddings",
-		map[string]string{"Authorization": "Bearer " + g.cfg.VoyageAPIKey},
+		baseURL,
+		map[string]string{"Authorization": "Bearer " + apiKey},
 		body,
 	)
 	if err != nil {
 		return nil, err
 	}
 	if statusCode != 200 {
-		return nil, fmt.Errorf("voyage API returned status %d", statusCode)
+		return nil, fmt.Errorf("embedding API returned status %d (url: %s)", statusCode, baseURL)
 	}
 
-	var apiResp voyageResponse
+	var apiResp embeddingResponse
 	if err := json.Unmarshal(respData, &apiResp); err != nil {
-		return nil, fmt.Errorf("voyage: decode response: %w", err)
+		return nil, fmt.Errorf("embedding: decode response: %w", err)
 	}
 	if len(apiResp.Data) == 0 {
-		return nil, fmt.Errorf("voyage: empty embedding response")
+		return nil, fmt.Errorf("embedding: empty response")
 	}
 	return apiResp.Data[0].Embedding, nil
 }

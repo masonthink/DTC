@@ -83,6 +83,10 @@ type LLMConfig struct {
 	KimiAPIKey       string
 	VoyageAPIKey     string
 
+	// Embedding 配置（支持 OpenAI 兼容 API）
+	EmbeddingBaseURL string // 默认 https://api.voyageai.com/v1/embeddings
+	EmbeddingAPIKey  string // 用于 embedding 的 API key（优先于 VoyageAPIKey）
+
 	// 路由策略
 	PrimaryProvider  string // anthropic, openai, deepseek, kimi
 	FallbackProvider string
@@ -180,6 +184,8 @@ func Load() (*Config, error) {
 			DeepSeekAPIKey:    getEnv("DEEPSEEK_API_KEY", ""),
 			KimiAPIKey:        getEnv("KIMI_API_KEY", ""),
 			VoyageAPIKey:      getEnv("VOYAGE_API_KEY", ""),
+			EmbeddingBaseURL:  getEnv("LLM_EMBEDDING_BASE_URL", ""),
+			EmbeddingAPIKey:   getEnv("LLM_EMBEDDING_API_KEY", ""),
 			PrimaryProvider:   getEnv("LLM_PRIMARY_PROVIDER", "kimi"),
 			FallbackProvider:  getEnv("LLM_FALLBACK_PROVIDER", "deepseek"),
 			PrimaryModel:      getEnv("LLM_PRIMARY_MODEL", "moonshot-v1-32k"),

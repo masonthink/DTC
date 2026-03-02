@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	VectorDimension = 1024 // Voyage-3 dimension
+	VectorDimension = 1024 // Voyage-3 / BGE-large-zh-v1.5 / Jina-v3 dimension
 )
 
 // AgentPayload is stored alongside the vector in Qdrant.

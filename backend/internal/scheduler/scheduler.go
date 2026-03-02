@@ -339,6 +339,72 @@ func (s *Scheduler) repairInconsistentStatuses(ctx context.Context) {
 				zap.String("discussion_id", discID), zap.Error(err))
 		}
 	}
+
+	// Case 4: discussion stuck in early round states (queued/running/completed for rounds 1-3)
+	// for >30 min with 0 messages for that round → re-enqueue the round
+	s.repairStuckRounds(ctx)
+}
+
+// repairStuckRounds finds discussions stuck in round-level states and re-enqueues them.
+func (s *Scheduler) repairStuckRounds(ctx context.Context) {
+	// Find discussions stuck in a round state for >30 min
+	rows, err := s.pool.Query(ctx, `
+		SELECT d.id, d.topic_id, d.status::text,
+		       (SELECT COALESCE(MAX(dm.round_number), 0)
+		        FROM discussion_messages dm WHERE dm.discussion_id = d.id) AS max_round
+		FROM discussions d
+		WHERE d.status IN (
+			'round_1_queued'::discussion_status, 'round_1_running'::discussion_status,
+			'round_1_completed'::discussion_status,
+			'round_2_queued'::discussion_status, 'round_2_running'::discussion_status,
+			'round_2_completed'::discussion_status,
+			'round_3_queued'::discussion_status, 'round_3_running'::discussion_status,
+			'round_3_completed'::discussion_status,
+			'round_4_queued'::discussion_status, 'round_4_running'::discussion_status
+		)
+		AND d.updated_at < NOW() - INTERVAL '30 minutes'`)
+	if err != nil {
+		s.logger.Error("repair: find stuck round discussions", zap.Error(err))
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var discID, topicID, status string
+		var maxRound int
+		if err := rows.Scan(&discID, &topicID, &status, &maxRound); err != nil {
+			s.logger.Error("repair: scan stuck round discussion", zap.Error(err))
+			continue
+		}
+
+		// Determine which round to re-enqueue based on completed messages
+		nextRound := maxRound + 1
+		if nextRound < 1 {
+			nextRound = 1
+		}
+		if nextRound > 4 {
+			// All rounds done but status not advanced → enqueue report
+			s.logger.Warn("repair: all rounds done but status stuck, re-enqueuing report",
+				zap.String("discussion_id", discID), zap.String("status", status))
+			if err := s.EnqueueReportGeneration(ctx, discID, topicID); err != nil {
+				s.logger.Error("repair: re-enqueue report failed",
+					zap.String("discussion_id", discID), zap.Error(err))
+			}
+			continue
+		}
+
+		s.logger.Warn("repair: re-enqueuing stuck round",
+			zap.String("discussion_id", discID),
+			zap.String("status", status),
+			zap.Int("next_round", nextRound))
+		scheduleAt := time.Now().Add(30 * time.Second)
+		if err := s.EnqueueDiscussionRound(ctx, discID, nextRound, scheduleAt); err != nil {
+			s.logger.Error("repair: re-enqueue round failed",
+				zap.String("discussion_id", discID),
+				zap.Int("round", nextRound),
+				zap.Error(err))
+		}
+	}
 }
 
 func mustMarshal(v interface{}) []byte {

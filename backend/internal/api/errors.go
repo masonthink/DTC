@@ -18,7 +18,15 @@ func isValidationError(err error) bool {
 	msg := err.Error()
 	return strings.Contains(msg, "required") ||
 		strings.Contains(msg, "too long") ||
+		strings.Contains(msg, "must be at least") ||
+		strings.Contains(msg, "cannot ") ||
 		strings.Contains(msg, "invalid") && !strings.Contains(msg, "syntax for type")
+}
+
+// isNotFoundError returns true for "not found" domain errors.
+func isNotFoundError(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "not found") && !strings.Contains(msg, "syntax for type")
 }
 
 // httpError maps domain errors to Echo HTTP errors.
@@ -49,6 +57,10 @@ func httpError(err error) *echo.HTTPError {
 	if strings.Contains(err.Error(), "invalid input syntax for type uuid") ||
 		strings.Contains(err.Error(), "invalid input syntax for type") {
 		return echo.NewHTTPError(http.StatusNotFound, "not found")
+	}
+	// Domain "not found" errors → 404
+	if isNotFoundError(err) {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	// Validation / business rule errors → 400
 	if isValidationError(err) {
