@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 
 	"github.com/digital-twin-community/backend/internal/discussion"
@@ -19,6 +22,7 @@ type ReportGenerateWorker struct {
 	topicRepo      topic.Repository
 	reportRepo     report.Repository
 	generator      *report.Generator
+	pool           *pgxpool.Pool
 	logger         *zap.Logger
 }
 
@@ -28,6 +32,7 @@ func NewReportGenerateWorker(
 	topicRepo topic.Repository,
 	reportRepo report.Repository,
 	generator *report.Generator,
+	pool *pgxpool.Pool,
 	logger *zap.Logger,
 ) *ReportGenerateWorker {
 	return &ReportGenerateWorker{
@@ -35,6 +40,7 @@ func NewReportGenerateWorker(
 		topicRepo:      topicRepo,
 		reportRepo:     reportRepo,
 		generator:      generator,
+		pool:           pool,
 		logger:         logger,
 	}
 }
@@ -111,8 +117,6 @@ func (w *ReportGenerateWorker) Handle(ctx context.Context, task *asynq.Task) err
 		candidates = append(candidates, report.ConnectionCandidate{
 			AgentID: p.AgentID,
 			AnonID:  p.AnonID,
-			// InsightCount, Complementarity, CollabSignal, ActivityScore left at 0;
-			// the generator's scoreConnectionCandidates will compute from messages.
 		})
 	}
 
@@ -122,17 +126,9 @@ func (w *ReportGenerateWorker) Handle(ctx context.Context, task *asynq.Task) err
 		return fmt.Errorf("generate report: %w", err)
 	}
 
-	// ── 9. Save report ────────────────────────────────────────────────────────
-	if err := w.reportRepo.Save(ctx, rep); err != nil {
-		return fmt.Errorf("save report: %w", err)
-	}
-
-	// ── 10. Final status transitions ──────────────────────────────────────────
-	if err := w.topicRepo.MarkCompleted(ctx, payload.TopicID); err != nil {
-		w.logger.Warn("report_worker: mark topic completed failed (non-fatal)", zap.Error(err))
-	}
-	if err := w.discussionRepo.UpdateStatus(ctx, payload.DiscussionID, discussion.StatusCompleted); err != nil {
-		w.logger.Warn("report_worker: update discussion status failed (non-fatal)", zap.Error(err))
+	// ── 9+10. Save report + update statuses atomically in a transaction ──────
+	if err := w.saveReportAndComplete(ctx, rep, payload.DiscussionID, payload.TopicID); err != nil {
+		return fmt.Errorf("report_worker: save and complete: %w", err)
 	}
 
 	w.logger.Info("report_worker: done",
@@ -141,4 +137,92 @@ func (w *ReportGenerateWorker) Handle(ctx context.Context, task *asynq.Task) err
 		zap.Float64("quality_score", rep.QualityScore),
 	)
 	return nil
+}
+
+// saveReportAndComplete saves the report and updates discussion/topic statuses
+// in a single database transaction, ensuring atomicity.
+func (w *ReportGenerateWorker) saveReportAndComplete(
+	ctx context.Context,
+	rep *report.Report,
+	discussionID, topicID string,
+) error {
+	if rep.ID == "" {
+		rep.ID = uuid.NewString()
+	}
+
+	tx, err := w.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	// Save report (idempotent via ON CONFLICT)
+	consensusJSON, err := json.Marshal(rep.OpinionMatrix.ConsensusPoints)
+	if err != nil {
+		return fmt.Errorf("marshal consensus_points: %w", err)
+	}
+	divergenceJSON, err := json.Marshal(rep.OpinionMatrix.DivergencePoints)
+	if err != nil {
+		return fmt.Errorf("marshal divergence_points: %w", err)
+	}
+	questionsJSON, err := json.Marshal(rep.OpinionMatrix.KeyQuestions)
+	if err != nil {
+		return fmt.Errorf("marshal key_questions: %w", err)
+	}
+	actionsJSON, err := json.Marshal(rep.OpinionMatrix.ActionItems)
+	if err != nil {
+		return fmt.Errorf("marshal action_items: %w", err)
+	}
+	blindSpotsJSON, err := json.Marshal(rep.OpinionMatrix.BlindSpots)
+	if err != nil {
+		return fmt.Errorf("marshal blind_spots: %w", err)
+	}
+	recommendedJSON, err := json.Marshal(rep.RecommendedAgents)
+	if err != nil {
+		return fmt.Errorf("marshal recommended_agents: %w", err)
+	}
+
+	_, err = tx.Exec(ctx, `
+		INSERT INTO reports
+			(id, discussion_id, topic_id, summary,
+			 consensus_points, divergence_points, key_questions, action_items, blind_spots,
+			 recommended_agents, quality_score, model_used, total_tokens,
+			 generation_attempts, generated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+		ON CONFLICT (id) DO NOTHING`,
+		rep.ID, rep.DiscussionID, rep.TopicID, rep.Summary,
+		consensusJSON, divergenceJSON, questionsJSON, actionsJSON, blindSpotsJSON,
+		recommendedJSON, rep.QualityScore, rep.ModelUsed, rep.TotalTokens,
+		rep.GenerationAttempts, rep.GeneratedAt,
+	)
+	if err != nil {
+		return fmt.Errorf("insert report: %w", err)
+	}
+
+	// Update discussion status to COMPLETED
+	discStatus := strings.ToLower(string(discussion.StatusCompleted))
+	_, err = tx.Exec(ctx, `
+		UPDATE discussions SET
+			status = $2::discussion_status,
+			updated_at = NOW()
+		WHERE id = $1`,
+		discussionID, discStatus,
+	)
+	if err != nil {
+		return fmt.Errorf("update discussion status: %w", err)
+	}
+
+	// Update topic status to completed
+	_, err = tx.Exec(ctx, `
+		UPDATE topics SET
+			status = 'completed'::topic_status,
+			completed_at = NOW(), updated_at = NOW()
+		WHERE id = $1`,
+		topicID,
+	)
+	if err != nil {
+		return fmt.Errorf("update topic status: %w", err)
+	}
+
+	return tx.Commit(ctx)
 }

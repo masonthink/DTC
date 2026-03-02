@@ -212,7 +212,7 @@ func main() {
 	}
 
 	// ─── Scheduler ────────────────────────────────────────────────────────────
-	sched := scheduler.NewScheduler(asynqClient, nil, schedTopicRepo, logger)
+	sched := scheduler.NewScheduler(asynqClient, nil, schedTopicRepo, dbPool, logger)
 
 	// ─── API Handlers ─────────────────────────────────────────────────────────
 	authHandler := api.NewAuthHandler(authSvc)
@@ -282,7 +282,7 @@ func main() {
 	registerWorkers(mux,
 		topicRepo, agentRepo, embeddingSvc, llmGateway, matcher,
 		discussionRepo, reportRepo, connRepo, sched, discussionEngine, reportGen,
-		notifSvc, logger,
+		notifSvc, dbPool, logger,
 	)
 	go func() {
 		if err := asynqServer.Run(mux); err != nil {
@@ -398,6 +398,7 @@ func registerWorkers(
 	discussionEngine *discussion.Engine,
 	reportGen *report.Generator,
 	notifSvc *notification.Service,
+	dbPool *pgxpool.Pool,
 	logger *zap.Logger,
 ) {
 	matchWorker := worker.NewMatchTopicWorker(
@@ -408,7 +409,7 @@ func registerWorkers(
 		discussionRepo, topicRepo, discussionEngine, sched, logger,
 	)
 	reportWorker := worker.NewReportGenerateWorker(
-		discussionRepo, topicRepo, reportRepo, reportGen, logger,
+		discussionRepo, topicRepo, reportRepo, reportGen, dbPool, logger,
 	)
 	notifyWorker := worker.NewNotifyWorker(
 		notifSvc, topicRepo, discussionRepo, reportRepo, logger,

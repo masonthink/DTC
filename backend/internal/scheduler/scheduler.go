@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/hibiken/asynq"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -56,16 +57,18 @@ type Scheduler struct {
 	client    *asynq.Client
 	inspector *asynq.Inspector
 	repo      TopicRepository
+	pool      *pgxpool.Pool
 	logger    *zap.Logger
 	stopCh    chan struct{}
 }
 
 // NewScheduler constructs a Scheduler.
-func NewScheduler(client *asynq.Client, inspector *asynq.Inspector, repo TopicRepository, logger *zap.Logger) *Scheduler {
+func NewScheduler(client *asynq.Client, inspector *asynq.Inspector, repo TopicRepository, pool *pgxpool.Pool, logger *zap.Logger) *Scheduler {
 	return &Scheduler{
 		client:    client,
 		inspector: inspector,
 		repo:      repo,
+		pool:      pool,
 		logger:    logger,
 		stopCh:    make(chan struct{}),
 	}
@@ -110,6 +113,7 @@ func (s *Scheduler) runAllJobs(ctx context.Context) {
 		{"enqueue-12h-notifications", s.enqueue12hNotifications},
 		{"enqueue-48h-notifications", s.enqueue48hNotifications},
 		{"expire-connections", s.enqueueExpireConnections},
+		{"repair-inconsistent-statuses", s.repairInconsistentStatuses},
 	}
 
 	for _, job := range jobs {
@@ -234,7 +238,7 @@ func (s *Scheduler) EnqueueDiscussionRound(ctx context.Context, discussionID str
 		asynq.Queue(QueueDiscussionHigh),
 		asynq.MaxRetry(3),
 		processAt,
-		asynq.Unique(scheduledAt.Sub(time.Now())+30*time.Minute),
+		asynq.Unique(5*time.Minute),
 	)
 	if err != nil {
 		return fmt.Errorf("enqueue discussion round %d: %w", roundNum, err)
@@ -267,6 +271,74 @@ func (s *Scheduler) EnqueueReportGeneration(ctx context.Context, discussionID, t
 		zap.String("discussion_id", discussionID),
 	)
 	return nil
+}
+
+// repairInconsistentStatuses fixes status mismatches caused by partial failures.
+// It runs every scheduler tick (5 min) and repairs the following cases:
+//  1. Discussion has status REPORT_GENERATING but a report already exists → mark COMPLETED
+//  2. Topic has status report_generating but discussion is COMPLETED → mark completed
+//  3. Discussion stuck in ROUND_4_COMPLETED for >15 min without report task → re-enqueue report
+func (s *Scheduler) repairInconsistentStatuses(ctx context.Context) {
+	if s.pool == nil {
+		return
+	}
+
+	// Case 1: discussion = REPORT_GENERATING but report exists → fix discussion
+	res, err := s.pool.Exec(ctx, `
+		UPDATE discussions d
+		SET status = 'completed'::discussion_status, updated_at = NOW()
+		FROM reports r
+		WHERE r.discussion_id = d.id
+		  AND d.status = 'report_generating'::discussion_status`)
+	if err != nil {
+		s.logger.Error("repair: fix discussion status from report_generating", zap.Error(err))
+	} else if res.RowsAffected() > 0 {
+		s.logger.Warn("repair: fixed discussion status REPORT_GENERATING → COMPLETED",
+			zap.Int64("count", res.RowsAffected()))
+	}
+
+	// Case 2: topic = report_generating but discussion = COMPLETED → fix topic
+	res, err = s.pool.Exec(ctx, `
+		UPDATE topics t
+		SET status = 'completed'::topic_status, completed_at = NOW(), updated_at = NOW()
+		FROM discussions d
+		WHERE d.topic_id = t.id
+		  AND d.status = 'completed'::discussion_status
+		  AND t.status = 'report_generating'::topic_status`)
+	if err != nil {
+		s.logger.Error("repair: fix topic status from report_generating", zap.Error(err))
+	} else if res.RowsAffected() > 0 {
+		s.logger.Warn("repair: fixed topic status report_generating → completed",
+			zap.Int64("count", res.RowsAffected()))
+	}
+
+	// Case 3: discussion stuck in ROUND_4_COMPLETED > 15 min, no report → re-enqueue
+	rows, err := s.pool.Query(ctx, `
+		SELECT d.id, d.topic_id
+		FROM discussions d
+		LEFT JOIN reports r ON r.discussion_id = d.id
+		WHERE d.status = 'round_4_completed'::discussion_status
+		  AND r.id IS NULL
+		  AND d.updated_at < NOW() - INTERVAL '15 minutes'`)
+	if err != nil {
+		s.logger.Error("repair: find stuck round_4_completed discussions", zap.Error(err))
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var discID, topicID string
+		if err := rows.Scan(&discID, &topicID); err != nil {
+			s.logger.Error("repair: scan stuck discussion", zap.Error(err))
+			continue
+		}
+		s.logger.Warn("repair: re-enqueuing report generation for stuck discussion",
+			zap.String("discussion_id", discID))
+		if err := s.EnqueueReportGeneration(ctx, discID, topicID); err != nil {
+			s.logger.Error("repair: re-enqueue report failed",
+				zap.String("discussion_id", discID), zap.Error(err))
+		}
+	}
 }
 
 func mustMarshal(v interface{}) []byte {

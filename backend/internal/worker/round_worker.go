@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/hibiken/asynq"
 	"go.uber.org/zap"
@@ -122,17 +123,27 @@ func (w *DiscussionRoundWorker) Handle(ctx context.Context, task *asynq.Task) er
 	// ── 8. Transition to COMPLETED status ─────────────────────────────────────
 	completedStatus := roundCompletedStatus(payload.Round)
 	if err := w.discussionRepo.UpdateStatus(ctx, disc.ID, completedStatus); err != nil {
-		w.logger.Warn("round_worker: update completed status failed (non-fatal)", zap.Error(err))
+		return fmt.Errorf("round_worker: update round %d completed status: %w", payload.Round, err)
 	}
 
-	// ── 9. After round 4: enqueue report generation ───────────────────────────
-	if payload.Round == 4 {
-		_ = w.discussionRepo.UpdateStatus(ctx, disc.ID, discussion.StatusReportGenerating)
+	// ── 9. Chain next round or enqueue report generation ─────────────────────
+	if payload.Round < 4 {
+		// Enqueue next round with a 3-minute delay
+		nextRound := payload.Round + 1
+		nextAt := time.Now().Add(3 * time.Minute)
+		if err := w.sched.EnqueueDiscussionRound(ctx, disc.ID, nextRound, nextAt); err != nil {
+			return fmt.Errorf("round_worker: enqueue round %d: %w", nextRound, err)
+		}
+	} else {
+		// Round 4 done → enqueue report generation
+		if err := w.discussionRepo.UpdateStatus(ctx, disc.ID, discussion.StatusReportGenerating); err != nil {
+			return fmt.Errorf("round_worker: update status to report_generating: %w", err)
+		}
 		if err := w.topicRepo.MarkReportReady(ctx, disc.TopicID); err != nil {
-			w.logger.Warn("round_worker: mark report ready failed (non-fatal)", zap.Error(err))
+			return fmt.Errorf("round_worker: mark report ready: %w", err)
 		}
 		if err := w.sched.EnqueueReportGeneration(ctx, disc.ID, disc.TopicID); err != nil {
-			w.logger.Error("round_worker: enqueue report generation failed", zap.Error(err))
+			return fmt.Errorf("round_worker: enqueue report generation: %w", err)
 		}
 	}
 

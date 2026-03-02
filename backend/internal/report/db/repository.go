@@ -60,7 +60,8 @@ func (r *Repository) Save(ctx context.Context, rep *report.Report) error {
 			 consensus_points, divergence_points, key_questions, action_items, blind_spots,
 			 recommended_agents, quality_score, model_used, total_tokens,
 			 generation_attempts, generated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+		ON CONFLICT (id) DO NOTHING`
 	_, err = r.db.Exec(ctx, q,
 		rep.ID, rep.DiscussionID, rep.TopicID, rep.Summary,
 		consensusJSON, divergenceJSON, questionsJSON, actionsJSON, blindSpotsJSON,

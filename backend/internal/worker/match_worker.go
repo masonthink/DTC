@@ -170,15 +170,10 @@ func (w *MatchTopicWorker) Handle(ctx context.Context, task *asynq.Task) error {
 		return fmt.Errorf("mark topic matched: %w", err)
 	}
 
-	// ── 9. Enqueue all 4 discussion rounds at their scheduled times ───────────
+	// ── 9. Enqueue round 1 only; subsequent rounds are chained by round_worker ─
 	schedule := scheduler.DiscussionSchedule(now)
-	for round := 1; round <= 4; round++ {
-		if err := w.sched.EnqueueDiscussionRound(ctx, disc.ID, round, schedule[round]); err != nil {
-			w.logger.Error("match_worker: enqueue round failed",
-				zap.Int("round", round),
-				zap.Error(err),
-			)
-		}
+	if err := w.sched.EnqueueDiscussionRound(ctx, disc.ID, 1, schedule[1]); err != nil {
+		return fmt.Errorf("match_worker: enqueue round 1: %w", err)
 	}
 
 	w.logger.Info("match_worker: done",
