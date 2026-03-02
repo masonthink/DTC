@@ -37,13 +37,13 @@ export default function TopicsPage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 pt-4 pb-0 flex items-center justify-between">
-          <h1 className="text-[18px] font-bold text-foreground tracking-tight">我的问题</h1>
+          <h1 className="text-[18px] font-bold text-foreground tracking-tight">我的话题</h1>
           <Link
             href="/topics/submit"
             className="flex items-center gap-1.5 text-primary text-[13px] font-medium active:opacity-70 hover:text-primary/80 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            提交问题
+            提交话题
           </Link>
         </div>
 
@@ -91,14 +91,14 @@ export default function TopicsPage() {
               {tab === "active" ? "⏳" : tab === "completed" ? "✅" : "💬"}
             </div>
             <p className="text-muted-foreground text-[13px]">
-              {tab === "active" ? "暂无进行中的问题" : tab === "completed" ? "暂无已完成的问题" : "还没有提交过问题"}
+              {tab === "active" ? "暂无进行中的话题" : tab === "completed" ? "暂无已完成的话题" : "提交一个话题，让分身帮你找搭子"}
             </p>
             {tab !== "completed" && (
               <Link
                 href="/topics/submit"
                 className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl text-[13px] font-medium transition-all active:scale-95 shadow-primary-sm"
               >
-                提交第一个问题
+                提交第一个话题
               </Link>
             )}
           </div>

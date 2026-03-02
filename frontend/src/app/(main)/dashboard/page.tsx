@@ -6,13 +6,16 @@ import Link from "next/link";
 import { TopicStatusBadge } from "@/components/topic/TopicStatusBadge";
 import { DiscussionProgress } from "@/components/discussion/DiscussionProgress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, Sparkles, ChevronRight } from "lucide-react";
+import { Bell, Sparkles, ChevronRight, Zap } from "lucide-react";
+import { connectionApi, type Connection } from "@/lib/api";
 
 export default function DashboardPage() {
   const { data: agents, isLoading: agentsLoading } = useSWR("agents", agentApi.list);
   const { data: topicsData, isLoading: topicsLoading } = useSWR("topics", () =>
     topicApi.list({ limit: 10 })
   );
+
+  const { data: connections } = useSWR("connections", connectionApi.list);
 
   const isLoading = agentsLoading || topicsLoading;
   const activeTopics = topicsData?.items?.filter(
@@ -22,6 +25,9 @@ export default function DashboardPage() {
     (t) => t.status === "completed"
   );
   const hasAgent = agents && agents.length > 0;
+  const totalDiscussions = agents?.reduce((sum, a) => sum + a.discussion_count, 0) ?? 0;
+  const acceptedConnections = connections?.filter((c) => c.status === "accepted").length ?? 0;
+  const pendingConnections = connections?.filter((c) => c.status === "pending").length ?? 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,7 +46,7 @@ export default function DashboardPage() {
               <h1 className="text-[16px] font-semibold text-foreground tracking-tight leading-none">
                 Concors
               </h1>
-              <p className="text-[11px] text-muted-foreground mt-0.5">AI 多角度分析，帮你做更好的决策</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">你的分身正在帮你结识对的人</p>
             </div>
           </div>
           <button aria-label="通知" className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150">
@@ -65,13 +71,13 @@ export default function DashboardPage() {
                 欢迎来到 Concors
               </h2>
               <p className="text-white/75 text-[13px] leading-relaxed mb-4">
-                填写你的专业背景，AI 会基于你的视角，从四个不同角度分析你的问题。
+                创建你的数字分身，提交感兴趣的话题，分身会帮你筛选出最值得认识的搭子。
               </p>
               <Link
                 href="/agents/create"
                 className="inline-flex items-center gap-1.5 bg-white hover:bg-white/95 text-primary px-4 py-2 rounded-xl text-[13px] font-semibold transition-all active:scale-95 shadow-sm"
               >
-                开始设置
+                创建我的分身
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -87,11 +93,41 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Social activity banner */}
+        {!isLoading && hasAgent && (totalDiscussions > 0 || acceptedConnections > 0 || pendingConnections > 0) && (
+          <div className="bg-gradient-to-r from-primary/8 via-violet-50/80 to-primary/5 border border-primary/15 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/12 flex items-center justify-center flex-shrink-0">
+              <Zap className="w-4.5 h-4.5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-foreground text-[13px] font-medium leading-snug">
+                {pendingConnections > 0
+                  ? `有 ${pendingConnections} 人想认识你！`
+                  : acceptedConnections > 0
+                  ? `已通过讨论结识了 ${acceptedConnections} 个搭子`
+                  : `你的分身已参与 ${totalDiscussions} 次讨论`}
+              </p>
+              <p className="text-muted-foreground text-[11px] mt-0.5">
+                {pendingConnections > 0
+                  ? "去看看是谁对你感兴趣"
+                  : acceptedConnections > 0
+                  ? "继续提交话题，发现更多搭子"
+                  : "讨论越多，越容易找到搭子"}
+              </p>
+            </div>
+            {pendingConnections > 0 && (
+              <Link href="/connections" className="flex-shrink-0 text-[12px] text-primary font-medium">
+                查看 →
+              </Link>
+            )}
+          </div>
+        )}
+
         {/* Agent quick view */}
         {!isLoading && hasAgent && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[13px] font-semibold text-foreground">我的背景档案</h2>
+              <h2 className="text-[13px] font-semibold text-foreground">我的分身</h2>
               <Link
                 href="/agents"
                 className="text-[12px] text-primary hover:text-primary/80 transition-colors flex items-center gap-0.5"
@@ -110,7 +146,7 @@ export default function DashboardPage() {
               className="flex items-center justify-center gap-2 border border-dashed border-border hover:border-primary/40 hover:bg-primary/4 rounded-2xl p-4 text-muted-foreground hover:text-primary transition-all duration-200 text-[13px] mt-2 active:scale-[0.99]"
             >
               <span className="text-base">+</span>
-              提交新问题
+              提交新话题，找搭子
             </Link>
           </section>
         )}
@@ -162,15 +198,15 @@ export default function DashboardPage() {
                 <path d="M9 12h10M9 16h6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
               </svg>
             </div>
-            <h3 className="text-foreground font-semibold text-[15px] mb-1.5">还没有提交过问题</h3>
+            <h3 className="text-foreground font-semibold text-[15px] mb-1.5">提交一个话题，开始找搭子</h3>
             <p className="text-muted-foreground text-[13px] mb-6 max-w-[240px] leading-relaxed">
-              提交一个问题，AI 会从四个不同角度帮你深度分析
+              你的分身会代表你和其他分身讨论，帮你筛选出最值得认识的人
             </p>
             <Link
               href="/topics/submit"
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-7 py-2.5 rounded-xl text-[14px] font-semibold transition-all active:scale-95 shadow-primary-sm hover:shadow-primary-md"
             >
-              提交第一个问题
+              提交第一个话题
             </Link>
           </div>
         )}

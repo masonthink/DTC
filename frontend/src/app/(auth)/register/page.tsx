@@ -85,7 +85,7 @@ export default function RegisterPage() {
             </span>
           </Link>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">创建账号</h1>
-          <p className="text-muted-foreground mt-1.5 text-[14px]">注册后即可获得 AI 多角度分析</p>
+          <p className="text-muted-foreground mt-1.5 text-[14px]">创建你的数字分身，让 AI 帮你找到志同道合的搭子</p>
         </div>
 
         {/* Card */}

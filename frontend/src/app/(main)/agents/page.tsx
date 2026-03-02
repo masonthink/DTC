@@ -22,15 +22,15 @@ export default function AgentsPage() {
       <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-[18px] font-bold text-foreground tracking-tight">我的背景</h1>
-            <p className="text-[11px] text-muted-foreground mt-0.5">AI 分析会基于你的背景</p>
+            <h1 className="text-[18px] font-bold text-foreground tracking-tight">我的分身</h1>
+            <p className="text-[11px] text-muted-foreground mt-0.5">代表你参与讨论，帮你发现值得认识的人</p>
           </div>
           <Link
             href="/agents/create"
             className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground text-[13px] font-medium px-3.5 py-2 rounded-xl transition-all duration-200 shadow-primary-sm"
           >
             <Plus className="w-3.5 h-3.5" />
-            新建背景
+            创建分身
           </Link>
         </div>
       </div>
@@ -49,16 +49,16 @@ export default function AgentsPage() {
               🤖
             </div>
             <h3 className="text-foreground font-semibold text-[17px] mb-2">
-              还没有设置背景
+              还没有创建分身
             </h3>
             <p className="text-muted-foreground text-[13px] max-w-xs mb-8 leading-relaxed">
-              设置你的专业背景，AI 分析时会基于你的视角
+              创建你的数字分身，它会代表你参与讨论、帮你找到搭子
             </p>
             <Link
               href="/agents/create"
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-xl font-medium text-[14px] transition-all active:scale-95 shadow-primary-sm hover:shadow-primary-md"
             >
-              设置我的背景
+              创建我的分身
             </Link>
           </div>
         )}

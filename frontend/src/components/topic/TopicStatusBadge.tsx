@@ -9,21 +9,21 @@ const STATUS_CONFIG: Record<
   { label: string; classes: string; pulse?: boolean }
 > = {
   pending_matching: {
-    label: "准备中",
+    label: "匹配中",
     classes: "bg-amber-50 text-amber-600 border-amber-200/80",
     pulse: true,
   },
   matching: {
-    label: "准备中",
+    label: "匹配中",
     classes: "bg-amber-50 text-amber-600 border-amber-200/80",
     pulse: true,
   },
   matched: {
-    label: "准备就绪",
+    label: "已匹配",
     classes: "bg-blue-50 text-blue-600 border-blue-200/80",
   },
   discussion_active: {
-    label: "分析中",
+    label: "讨论中",
     classes: "bg-primary/8 text-primary border-primary/20",
     pulse: true,
   },

@@ -45,7 +45,7 @@ export default function TopicDetailPage() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-muted-foreground">问题详情</p>
+            <p className="text-[11px] text-muted-foreground">话题详情</p>
           </div>
           <TopicStatusBadge status={topic.status} />
         </div>
@@ -122,7 +122,7 @@ export default function TopicDetailPage() {
             />
             {topic.matched_at && (
               <TimelineItem
-                label="角色就绪"
+                label="匹配成功"
                 value={format(new Date(topic.matched_at), "MM月dd日 HH:mm", {
                   locale: zhCN,
                 })}
@@ -175,12 +175,12 @@ export default function TopicDetailPage() {
             </div>
             <div className="flex-1">
               <p className="text-foreground font-semibold text-[13px]">
-                {topic.status === "discussion_active" ? "分析进行中" : "查看讨论记录"}
+                {topic.status === "discussion_active" ? "讨论进行中" : "查看讨论记录"}
               </p>
               <p className="text-primary/60 text-[11px] mt-0.5">
                 {topic.status === "discussion_active"
-                  ? "四个角色正在深度分析你的问题"
-                  : "查看四个角色的完整讨论过程"}
+                  ? "AI 分身们正在深度讨论你的话题"
+                  : "查看 AI 分身们的完整讨论过程"}
               </p>
             </div>
             {topic.status === "discussion_active" ? (
@@ -243,9 +243,9 @@ function NotFound() {
       <div className="w-16 h-16 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4 text-2xl">
         🔍
       </div>
-      <p className="text-foreground font-semibold text-[15px] mb-2">问题不存在</p>
+      <p className="text-foreground font-semibold text-[15px] mb-2">话题不存在</p>
       <Link href="/topics" className="text-primary text-[13px] hover:text-primary/80 transition-colors">
-        返回问题列表
+        返回话题列表
       </Link>
     </div>
   );

@@ -92,9 +92,9 @@ function buildMilestones(status: TopicStatus, submittedAt: Date): Milestone[] {
   const currentIdx = order.indexOf(status);
 
   return [
-    { label: "问题提交", shortLabel: "提交" },
-    { label: "准备角色", shortLabel: "准备" },
-    { label: "深度分析", shortLabel: "分析" },
+    { label: "话题提交", shortLabel: "提交" },
+    { label: "匹配分身", shortLabel: "匹配" },
+    { label: "讨论进行", shortLabel: "讨论" },
     { label: "生成报告", shortLabel: "报告" },
     { label: "完成", shortLabel: "完成" },
   ].map((m, i) => ({
@@ -112,11 +112,11 @@ function TimeEstimate({ status, submittedAt }: { status: TopicStatus; submittedA
   const hoursElapsed = (now.getTime() - submittedAt.getTime()) / 3_600_000;
 
   const messages: Partial<Record<TopicStatus, string>> = {
-    pending_matching: "正在准备四个分析角色...",
-    matching: "正在准备四个分析角色...",
-    matched: "角色准备就绪，分析即将开始",
-    discussion_active: "四个角色正在深度辩论中...",
-    report_generating: "正在生成你的专属分析报告...",
+    pending_matching: "正在匹配四个讨论分身...",
+    matching: "正在匹配四个讨论分身...",
+    matched: "分身匹配就绪，讨论即将开始",
+    discussion_active: "四个分身正在深度讨论中...",
+    report_generating: "正在生成你的专属讨论报告...",
   };
 
   const msg = messages[status];

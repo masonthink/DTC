@@ -43,19 +43,19 @@ export default function LandingPage() {
           {/* Status pill */}
           <div className="inline-flex items-center gap-2 bg-primary/8 border border-primary/15 text-primary text-xs font-medium px-3.5 py-1.5 rounded-full mb-8 animate-reveal-up">
             <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-            用 AI 获得多角度深度分析
+            AI 数字分身社交平台
           </div>
 
           {/* Headline */}
           <h1 className="text-[32px] font-bold leading-[1.25] tracking-tight text-foreground mb-5 animate-reveal-up stagger-1">
-            提交一个问题
+            创建你的数字分身
             <br />
-            <span className="text-gradient-primary">获得四种视角的深度分析</span>
+            <span className="text-gradient-primary">通过 AI 讨论找到搭子</span>
           </h1>
 
           {/* Subtext */}
           <p className="text-[15px] text-muted-foreground leading-cjk mb-9 max-w-[300px] mx-auto animate-reveal-up stagger-2">
-            描述你正在思考的问题，AI 从支持、质疑、补充、追问四个角度展开讨论，为你生成一份完整的分析报告
+            创建你的数字分身 agent，提交你正在思考的话题，AI 分身们从四个角度展开讨论，帮你发现志同道合的人
           </p>
 
           {/* Primary CTA */}
@@ -79,7 +79,7 @@ export default function LandingPage() {
             {[
               { num: "2,400+", label: "位用户" },
               { num: "8,000+", label: "次讨论" },
-              { num: "96%", label: "满意度" },
+              { num: "1,200+", label: "搭子配对" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="text-lg font-bold text-foreground leading-none">{stat.num}</p>
@@ -94,7 +94,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3 mb-7">
             <div className="h-px flex-1 bg-border" />
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-              三步获得专属分析
+              四步找到你的搭子
             </p>
             <div className="h-px flex-1 bg-border" />
           </div>
@@ -109,8 +109,8 @@ export default function LandingPage() {
                     <circle cx="9" cy="9" r="2.5" fill="currentColor" opacity="0.7"/>
                   </svg>
                 ),
-                title: "描述你的专业背景",
-                desc: "花1分钟告诉我们你的行业和经验，AI 就能代表你的视角参与讨论",
+                title: "创建你的数字分身",
+                desc: "花1分钟设置你的分身，告诉我们你的行业和经验，AI 就能代表你参与讨论",
               },
               {
                 step: "02",
@@ -119,7 +119,7 @@ export default function LandingPage() {
                     <path d="M3 13V5a2 2 0 012-2h8a2 2 0 012 2v8l-3-1.5L9 13l-3-1.5L3 13z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
                   </svg>
                 ),
-                title: "提出你的问题",
+                title: "提交你的话题",
                 desc: "正在纠结的创业方向？技术选型？职业决策？写下来就好",
               },
               {
@@ -132,7 +132,7 @@ export default function LandingPage() {
                     <circle cx="9" cy="12" r="2" fill="currentColor" opacity="0.6"/>
                   </svg>
                 ),
-                title: "四个角色深度辩论",
+                title: "四个分身深度讨论",
                 desc: "质疑者找风险，支持者给论据，补充者提供新视角，探究者追问本质",
               },
               {
@@ -145,8 +145,8 @@ export default function LandingPage() {
                     <path d="M13 4l2.5 6-2.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 ),
-                title: "收到你的分析报告",
-                desc: "报告包含大家的共识、分歧所在、容易忽略的问题、以及具体的行动建议",
+                title: "收到报告，发现搭子",
+                desc: "报告包含讨论共识、分歧、行动建议，还能发现值得认识的人，一键申请连接",
               },
             ].map((item, index) => (
               <div
@@ -202,7 +202,7 @@ export default function LandingPage() {
                     <circle cx="10" cy="14" r="3" stroke="currentColor" strokeWidth="1.5"/>
                   </svg>
                 ),
-                title: "多角色辩论",
+                title: "多分身讨论",
                 desc: "支持、质疑、补充、追问，四种视角全面覆盖",
                 color: "text-blue-500",
                 bg: "bg-blue-50 border-blue-100",
@@ -247,20 +247,20 @@ export default function LandingPage() {
           <div className="flex items-center gap-3 mb-7">
             <div className="h-px flex-1 bg-border" />
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-              适用场景
+              这些场景，你需要一个搭子
             </p>
             <div className="h-px flex-1 bg-border" />
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
             {[
-              "创业方向验证",
-              "跳槽转行决策",
-              "技术架构选型",
-              "产品功能评估",
-              "投资项目分析",
-              "商业战略规划",
-              "职业发展规划",
-              "产品定价策略",
+              "找懂市场的人聊聊创业方向",
+              "找经历过的人聊聊转行",
+              "找资深技术人帮你把关架构",
+              "找产品高手评估你的功能",
+              "找投资圈的人看看项目",
+              "找战略思考者一起规划",
+              "找过来人聊聊职业发展",
+              "找定价专家讨论策略",
             ].map((tag) => (
               <span
                 key={tag}
@@ -296,10 +296,10 @@ export default function LandingPage() {
               </div>
 
               <h2 className="text-xl font-bold text-foreground mb-2 leading-cjk-heading">
-                试试看，提交你的第一个问题
+                试试看，让分身帮你找搭子
               </h2>
               <p className="text-[13px] text-muted-foreground mb-6 leading-cjk max-w-[260px] mx-auto">
-                1 分钟注册，马上获得你的专属多角度分析
+                1 分钟创建分身，下一个搭子可能就在讨论里
               </p>
 
               <Link

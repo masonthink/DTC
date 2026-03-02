@@ -124,7 +124,7 @@ export default function AgentCreatePage() {
     setLoading(true);
     try {
       await agentApi.create(data as CreateAgentRequest);
-      toast({ title: "设置完成！", description: "现在可以提交问题了" });
+      toast({ title: "分身创建成功！", description: "现在可以提交话题了" });
       router.push("/dashboard");
     } catch (err) {
       toast({ title: "创建失败", description: extractApiError(err), variant: "destructive" });
@@ -154,7 +154,7 @@ export default function AgentCreatePage() {
             </Link>
           )}
           <div className="flex-1">
-            <h1 className="text-[15px] font-bold text-foreground tracking-tight">设置你的专业背景</h1>
+            <h1 className="text-[15px] font-bold text-foreground tracking-tight">创建数字分身</h1>
           </div>
           {/* Step dots */}
           <div className="flex gap-1.5 items-center">
@@ -182,7 +182,7 @@ export default function AgentCreatePage() {
             <div className="space-y-6">
               <div>
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                  你的身份
+                  分身类型
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   {AGENT_TYPES.map((t) => (
@@ -207,12 +207,12 @@ export default function AgentCreatePage() {
 
               <div>
                 <label htmlFor="agent-display-name" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  你的昵称
+                  分身名称
                 </label>
                 <input
                   id="agent-display-name"
                   {...register("display_name")}
-                  placeholder="AI 分析时会用这个名字"
+                  placeholder="给你的分身起个名字"
                   className="w-full bg-background border border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[13px]"
                 />
                 {errors.display_name && (
@@ -463,7 +463,7 @@ export default function AgentCreatePage() {
 
               <div>
                 <label htmlFor="discussion-strength" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  你擅长的讨论方式
+                  我的讨论优势
                 </label>
                 <input
                   id="discussion-strength"
@@ -478,7 +478,7 @@ export default function AgentCreatePage() {
 
               <div>
                 <label htmlFor="agent-bio" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  个人简介 <span className="text-muted-foreground/60 normal-case font-normal">（20–500字）</span>
+                  分身简介 <span className="text-muted-foreground/60 normal-case font-normal">（20–500字）</span>
                 </label>
                 <textarea
                   id="agent-bio"
@@ -512,7 +512,7 @@ export default function AgentCreatePage() {
               disabled={loading}
               className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-semibold py-4 rounded-2xl transition-all duration-150 active:scale-[0.98] shadow-primary-md"
             >
-              {loading ? "创建中..." : "完成设置"}
+              {loading ? "创建中..." : "完成，创建分身"}
             </button>
           )}
         </div>

@@ -71,6 +71,21 @@ export default function ReportPage({ params }: Props) {
           </div>
         </section>
 
+        {/* Recommended connections — 前置，最高视觉权重 */}
+        {report.recommended_agents.length > 0 && (
+          <section className="bg-gradient-to-br from-primary/8 via-violet-50 to-primary/5 border border-primary/20 rounded-2xl p-5 shadow-sm">
+            <h2 className="text-[15px] font-bold text-foreground mb-1 flex items-center gap-2">
+              <span>🤝</span> 本次讨论最值得认识的搭子
+            </h2>
+            <p className="text-[12px] text-muted-foreground mb-4">讨论中发现了和你观点互补、背景契合的人</p>
+            <div className="space-y-3">
+              {report.recommended_agents.map((agent) => (
+                <RecommendedAgentCard key={agent.agent_id} agent={agent} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Opinion matrix */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <OpinionSection
@@ -113,20 +128,6 @@ export default function ReportPage({ params }: Props) {
                 </li>
               ))}
             </ul>
-          </section>
-        )}
-
-        {/* Recommended connections */}
-        {report.recommended_agents.length > 0 && (
-          <section>
-            <h2 className="text-[14px] font-semibold text-foreground mb-3 flex items-center gap-2">
-              <span>🤝</span> 值得认识的人
-            </h2>
-            <div className="space-y-3">
-              {report.recommended_agents.map((agent) => (
-                <RecommendedAgentCard key={agent.agent_id} agent={agent} />
-              ))}
-            </div>
           </section>
         )}
 
@@ -227,7 +228,7 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
           <div className="flex items-center gap-2 mb-2">
             <span className="text-foreground text-[13px] font-mono font-semibold">{agent.anon_id}</span>
             <span className="text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-              匹配度 {(agent.final_score * 100).toFixed(0)}%
+              契合度 {(agent.final_score * 100).toFixed(0)}%
             </span>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -247,7 +248,7 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
             onClick={() => setShowConnect(!showConnect)}
             className="flex-shrink-0 text-[12px] bg-primary hover:bg-primary/90 text-primary-foreground px-3.5 py-1.5 rounded-xl transition-all duration-150 font-medium shadow-primary-sm"
           >
-            申请连接
+            认识 TA
           </button>
         ) : (
           <span className="flex-shrink-0 text-[12px] text-emerald-600 font-medium">✓ 已发送</span>
@@ -258,7 +259,7 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
       {showConnect && !sent && (
         <div className="mt-4 pt-4 border-t border-border space-y-3 animate-unlock">
           <p className="text-[12px] text-muted-foreground leading-relaxed">
-            申请连接后，对方会收到通知。双方确认后才会交换联系方式。
+            发送认识请求后，对方会收到通知。双方确认后才会交换联系方式。
           </p>
           <input
             value={contact}

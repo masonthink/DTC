@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import useSWR, { mutate } from "swr";
-import { connectionApi, type Connection } from "@/lib/api";
+import { connectionApi, topicApi, type Connection } from "@/lib/api";
+import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -60,8 +61,8 @@ export default function ConnectionsPage() {
       <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-[18px] font-bold text-foreground tracking-tight">人脉请求</h1>
-            <p className="text-[11px] text-muted-foreground mt-0.5">与志同道合的人建立联系</p>
+            <h1 className="text-[18px] font-bold text-foreground tracking-tight">我的搭子</h1>
+            <p className="text-[11px] text-muted-foreground mt-0.5">通过讨论发现的志同道合的人</p>
           </div>
           {pending.length > 0 && (
             <span className="bg-amber-500 text-white text-[11px] font-bold w-6 h-6 rounded-full flex items-center justify-center tabular-nums">
@@ -84,9 +85,9 @@ export default function ConnectionsPage() {
             <div className="w-20 h-20 rounded-3xl bg-muted border border-border flex items-center justify-center mb-6">
               <Users className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-foreground font-semibold text-[15px] mb-2">暂无人脉请求</h3>
+            <h3 className="text-foreground font-semibold text-[15px] mb-2">还没有找到搭子</h3>
             <p className="text-muted-foreground text-[13px] max-w-xs leading-relaxed">
-              完成问题分析后，可以向报告中推荐的人发起连接请求
+              提交一个你正在思考的话题，分身会帮你筛选出值得认识的人
             </p>
           </div>
         )}
@@ -190,7 +191,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
           </div>
 
           <p className="text-foreground text-[13px] font-medium">
-            来自匿名用户的连接请求
+            来自匿名分身的连接请求
           </p>
 
           {connection.request_message && (
@@ -259,17 +260,23 @@ function ConnectionCard({ connection }: { connection: Connection }) {
       {/* Show contacts if accepted */}
       {connection.status === "accepted" && (
         <div className="mt-3 pt-3 border-t border-emerald-200/60">
-          <ContactsView connectionId={connection.id} />
+          <ContactsView connectionId={connection.id} topicId={connection.topic_id} />
         </div>
       )}
     </div>
   );
 }
 
-function ContactsView({ connectionId }: { connectionId: string }) {
+function ContactsView({ connectionId, topicId }: { connectionId: string; topicId?: string }) {
   const { data } = useSWR(
     `contacts-${connectionId}`,
     () => connectionApi.getContacts(connectionId),
+    { shouldRetryOnError: false }
+  );
+
+  const { data: topic } = useSWR(
+    topicId ? `topic-${topicId}` : null,
+    () => topicApi.get(topicId!),
     { shouldRetryOnError: false }
   );
 
@@ -277,6 +284,17 @@ function ContactsView({ connectionId }: { connectionId: string }) {
 
   return (
     <div className="space-y-2">
+      {topic && (
+        <div className="mb-2">
+          <p className="text-[11px] text-muted-foreground mb-1">你们是如何相遇的</p>
+          <Link
+            href={`/topics/${topicId}`}
+            className="text-[12px] text-primary font-medium hover:text-primary/80 transition-colors"
+          >
+            讨论话题：{topic.title} →
+          </Link>
+        </div>
+      )}
       {data.requester_contact && (
         <div>
           <p className="text-[11px] text-muted-foreground mb-0.5">对方联系方式</p>

@@ -29,8 +29,8 @@ export default function ProfilePage() {
     {
       title: "账号",
       items: [
-        { icon: Bot, label: "我的背景", href: "/agents", sub: "管理你的专业背景档案" },
-        { icon: BookOpen, label: "问题记录", href: "/topics", sub: "查看所有提交的问题" },
+        { icon: Bot, label: "我的分身", href: "/agents", sub: "管理你的数字分身" },
+        { icon: BookOpen, label: "话题记录", href: "/topics", sub: "查看所有讨论话题" },
       ],
     },
     {
@@ -131,7 +131,7 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1">
               <p className="text-foreground text-[13px] font-semibold">Concors</p>
-              <p className="text-muted-foreground text-[11px] mt-0.5">AI 多角度分析，帮你做更好的决策</p>
+              <p className="text-muted-foreground text-[11px] mt-0.5">你的分身正在帮你结识对的人</p>
             </div>
             <span className="text-[11px] text-muted-foreground font-mono">v0.1.0</span>
           </div>

@@ -98,14 +98,14 @@ export default function DiscussionPage({ params }: Props) {
             ⏳
           </div>
           <p className="text-foreground font-medium text-[15px] mb-1.5">讨论尚未开始</p>
-          <p className="text-muted-foreground text-[13px]">AI 角色还没有发言，请稍后再查看</p>
+          <p className="text-muted-foreground text-[13px]">AI 分身们还没有发言，请稍后再查看</p>
         </div>
       )}
 
       {/* Participants */}
       {!isLoading && discussion?.participants && discussion.participants.length > 0 && (
         <div className="px-4 pt-5">
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">参与角色</p>
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">参与分身</p>
           <div className="flex gap-2 flex-wrap mb-5">
             {discussion.participants.map((p) => {
               const cfg = ROLE_CONFIG[p.role];

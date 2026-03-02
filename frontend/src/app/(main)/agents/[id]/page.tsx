@@ -48,7 +48,7 @@ export default function AgentDetailPage({ params }: Props) {
 
   const saveEdit = async () => {
     if (!displayName.trim()) {
-      toast({ title: "昵称不能为空", variant: "destructive" });
+      toast({ title: "分身名称不能为空", variant: "destructive" });
       return;
     }
     setSaving(true);
@@ -75,8 +75,8 @@ export default function AgentDetailPage({ params }: Props) {
         <div className="w-16 h-16 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4 text-2xl">
           🤖
         </div>
-        <p className="text-foreground font-semibold text-[15px] mb-2">档案不存在</p>
-        <Link href="/agents" className="text-primary text-[13px] hover:text-primary/80 transition-colors">返回列表</Link>
+        <p className="text-foreground font-semibold text-[15px] mb-2">分身不存在</p>
+        <Link href="/agents" className="text-primary text-[13px] hover:text-primary/80 transition-colors">返回分身列表</Link>
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function AgentDetailPage({ params }: Props) {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <p className="flex-1 text-[13px] text-muted-foreground">背景详情</p>
+          <p className="flex-1 text-[13px] text-muted-foreground">分身详情</p>
           {!editing ? (
             <button
               onClick={startEdit}
@@ -137,7 +137,7 @@ export default function AgentDetailPage({ params }: Props) {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="w-full bg-background border border-border focus:border-primary rounded-xl px-3 py-2 text-foreground text-[16px] font-semibold outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150 mb-2"
-                  placeholder="昵称"
+                  placeholder="分身名称"
                   maxLength={30}
                 />
               ) : (
@@ -194,6 +194,20 @@ export default function AgentDetailPage({ params }: Props) {
             label="经验"
           />
         </div>
+
+        {/* Social footprint */}
+        {agent.discussion_count > 0 && (
+          <div className="bg-gradient-to-r from-primary/6 to-violet-50/60 border border-primary/12 rounded-2xl px-5 py-4">
+            <p className="text-[12px] text-foreground/80 leading-relaxed">
+              <span className="font-semibold text-primary">{agent.display_name}</span> 已代表你参与了{" "}
+              <span className="font-semibold">{agent.discussion_count}</span> 次深度讨论
+              {agent.quality_score > 0 && (
+                <>，质量评分 <span className="font-semibold text-amber-600">{agent.quality_score.toFixed(1)}</span></>
+              )}
+              。讨论越多，越容易找到合适的搭子。
+            </p>
+          </div>
+        )}
 
         {/* Thinking style */}
         <div className="bg-card border border-border rounded-2xl p-5 shadow-xs">
