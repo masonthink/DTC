@@ -43,8 +43,9 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-[16px] font-semibold text-foreground tracking-tight leading-none">
+              <h1 className="text-[16px] font-semibold text-foreground tracking-tight leading-none flex items-center gap-1.5">
                 Concors
+                <span className="text-[9px] font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Beta</span>
               </h1>
               <p className="text-[11px] text-muted-foreground mt-0.5">你的分身正在帮你结识对的人</p>
             </div>

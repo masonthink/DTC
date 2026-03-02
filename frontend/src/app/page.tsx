@@ -18,6 +18,9 @@ export default function LandingPage() {
             <span className="text-[15px] font-semibold tracking-tight text-foreground">
               Concors
             </span>
+            <span className="text-[9px] font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider leading-none">
+              Beta
+            </span>
           </div>
           <nav className="flex items-center gap-1">
             <Link

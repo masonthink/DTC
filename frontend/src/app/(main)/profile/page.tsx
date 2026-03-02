@@ -133,7 +133,10 @@ export default function ProfilePage() {
               <p className="text-foreground text-[13px] font-semibold">Concors</p>
               <p className="text-muted-foreground text-[11px] mt-0.5">你的分身正在帮你结识对的人</p>
             </div>
-            <span className="text-[11px] text-muted-foreground font-mono">v0.1.0</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Beta</span>
+              <span className="text-[11px] text-muted-foreground font-mono">v0.1.0</span>
+            </div>
           </div>
         </div>
 
