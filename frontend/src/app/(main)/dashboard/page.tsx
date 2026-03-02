@@ -24,17 +24,17 @@ export default function DashboardPage() {
   const hasAgent = agents && agents.length > 0;
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-white">
+            <h1 className="text-xl font-bold text-slate-900">
               <span className="text-indigo-400">C</span>oncors
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">让思想连接有价值的人</p>
           </div>
-          <button className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+          <button className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors">
             <Bell className="w-5 h-5" />
           </button>
         </div>
@@ -45,10 +45,10 @@ export default function DashboardPage() {
         {!isLoading && !hasAgent && (
           <div className="bg-gradient-to-br from-indigo-600/25 via-indigo-600/10 to-purple-600/10 border border-indigo-500/30 rounded-2xl p-5">
             <div className="text-3xl mb-3">👋</div>
-            <h2 className="text-white font-semibold text-base mb-1.5">
+            <h2 className="text-slate-900 font-semibold text-base mb-1.5">
               欢迎来到 Concors
             </h2>
-            <p className="text-slate-300 text-sm leading-relaxed mb-4">
+            <p className="text-slate-700 text-sm leading-relaxed mb-4">
               创建你的数字分身，让它代表你的专业背景和思维方式，与其他分身展开深度讨论。
             </p>
             <Link
@@ -73,10 +73,10 @@ export default function DashboardPage() {
         {!isLoading && hasAgent && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-white">我的分身</h2>
+              <h2 className="text-sm font-semibold text-slate-900">我的分身</h2>
               <Link
                 href="/agents"
-                className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors"
+                className="text-indigo-400 text-xs hover:text-indigo-700 transition-colors"
               >
                 全部管理 →
               </Link>
@@ -88,7 +88,7 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/topics/submit"
-              className="flex items-center justify-center gap-2 border border-dashed border-slate-700 hover:border-indigo-500/60 hover:bg-indigo-600/5 rounded-2xl p-4 text-slate-500 hover:text-indigo-400 transition-all text-sm mt-2 active:scale-[0.99]"
+              className="flex items-center justify-center gap-2 border border-dashed border-slate-200 hover:border-indigo-500/60 hover:bg-indigo-600/5 rounded-2xl p-4 text-slate-500 hover:text-indigo-400 transition-all text-sm mt-2 active:scale-[0.99]"
             >
               + 提交新话题
             </Link>
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         {!isLoading && activeTopics && activeTopics.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-white">
+              <h2 className="text-sm font-semibold text-slate-900">
                 进行中{" "}
                 <span className="text-indigo-400 bg-indigo-600/15 px-2 py-0.5 rounded-full text-xs ml-1">
                   {activeTopics.length}
@@ -107,7 +107,7 @@ export default function DashboardPage() {
               </h2>
               <Link
                 href="/topics"
-                className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors"
+                className="text-indigo-400 text-xs hover:text-indigo-700 transition-colors"
               >
                 查看全部 →
               </Link>
@@ -123,7 +123,7 @@ export default function DashboardPage() {
         {/* Completed discussions */}
         {!isLoading && completedTopics && completedTopics.length > 0 && (
           <section>
-            <h2 className="text-sm font-semibold text-white mb-3">已完成报告</h2>
+            <h2 className="text-sm font-semibold text-slate-900 mb-3">已完成报告</h2>
             <div className="space-y-2">
               {completedTopics.slice(0, 3).map((topic: Topic) => (
                 <CompletedTopicCard key={topic.id} topic={topic} />
@@ -136,7 +136,7 @@ export default function DashboardPage() {
         {!isLoading && hasAgent && (!topicsData?.items || topicsData.items.length === 0) && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="text-5xl mb-4">💬</div>
-            <h3 className="text-white font-semibold mb-2">还没有任何讨论</h3>
+            <h3 className="text-slate-900 font-semibold mb-2">还没有任何讨论</h3>
             <p className="text-slate-400 text-sm mb-6 max-w-xs leading-relaxed">
               提交一个话题，让你的分身和其他分身展开深度的多角度讨论
             </p>
@@ -164,12 +164,12 @@ function AgentCard({ agent }: { agent: Agent }) {
   };
 
   return (
-    <div className="flex items-center gap-3 bg-slate-900 border border-slate-700/50 rounded-2xl p-3.5">
+    <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-3.5">
       <div className="w-11 h-11 rounded-xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center text-xl flex-shrink-0">
         {typeEmojis[agent.agent_type] ?? "🤖"}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-semibold truncate">{agent.display_name}</p>
+        <p className="text-slate-900 text-sm font-semibold truncate">{agent.display_name}</p>
         <p className="text-slate-500 text-xs mt-0.5 truncate">
           {agent.industries.slice(0, 3).join(" · ")}
         </p>
@@ -186,10 +186,10 @@ function ActiveTopicCard({ topic }: { topic: Topic }) {
   return (
     <Link
       href={`/topics/${topic.id}`}
-      className="block bg-slate-900 border border-slate-700/50 hover:border-indigo-500/30 rounded-2xl p-4 transition-all active:scale-[0.99]"
+      className="block bg-white border border-slate-200 hover:border-indigo-500/30 rounded-2xl p-4 transition-all active:scale-[0.99]"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="text-white text-sm font-medium line-clamp-2 flex-1">
+        <h3 className="text-slate-900 text-sm font-medium line-clamp-2 flex-1">
           {topic.title}
         </h3>
         <TopicStatusBadge status={topic.status} />
@@ -203,13 +203,13 @@ function CompletedTopicCard({ topic }: { topic: Topic }) {
   return (
     <Link
       href={`/topics/${topic.id}`}
-      className="flex items-center gap-3 bg-slate-900/60 border border-slate-700/40 hover:border-emerald-500/20 rounded-2xl p-3.5 transition-all active:scale-[0.99]"
+      className="flex items-center gap-3 bg-slate-50 border border-slate-200/60 hover:border-emerald-500/20 rounded-2xl p-3.5 transition-all active:scale-[0.99]"
     >
       <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
         <span className="text-sm">✅</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-slate-300 text-sm font-medium line-clamp-1">{topic.title}</p>
+        <p className="text-slate-700 text-sm font-medium line-clamp-1">{topic.title}</p>
         {topic.report_ready_at && (
           <p className="text-slate-600 text-xs mt-0.5">
             {new Date(topic.report_ready_at).toLocaleDateString("zh-CN")} 生成

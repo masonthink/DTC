@@ -29,22 +29,22 @@ const STATUS_CONFIG = {
     label: "已拒绝",
     icon: XCircle,
     color: "text-slate-500",
-    bg: "bg-slate-800",
-    border: "border-slate-700",
+    bg: "bg-slate-100",
+    border: "border-slate-200",
   },
   cancelled: {
     label: "已取消",
     icon: XCircle,
     color: "text-slate-500",
-    bg: "bg-slate-800",
-    border: "border-slate-700",
+    bg: "bg-slate-100",
+    border: "border-slate-200",
   },
   expired: {
     label: "已过期",
     icon: Clock,
     color: "text-slate-500",
-    bg: "bg-slate-800",
-    border: "border-slate-700",
+    bg: "bg-slate-100",
+    border: "border-slate-200",
   },
 };
 
@@ -55,12 +55,12 @@ export default function ConnectionsPage() {
   const others = connections?.filter((c) => c.status !== "pending") ?? [];
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-white">连接请求</h1>
+            <h1 className="text-xl font-bold text-slate-900">连接请求</h1>
             <p className="text-xs text-slate-500 mt-0.5">与志同道合的人建立联系</p>
           </div>
           {pending.length > 0 && (
@@ -81,10 +81,10 @@ export default function ConnectionsPage() {
 
         {!isLoading && !connections?.length && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-20 h-20 rounded-3xl bg-slate-900 border border-slate-700/50 flex items-center justify-center mb-6">
+            <div className="w-20 h-20 rounded-3xl bg-white border border-slate-200 flex items-center justify-center mb-6">
               <Users className="w-8 h-8 text-slate-600" />
             </div>
-            <h3 className="text-white font-semibold mb-2">暂无连接请求</h3>
+            <h3 className="text-slate-900 font-semibold mb-2">暂无连接请求</h3>
             <p className="text-slate-400 text-sm max-w-xs leading-relaxed">
               完成话题讨论并查看报告后，可以向推荐的匿名分身发起连接请求
             </p>
@@ -190,7 +190,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             </span>
           </div>
 
-          <p className="text-white text-sm font-medium">
+          <p className="text-slate-900 text-sm font-medium">
             来自匿名分身的连接请求
           </p>
 
@@ -212,7 +212,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
         {isPending && (
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700/50 text-slate-400 transition-colors flex-shrink-0"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-200/60 text-slate-400 transition-colors flex-shrink-0"
           >
             {expanded ? (
               <ChevronUp className="w-4 h-4" />
@@ -225,7 +225,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
 
       {/* Respond form */}
       {isPending && expanded && (
-        <div className="mt-4 pt-4 border-t border-slate-700/50 space-y-3">
+        <div className="mt-4 pt-4 border-t border-slate-200 space-y-3">
           <div>
             <label className="block text-xs text-slate-400 mb-1.5">
               你的联系方式（接受后对方可见）
@@ -234,14 +234,14 @@ function ConnectionCard({ connection }: { connection: Connection }) {
               value={contact}
               onChange={(e) => setContact(e.target.value)}
               placeholder="微信 / 邮箱 / 其他"
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl px-3 py-2.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors"
             />
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => handleRespond(false)}
               disabled={respondLoading}
-              className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-400 text-sm font-medium hover:bg-slate-700/50 transition-colors disabled:opacity-50 active:scale-[0.98]"
+              className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-400 text-sm font-medium hover:bg-slate-200/60 transition-colors disabled:opacity-50 active:scale-[0.98]"
             >
               拒绝
             </button>
@@ -286,7 +286,7 @@ function ContactsView({ connectionId }: { connectionId: string }) {
       {data.target_contact && (
         <div>
           <p className="text-xs text-slate-500">我的联系方式（已发送）</p>
-          <p className="text-sm text-slate-300">{data.target_contact}</p>
+          <p className="text-sm text-slate-700">{data.target_contact}</p>
         </div>
       )}
     </div>

@@ -33,7 +33,7 @@ export function DiscussionProgress({ status, submittedAt }: Props) {
                     ? "bg-indigo-500 border-indigo-400"
                     : m.state === "active"
                     ? "bg-indigo-500 border-indigo-300 animate-pulse-glow"
-                    : "bg-slate-700 border-slate-600"
+                    : "bg-slate-200 border-slate-300"
                 }`}
               />
               {/* Tooltip */}
@@ -45,7 +45,7 @@ export function DiscussionProgress({ status, submittedAt }: Props) {
             {i < milestones.length - 1 && (
               <div
                 className={`flex-1 h-0.5 ${
-                  m.state === "completed" ? "bg-indigo-500" : "bg-slate-700"
+                  m.state === "completed" ? "bg-indigo-500" : "bg-slate-200"
                 }`}
               />
             )}

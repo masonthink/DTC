@@ -64,27 +64,27 @@ export default function SubmitTopicPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center gap-3">
           {step === 2 ? (
             <button
               onClick={() => setStep(1)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
           ) : (
             <Link
               href="/dashboard"
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
           )}
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-white">
+            <h1 className="text-lg font-bold text-slate-900">
               {step === 1 ? "提交话题" : "确认提交"}
             </h1>
           </div>
@@ -94,7 +94,7 @@ export default function SubmitTopicPage() {
               <div
                 key={s}
                 className={`h-1.5 rounded-full transition-all ${
-                  s === step ? "w-5 bg-indigo-500" : s < step ? "w-1.5 bg-indigo-700" : "w-1.5 bg-slate-700"
+                  s === step ? "w-5 bg-indigo-500" : s < step ? "w-1.5 bg-indigo-700" : "w-1.5 bg-slate-300"
                 }`}
               />
             ))}
@@ -119,7 +119,7 @@ export default function SubmitTopicPage() {
                       className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all active:scale-[0.99] ${
                         watch("agent_id") === agent.id
                           ? "border-indigo-500 bg-indigo-500/10"
-                          : "border-slate-700 bg-slate-900 hover:border-slate-600"
+                          : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
                       <input
@@ -132,7 +132,7 @@ export default function SubmitTopicPage() {
                         🤖
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm font-semibold">{agent.display_name}</p>
+                        <p className="text-slate-900 text-sm font-semibold">{agent.display_name}</p>
                         <p className="text-slate-400 text-xs mt-0.5 truncate">
                           {agent.industries.slice(0, 2).join(" · ")}
                         </p>
@@ -141,18 +141,18 @@ export default function SubmitTopicPage() {
                         className={`w-5 h-5 rounded-full border-2 flex-shrink-0 transition-colors ${
                           watch("agent_id") === agent.id
                             ? "border-indigo-500 bg-indigo-500"
-                            : "border-slate-600"
+                            : "border-slate-300"
                         }`}
                       />
                     </label>
                   ))}
                 </div>
               ) : (
-                <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5 text-center">
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
                   <p className="text-slate-400 text-sm mb-3">还没有分身，先创建一个</p>
                   <Link
                     href="/agents/create"
-                    className="text-indigo-400 text-sm font-medium hover:text-indigo-300"
+                    className="text-indigo-400 text-sm font-medium hover:text-indigo-700"
                   >
                     创建分身 →
                   </Link>
@@ -177,10 +177,10 @@ export default function SubmitTopicPage() {
                     className={`text-left p-3.5 rounded-2xl border text-xs transition-all active:scale-95 ${
                       selectedType === t.value
                         ? "border-indigo-500 bg-indigo-500/10"
-                        : "border-slate-700 bg-slate-900 hover:border-slate-600"
+                        : "border-slate-200 bg-white hover:border-slate-300"
                     }`}
                   >
-                    <div className="font-semibold text-white mb-0.5">{t.label}</div>
+                    <div className="font-semibold text-slate-900 mb-0.5">{t.label}</div>
                     <div className="text-slate-500 leading-tight">{t.desc}</div>
                   </button>
                 ))}
@@ -207,7 +207,7 @@ export default function SubmitTopicPage() {
               <input
                 {...register("title")}
                 placeholder="简洁地描述核心问题"
-                className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors"
+                className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition-colors"
               />
               {errors.title && (
                 <p className="text-red-400 text-xs mt-1.5">{errors.title.message}</p>
@@ -232,7 +232,7 @@ export default function SubmitTopicPage() {
                 {...register("description")}
                 placeholder="描述具体问题、当前思考、以及你最希望获得什么角度的碰撞..."
                 rows={5}
-                className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors resize-none"
+                className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition-colors resize-none"
               />
               {errors.description && (
                 <p className="text-red-400 text-xs mt-1.5">{errors.description.message}</p>
@@ -248,7 +248,7 @@ export default function SubmitTopicPage() {
                 {...register("background")}
                 placeholder="你的行业背景、已有资源、限制条件..."
                 rows={3}
-                className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none transition-colors resize-none"
+                className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition-colors resize-none"
               />
             </div>
 
@@ -259,16 +259,16 @@ export default function SubmitTopicPage() {
         {/* Step 2 */}
         {step === 2 && (
           <div className="px-4 pt-5 space-y-5">
-            <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
-              <h3 className="text-white font-semibold mb-3">话题预览</h3>
-              <p className="text-white font-medium mb-2">{watch("title")}</p>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5">
+              <h3 className="text-slate-900 font-semibold mb-3">话题预览</h3>
+              <p className="text-slate-900 font-medium mb-2">{watch("title")}</p>
               <p className="text-slate-400 text-sm line-clamp-5 leading-relaxed">
                 {watch("description")}
               </p>
             </div>
 
-            <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5 space-y-3">
-              <h3 className="text-slate-300 font-medium text-sm">接下来会发生什么</h3>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+              <h3 className="text-slate-700 font-medium text-sm">接下来会发生什么</h3>
               {[
                 { time: "T+0.5h", label: "为你匹配最合适的4位数字分身" },
                 { time: "T+1h", label: "推送「匹配预告」通知" },
@@ -295,7 +295,7 @@ export default function SubmitTopicPage() {
         )}
 
         {/* Sticky bottom action */}
-        <div className="sticky bottom-0 px-4 pb-8 pt-4 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent">
+        <div className="sticky bottom-0 px-4 pb-8 pt-4 bg-gradient-to-t from-white via-white to-transparent">
           {step === 1 ? (
             <button
               type="button"

@@ -62,18 +62,18 @@ export default function DiscussionPage({ params }: Props) {
   const rounds = groupByRound(messages ?? []);
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white">讨论记录</p>
+            <p className="text-sm font-semibold text-slate-900">讨论记录</p>
             {discussion && (
               <p className="text-xs text-slate-500 mt-0.5">
                 第 {discussion.current_round} 轮 · {STATUS_LABELS[discussion.status] ?? discussion.status}
@@ -91,7 +91,7 @@ export default function DiscussionPage({ params }: Props) {
       {!isLoading && messages?.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center px-4">
           <p className="text-4xl mb-4">⏳</p>
-          <p className="text-white font-medium mb-2">讨论尚未开始</p>
+          <p className="text-slate-900 font-medium mb-2">讨论尚未开始</p>
           <p className="text-slate-400 text-sm">AI 分身们还没有发言，请稍后再查看</p>
         </div>
       )}
@@ -123,11 +123,11 @@ export default function DiscussionPage({ params }: Props) {
         {rounds.map(({ roundNum, msgs }) => (
           <div key={roundNum}>
             <div className="flex items-center gap-3 mb-3">
-              <div className="h-px flex-1 bg-slate-800" />
+              <div className="h-px flex-1 bg-slate-200" />
               <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                 第 {roundNum} 轮
               </span>
-              <div className="h-px flex-1 bg-slate-800" />
+              <div className="h-px flex-1 bg-slate-200" />
             </div>
             <div className="space-y-3">
               {msgs.map((msg, i) => (
@@ -146,8 +146,8 @@ function MessageCard({ msg }: { msg: DiscussionMessage }) {
     label: msg.role,
     emoji: "💬",
     color: "text-slate-400",
-    bg: "bg-slate-800",
-    border: "border-slate-700",
+    bg: "bg-slate-100",
+    border: "border-slate-200",
   };
 
   return (
@@ -166,11 +166,11 @@ function MessageCard({ msg }: { msg: DiscussionMessage }) {
       </div>
 
       {/* Content */}
-      <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+      <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{msg.content}</p>
 
       {/* Key point */}
       {msg.key_point && (
-        <div className="mt-3 pt-3 border-t border-slate-700/50">
+        <div className="mt-3 pt-3 border-t border-slate-200">
           <p className="text-xs text-slate-500 mb-1">核心论点</p>
           <p className={cn("text-xs font-medium leading-relaxed", cfg.color)}>{msg.key_point}</p>
         </div>

@@ -39,13 +39,13 @@ export default function TopicDetailPage() {
   if (!topic) return <NotFound />;
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center gap-3">
           <Link
             href="/topics"
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
@@ -58,7 +58,7 @@ export default function TopicDetailPage() {
 
       <div className="px-4 pt-5 space-y-5 pb-4">
         {/* Title card */}
-        <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5">
           <div className="flex items-start gap-3 mb-3">
             <span className="text-2xl">
               {TOPIC_TYPE_LABELS[topic.topic_type]?.split(" ")[0] ?? "💬"}
@@ -67,7 +67,7 @@ export default function TopicDetailPage() {
               <p className="text-xs text-slate-500 mb-1">
                 {TOPIC_TYPE_LABELS[topic.topic_type]?.slice(2) ?? topic.topic_type}
               </p>
-              <h2 className="text-white font-semibold text-base leading-snug">
+              <h2 className="text-slate-900 font-semibold text-base leading-snug">
                 {topic.title}
               </h2>
             </div>
@@ -80,18 +80,18 @@ export default function TopicDetailPage() {
           )}
 
           {topic.background && (
-            <div className="mt-3 pt-3 border-t border-slate-700/50">
+            <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-slate-500 mb-1">背景信息</p>
               <p className="text-slate-400 text-sm leading-relaxed">{topic.background}</p>
             </div>
           )}
 
           {topic.tags && topic.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-700/50">
+            <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-200">
               {topic.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs text-slate-500 bg-slate-800 px-2.5 py-1 rounded-full"
+                  className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full"
                 >
                   #{tag}
                 </span>
@@ -101,7 +101,7 @@ export default function TopicDetailPage() {
         </div>
 
         {/* Progress */}
-        <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5">
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
             进度追踪
           </p>
@@ -112,7 +112,7 @@ export default function TopicDetailPage() {
         </div>
 
         {/* Timeline */}
-        <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5">
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
             时间线
           </p>
@@ -161,7 +161,7 @@ export default function TopicDetailPage() {
                 <FileText className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
-                <p className="text-white font-medium text-sm">查看讨论报告</p>
+                <p className="text-slate-900 font-medium text-sm">查看讨论报告</p>
                 <p className="text-emerald-400/70 text-xs mt-0.5">
                   已生成 · 点击查看完整内容
                 </p>
@@ -180,7 +180,7 @@ export default function TopicDetailPage() {
               <MessageSquare className="w-5 h-5 text-indigo-400" />
             </div>
             <div className="flex-1">
-              <p className="text-white font-medium text-sm">
+              <p className="text-slate-900 font-medium text-sm">
                 {topic.status === "discussion_active" ? "讨论进行中" : "查看讨论记录"}
               </p>
               <p className="text-indigo-400/70 text-xs mt-0.5">
@@ -224,7 +224,7 @@ function TimelineItem({
     <div className="flex items-center justify-between">
       <span className="text-slate-500 text-xs">{label}</span>
       <div className="text-right">
-        <span className={`text-xs font-medium ${highlight ? "text-indigo-400" : "text-slate-300"}`}>
+        <span className={`text-xs font-medium ${highlight ? "text-indigo-400" : "text-slate-700"}`}>
           {value}
         </span>
         {sub && <p className="text-xs text-slate-600 mt-0.5">{sub}</p>}
@@ -235,7 +235,7 @@ function TimelineItem({
 
 function TopicSkeleton() {
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-4 space-y-4">
+    <div className="min-h-screen bg-slate-50 px-4 pt-4 space-y-4">
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-48 w-full" />
       <Skeleton className="h-32 w-full" />
@@ -245,9 +245,9 @@ function TopicSkeleton() {
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
       <p className="text-4xl mb-4">🔍</p>
-      <p className="text-white font-medium mb-2">话题不存在</p>
+      <p className="text-slate-900 font-medium mb-2">话题不存在</p>
       <Link href="/topics" className="text-indigo-400 text-sm">
         返回话题列表
       </Link>

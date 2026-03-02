@@ -46,31 +46,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
-      <div className="w-full max-w-md px-6">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 mb-4 animate-float">
-            <span className="text-2xl">🤖</span>
-          </div>
-          <h1 className="text-2xl font-bold text-white">数字分身社区</h1>
-          <p className="text-slate-400 mt-1 text-sm">用你的分身探索深度连接</p>
+          <Link href="/" className="inline-flex items-center gap-2 mb-6">
+            <span className="text-2xl font-bold text-slate-900">
+              <span className="text-indigo-600">C</span>oncors
+            </span>
+          </Link>
+          <h1 className="text-xl font-bold text-slate-900">欢迎回来</h1>
+          <p className="text-slate-500 mt-1 text-sm">登录你的数字分身账号</p>
         </div>
 
         {/* Card */}
-        <div className="bg-slate-800/60 backdrop-blur border border-slate-700 rounded-2xl p-8">
-          <h2 className="text-lg font-semibold text-white mb-6">登录</h2>
-
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           {/* Mode toggle */}
-          <div className="flex rounded-lg bg-slate-700/50 p-1 mb-6">
+          <div className="flex rounded-xl bg-slate-100 p-1 mb-5">
             {(["phone", "email"] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
-                className={`flex-1 py-2 text-sm rounded-md transition-all ${
+                className={`flex-1 py-2 text-sm rounded-lg transition-all font-medium ${
                   mode === m
-                    ? "bg-indigo-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
                 }`}
               >
                 {m === "phone" ? "手机号" : "邮箱"}
@@ -81,47 +81,47 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {mode === "phone" ? (
               <div>
-                <label className="block text-sm text-slate-300 mb-1.5">手机号</label>
+                <label className="block text-sm text-slate-700 font-medium mb-1.5">手机号</label>
                 <input
                   {...register("phone")}
                   type="tel"
                   placeholder="请输入手机号"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
                 />
                 {errors.phone && (
-                  <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>
+                  <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
                 )}
               </div>
             ) : (
               <div>
-                <label className="block text-sm text-slate-300 mb-1.5">邮箱</label>
+                <label className="block text-sm text-slate-700 font-medium mb-1.5">邮箱</label>
                 <input
                   {...register("email")}
                   type="email"
                   placeholder="请输入邮箱"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
                 />
                 {errors.email && (
-                  <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>
+                  <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
                 )}
               </div>
             )}
 
             <div>
-              <label className="block text-sm text-slate-300 mb-1.5">密码</label>
+              <label className="block text-sm text-slate-700 font-medium mb-1.5">密码</label>
               <input
                 {...register("password")}
                 type="password"
                 placeholder="请输入密码"
-                className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
               />
               {errors.password && (
-                <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
               )}
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm">
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
                 {error}
               </div>
             )}
@@ -129,15 +129,15 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-colors mt-2"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-indigo-600/20 mt-1"
             >
               {loading ? "登录中..." : "登录"}
             </button>
           </form>
 
-          <p className="text-center text-slate-400 text-sm mt-6">
+          <p className="text-center text-slate-500 text-sm mt-5">
             还没有账号？{" "}
-            <Link href="/register" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+            <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-medium transition-colors">
               立即注册
             </Link>
           </p>

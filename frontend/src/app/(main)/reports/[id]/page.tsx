@@ -41,9 +41,9 @@ export default function ReportPage({ params }: Props) {
       </div>
 
       {/* Summary */}
-      <section className="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-6">
-        <h2 className="text-white font-semibold mb-4">📋 讨论摘要</h2>
-        <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-line">
+      <section className="bg-slate-100/80 border border-slate-200 rounded-2xl p-6 mb-6">
+        <h2 className="text-slate-900 font-semibold mb-4">📋 讨论摘要</h2>
+        <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
           {report.summary}
         </div>
       </section>
@@ -78,8 +78,8 @@ export default function ReportPage({ params }: Props) {
 
       {/* Blind spots */}
       {report.blind_spots.length > 0 && (
-        <section className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5 mb-6">
-          <h3 className="text-slate-300 font-medium text-sm mb-3 flex items-center gap-2">
+        <section className="bg-slate-100/60 border border-slate-200 rounded-2xl p-5 mb-6">
+          <h3 className="text-slate-700 font-medium text-sm mb-3 flex items-center gap-2">
             <span>🔍</span> 值得关注的盲点
           </h3>
           <ul className="space-y-2">
@@ -96,7 +96,7 @@ export default function ReportPage({ params }: Props) {
       {/* Recommended connections */}
       {report.recommended_agents.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-white font-semibold mb-4">🤝 推荐连接</h2>
+          <h2 className="text-slate-900 font-semibold mb-4">🤝 推荐连接</h2>
           <div className="space-y-3">
             {report.recommended_agents.map((agent) => (
               <RecommendedAgentCard key={agent.agent_id} agent={agent} />
@@ -131,7 +131,7 @@ function OpinionSection({
 
   return (
     <div className={`border rounded-xl p-4 ${colorMap[color]}`}>
-      <h3 className="text-slate-300 font-medium text-sm mb-3">
+      <h3 className="text-slate-700 font-medium text-sm mb-3">
         {icon} {title}
       </h3>
       <ul className="space-y-2">
@@ -185,11 +185,11 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
   };
 
   return (
-    <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
+    <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-white text-sm font-mono font-medium">{agent.anon_id}</span>
+            <span className="text-slate-900 text-sm font-mono font-medium">{agent.anon_id}</span>
             <span className="text-xs text-slate-500">
               综合得分 {(agent.final_score * 100).toFixed(0)}%
             </span>
@@ -220,7 +220,7 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
 
       {/* Connection request form */}
       {showConnect && !sent && (
-        <div className="mt-4 pt-4 border-t border-slate-700 space-y-3 animate-unlock">
+        <div className="mt-4 pt-4 border-t border-slate-200 space-y-3 animate-unlock">
           <p className="text-xs text-slate-400">
             申请连接后，对方会收到通知。双方确认后才会交换联系方式。
           </p>
@@ -228,14 +228,14 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder="你的联系方式（微信/邮箱/手机）"
-            className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full bg-slate-200/60 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500"
           />
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="申请理由（选填）"
             rows={2}
-            className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
+            className="w-full bg-slate-200/60 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 resize-none"
           />
           <button
             onClick={handleConnect}
@@ -265,7 +265,7 @@ function UserRating({ reportId, currentRating }: { reportId: string; currentRati
   };
 
   return (
-    <div className="text-center py-6 border-t border-slate-800">
+    <div className="text-center py-6 border-t border-slate-200">
       <p className="text-slate-400 text-sm mb-3">这份报告对你有帮助吗？</p>
       <div className="flex justify-center gap-2">
         {[1, 2, 3, 4, 5].map((n) => (
@@ -275,7 +275,7 @@ function UserRating({ reportId, currentRating }: { reportId: string; currentRati
             className={`w-8 h-8 rounded-lg text-sm transition-all ${
               rating >= n
                 ? "bg-amber-500 text-white"
-                : "bg-slate-800 text-slate-500 hover:bg-slate-700"
+                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
             }`}
           >
             ★
@@ -292,11 +292,11 @@ function UserRating({ reportId, currentRating }: { reportId: string; currentRati
 function ReportSkeleton() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 animate-pulse">
-      <div className="h-4 bg-slate-800 rounded w-1/4 mb-4" />
-      <div className="h-48 bg-slate-800 rounded-2xl mb-6" />
+      <div className="h-4 bg-slate-100 rounded w-1/4 mb-4" />
+      <div className="h-48 bg-slate-100 rounded-2xl mb-6" />
       <div className="grid grid-cols-2 gap-4 mb-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-32 bg-slate-800 rounded-xl" />
+          <div key={i} className="h-32 bg-slate-100 rounded-xl" />
         ))}
       </div>
     </div>

@@ -70,9 +70,9 @@ export default function AgentDetailPage({ params }: Props) {
   if (isLoading) return <AgentSkeleton />;
   if (!agent) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
         <p className="text-4xl mb-4">🤖</p>
-        <p className="text-white font-medium mb-2">分身不存在</p>
+        <p className="text-slate-900 font-medium mb-2">分身不存在</p>
         <Link href="/agents" className="text-indigo-400 text-sm">返回分身列表</Link>
       </div>
     );
@@ -81,13 +81,13 @@ export default function AgentDetailPage({ params }: Props) {
   const typeConfig = AGENT_TYPE_OPTIONS.find((o) => o.value === agent.agent_type);
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -95,7 +95,7 @@ export default function AgentDetailPage({ params }: Props) {
           {!editing ? (
             <button
               onClick={startEdit}
-              className="flex items-center gap-1.5 text-indigo-400 text-sm hover:text-indigo-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-500/10"
+              className="flex items-center gap-1.5 text-indigo-400 text-sm hover:text-indigo-700 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-500/10"
             >
               <Edit2 className="w-4 h-4" />
               编辑
@@ -104,7 +104,7 @@ export default function AgentDetailPage({ params }: Props) {
             <div className="flex items-center gap-2">
               <button
                 onClick={cancelEdit}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -123,7 +123,7 @@ export default function AgentDetailPage({ params }: Props) {
 
       <div className="px-4 pt-5 space-y-4 pb-6">
         {/* Identity card */}
-        <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5">
           <div className="flex items-start gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600/30 to-purple-600/20 border border-indigo-500/20 flex items-center justify-center text-3xl flex-shrink-0">
               {typeConfig?.emoji ?? "🤖"}
@@ -133,12 +133,12 @@ export default function AgentDetailPage({ params }: Props) {
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-600 focus:border-indigo-500 rounded-xl px-3 py-2 text-white text-lg font-semibold outline-none transition-colors mb-2"
+                  className="w-full bg-slate-100 border border-slate-300 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-900 text-lg font-semibold outline-none transition-colors mb-2"
                   placeholder="分身名称"
                   maxLength={30}
                 />
               ) : (
-                <h1 className="text-xl font-bold text-white mb-1">{agent.display_name}</h1>
+                <h1 className="text-xl font-bold text-slate-900 mb-1">{agent.display_name}</h1>
               )}
 
               {editing ? (
@@ -150,7 +150,7 @@ export default function AgentDetailPage({ params }: Props) {
                       className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border transition-all ${
                         agentType === opt.value
                           ? "bg-indigo-600 border-indigo-500 text-white"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600"
+                          : "bg-slate-100 border-slate-200 text-slate-400 hover:border-slate-300"
                       }`}
                     >
                       {opt.emoji} {opt.label}
@@ -166,9 +166,9 @@ export default function AgentDetailPage({ params }: Props) {
           </div>
 
           {/* Anon ID */}
-          <div className="mt-4 pt-4 border-t border-slate-700/50 flex items-center justify-between">
+          <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
             <span className="text-xs text-slate-500">匿名 ID</span>
-            <span className="font-mono text-sm text-slate-300">{agent.anon_id}</span>
+            <span className="font-mono text-sm text-slate-700">{agent.anon_id}</span>
           </div>
         </div>
 
@@ -192,7 +192,7 @@ export default function AgentDetailPage({ params }: Props) {
         </div>
 
         {/* Thinking style */}
-        <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5">
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
             思维风格
           </p>
@@ -205,7 +205,7 @@ export default function AgentDetailPage({ params }: Props) {
 
         {/* Industries & Skills */}
         {(agent.industries.length > 0 || agent.skills.length > 0) && (
-          <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
             {agent.industries.length > 0 && (
               <div>
                 <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
@@ -213,7 +213,7 @@ export default function AgentDetailPage({ params }: Props) {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {agent.industries.map((ind) => (
-                    <span key={ind} className="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full">
+                    <span key={ind} className="text-xs bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full">
                       {ind}
                     </span>
                   ))}
@@ -239,7 +239,7 @@ export default function AgentDetailPage({ params }: Props) {
 
         {/* Questionnaire summary */}
         {agent.questionnaire && (
-          <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-5">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5">
             <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
               问卷信息
             </p>
@@ -247,13 +247,13 @@ export default function AgentDetailPage({ params }: Props) {
               {agent.questionnaire.bio && (
                 <div>
                   <p className="text-xs text-slate-500 mb-1">个人简介</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">{agent.questionnaire.bio}</p>
+                  <p className="text-sm text-slate-700 leading-relaxed">{agent.questionnaire.bio}</p>
                 </div>
               )}
               {agent.questionnaire.current_role && (
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-500">当前职位</span>
-                  <span className="text-xs text-slate-300">{agent.questionnaire.current_role}</span>
+                  <span className="text-xs text-slate-700">{agent.questionnaire.current_role}</span>
                 </div>
               )}
               {agent.questionnaire.preferred_role && (
@@ -267,7 +267,7 @@ export default function AgentDetailPage({ params }: Props) {
               {agent.questionnaire.discussion_strength && (
                 <div>
                   <p className="text-xs text-slate-500 mb-1">讨论优势</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">{agent.questionnaire.discussion_strength}</p>
+                  <p className="text-sm text-slate-700 leading-relaxed">{agent.questionnaire.discussion_strength}</p>
                 </div>
               )}
             </div>
@@ -301,7 +301,7 @@ function ThinkingBar({ label, value }: { label: string; value: number }) {
         <span className="text-xs text-slate-400">{label}</span>
         <span className="text-xs text-slate-500">{pct}%</span>
       </div>
-      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all"
           style={{ width: `${pct}%` }}
@@ -313,9 +313,9 @@ function ThinkingBar({ label, value }: { label: string; value: number }) {
 
 function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="bg-slate-900 border border-slate-700/50 rounded-xl p-4 flex flex-col items-center gap-2">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2">
       {icon}
-      <span className="text-lg font-bold text-white">{value}</span>
+      <span className="text-lg font-bold text-slate-900">{value}</span>
       <span className="text-xs text-slate-500">{label}</span>
     </div>
   );
@@ -323,7 +323,7 @@ function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string
 
 function AgentSkeleton() {
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-4 space-y-4 animate-pulse">
+    <div className="min-h-screen bg-slate-50 px-4 pt-4 space-y-4 animate-pulse">
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-32 w-full" />
       <div className="grid grid-cols-3 gap-3">

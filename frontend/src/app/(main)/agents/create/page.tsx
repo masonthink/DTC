@@ -134,27 +134,27 @@ export default function AgentCreatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center gap-3">
           {step > 0 ? (
             <button
               onClick={() => setStep((s) => s - 1)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
           ) : (
             <Link
               href="/agents"
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
           )}
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-white">创建数字分身</h1>
+            <h1 className="text-lg font-bold text-slate-900">创建数字分身</h1>
           </div>
           {/* Step dots */}
           <div className="flex gap-1.5">
@@ -167,7 +167,7 @@ export default function AgentCreatePage() {
                     ? "w-5 bg-indigo-500"
                     : i < step
                     ? "w-1.5 bg-indigo-700"
-                    : "w-1.5 bg-slate-700"
+                    : "w-1.5 bg-slate-300"
                 )}
               />
             ))}
@@ -194,11 +194,11 @@ export default function AgentCreatePage() {
                         "p-4 rounded-2xl border text-left transition-all active:scale-95",
                         agentType === t.value
                           ? "border-indigo-500 bg-indigo-600/10"
-                          : "border-slate-700 bg-slate-900 hover:border-slate-600"
+                          : "border-slate-200 bg-white hover:border-slate-300"
                       )}
                     >
                       <span className="text-2xl block mb-2">{t.emoji}</span>
-                      <p className="text-white text-sm font-semibold">{t.label}</p>
+                      <p className="text-slate-900 text-sm font-semibold">{t.label}</p>
                       <p className="text-slate-500 text-xs mt-0.5 leading-tight">{t.desc}</p>
                     </button>
                   ))}
@@ -212,7 +212,7 @@ export default function AgentCreatePage() {
                 <input
                   {...register("display_name")}
                   placeholder="给你的分身起个名字"
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none transition-colors text-sm"
+                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm"
                 />
                 {errors.display_name && (
                   <p className="text-red-400 text-xs mt-1.5">{errors.display_name.message}</p>
@@ -241,8 +241,8 @@ export default function AgentCreatePage() {
                           className={cn(
                             "py-2.5 px-3 rounded-xl text-xs font-medium border transition-all active:scale-95",
                             field.value === ind
-                              ? "border-indigo-500 bg-indigo-600/15 text-indigo-300"
-                              : "border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600"
+                              ? "border-indigo-500 bg-indigo-600/15 text-indigo-700"
+                              : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
                           )}
                         >
                           {ind}
@@ -281,7 +281,7 @@ export default function AgentCreatePage() {
                 <input
                   {...register("questionnaire.current_role")}
                   placeholder="如：产品经理、CTO、创始人"
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none transition-colors text-sm"
+                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm"
                 />
                 {errors.questionnaire?.current_role && (
                   <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.current_role.message}</p>
@@ -306,8 +306,8 @@ export default function AgentCreatePage() {
                       className={cn(
                         "px-3 py-1.5 rounded-full text-xs font-medium border transition-all active:scale-95",
                         expertise.includes(opt)
-                          ? "border-indigo-500 bg-indigo-600/15 text-indigo-300"
-                          : "border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600"
+                          ? "border-indigo-500 bg-indigo-600/15 text-indigo-700"
+                          : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
                       )}
                     >
                       {opt}
@@ -341,8 +341,8 @@ export default function AgentCreatePage() {
                           className={cn(
                             "w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all active:scale-[0.99]",
                             field.value === opt.value
-                              ? "border-indigo-500 bg-indigo-600/10 text-white"
-                              : "border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600"
+                              ? "border-indigo-500 bg-indigo-600/10 text-slate-900"
+                              : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
                           )}
                         >
                           <div
@@ -350,7 +350,7 @@ export default function AgentCreatePage() {
                               "w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors",
                               field.value === opt.value
                                 ? "border-indigo-500 bg-indigo-500"
-                                : "border-slate-600"
+                                : "border-slate-300"
                             )}
                           />
                           <span className="text-sm">{opt.label}</span>
@@ -378,8 +378,8 @@ export default function AgentCreatePage() {
                           className={cn(
                             "py-3 px-4 rounded-xl border text-sm font-medium transition-all active:scale-95",
                             field.value === opt.value
-                              ? "border-indigo-500 bg-indigo-600/10 text-indigo-300"
-                              : "border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600"
+                              ? "border-indigo-500 bg-indigo-600/10 text-indigo-700"
+                              : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
                           )}
                         >
                           {opt.label}
@@ -444,11 +444,11 @@ export default function AgentCreatePage() {
                             "p-3 rounded-xl border text-left transition-all active:scale-95",
                             field.value === r.value
                               ? "border-indigo-500 bg-indigo-600/10"
-                              : "border-slate-700 bg-slate-900 hover:border-slate-600"
+                              : "border-slate-200 bg-white hover:border-slate-300"
                           )}
                         >
                           <span className="text-lg">{r.emoji}</span>
-                          <p className="text-white text-xs font-semibold mt-1">{r.label}</p>
+                          <p className="text-slate-900 text-xs font-semibold mt-1">{r.label}</p>
                           <p className="text-slate-500 text-xs leading-tight">{r.desc}</p>
                         </button>
                       ))}
@@ -464,7 +464,7 @@ export default function AgentCreatePage() {
                 <input
                   {...register("questionnaire.discussion_strength")}
                   placeholder="如：能快速抓住问题本质，善于提出反例"
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none transition-colors text-sm"
+                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm"
                 />
                 {errors.questionnaire?.discussion_strength && (
                   <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.discussion_strength.message}</p>
@@ -479,7 +479,7 @@ export default function AgentCreatePage() {
                   {...register("questionnaire.bio")}
                   rows={4}
                   placeholder="描述你的背景、思维方式和对问题的独特视角..."
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none transition-colors text-sm resize-none"
+                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm resize-none"
                 />
                 {errors.questionnaire?.bio && (
                   <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.bio.message}</p>
@@ -490,7 +490,7 @@ export default function AgentCreatePage() {
         </div>
 
         {/* Bottom action */}
-        <div className="sticky bottom-0 px-4 pb-8 pt-4 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent">
+        <div className="sticky bottom-0 px-4 pb-8 pt-4 bg-gradient-to-t from-white via-white to-transparent">
           {step < steps.length - 1 ? (
             <button
               type="button"

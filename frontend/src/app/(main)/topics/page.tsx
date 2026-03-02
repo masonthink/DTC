@@ -33,11 +33,11 @@ export default function TopicsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 pt-4 pb-0 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white">我的话题</h1>
+          <h1 className="text-xl font-bold text-slate-900">我的话题</h1>
           <Link
             href="/topics/submit"
             className="flex items-center gap-1.5 text-indigo-400 text-sm font-medium active:opacity-70"
@@ -55,8 +55,8 @@ export default function TopicsPage() {
               onClick={() => setTab(t.key)}
               className={`flex items-center gap-1.5 pb-3 px-1 mr-6 text-sm font-medium border-b-2 transition-colors ${
                 tab === t.key
-                  ? "text-white border-indigo-500"
-                  : "text-slate-500 border-transparent hover:text-slate-300"
+                  ? "text-slate-900 border-indigo-500"
+                  : "text-slate-500 border-transparent hover:text-slate-700"
               }`}
             >
               {t.label}
@@ -64,8 +64,8 @@ export default function TopicsPage() {
                 <span
                   className={`text-xs px-1.5 py-0.5 rounded-full ${
                     tab === t.key
-                      ? "bg-indigo-600/30 text-indigo-300"
-                      : "bg-slate-700 text-slate-400"
+                      ? "bg-indigo-600/30 text-indigo-700"
+                      : "bg-slate-300 text-slate-400"
                   }`}
                 >
                   {t.count}
@@ -120,12 +120,12 @@ function TopicCard({ topic }: { topic: Topic }) {
       href={`/topics/${topic.id}`}
       className={`block rounded-2xl border p-4 transition-all active:scale-[0.99] ${
         isCompleted
-          ? "bg-slate-900/60 border-slate-700/40 hover:border-slate-600/60"
-          : "bg-slate-900 border-slate-700/50 hover:border-slate-600"
+          ? "bg-slate-50 border-slate-200/60 hover:border-slate-300/60"
+          : "bg-white border-slate-200 hover:border-slate-300"
       }`}
     >
       <div className="flex items-start justify-between gap-3 mb-2.5">
-        <h3 className="text-white text-sm font-medium line-clamp-2 flex-1">
+        <h3 className="text-slate-900 text-sm font-medium line-clamp-2 flex-1">
           {topic.title}
         </h3>
         <TopicStatusBadge status={topic.status} />
@@ -139,7 +139,7 @@ function TopicCard({ topic }: { topic: Topic }) {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-slate-600 bg-slate-800 px-2 py-0.5 rounded-full">
+          <span className="text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
             {TOPIC_TYPE_LABELS[topic.topic_type] ?? topic.topic_type}
           </span>
           {topic.tags?.slice(0, 2).map((tag) => (
@@ -157,7 +157,7 @@ function TopicCard({ topic }: { topic: Topic }) {
       </div>
 
       {isCompleted && topic.report_ready_at && (
-        <div className="mt-3 pt-3 border-t border-slate-700/50 flex items-center gap-2">
+        <div className="mt-3 pt-3 border-t border-slate-200 flex items-center gap-2">
           <span className="text-xs text-emerald-400">✓ 报告已生成</span>
           <span className="text-xs text-slate-600">→ 查看报告</span>
         </div>

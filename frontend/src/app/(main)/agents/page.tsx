@@ -10,12 +10,12 @@ export default function AgentsPage() {
   const { data: agents, isLoading } = useSWR("agents", agentApi.list);
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
         <div className="px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-white">我的分身</h1>
+            <h1 className="text-xl font-bold text-slate-900">我的分身</h1>
             <p className="text-xs text-slate-500 mt-0.5">代表你参与深度讨论</p>
           </div>
           <Link
@@ -41,7 +41,7 @@ export default function AgentsPage() {
             <div className="w-20 h-20 rounded-3xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-4xl mb-6">
               🤖
             </div>
-            <h3 className="text-white font-semibold text-lg mb-2">
+            <h3 className="text-slate-900 font-semibold text-lg mb-2">
               还没有数字分身
             </h3>
             <p className="text-slate-400 text-sm max-w-xs mb-8 leading-relaxed">
@@ -73,7 +73,7 @@ function AgentCard({ agent }: { agent: Agent }) {
   };
 
   return (
-    <Link href={`/agents/${agent.id}`} className="block bg-slate-900 border border-slate-700/50 rounded-2xl p-4 active:bg-slate-800 transition-colors">
+    <Link href={`/agents/${agent.id}`} className="block bg-white border border-slate-200 rounded-2xl p-4 active:bg-slate-200 transition-colors">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600/30 to-purple-600/20 border border-indigo-500/20 flex items-center justify-center text-2xl flex-shrink-0">
@@ -83,7 +83,7 @@ function AgentCard({ agent }: { agent: Agent }) {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-white font-semibold text-base truncate">
+            <h3 className="text-slate-900 font-semibold text-base truncate">
               {agent.display_name}
             </h3>
             <span className="text-xs bg-indigo-600/20 text-indigo-400 border border-indigo-600/30 px-2 py-0.5 rounded-full flex-shrink-0">
