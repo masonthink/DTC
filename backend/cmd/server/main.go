@@ -227,6 +227,20 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		code := http.StatusInternalServerError
+		if he, ok := err.(*echo.HTTPError); ok {
+			code = he.Code
+		}
+		if code >= 500 {
+			logger.Error("internal server error",
+				zap.String("method", c.Request().Method),
+				zap.String("path", c.Request().URL.Path),
+				zap.Error(err),
+			)
+		}
+		e.DefaultHTTPErrorHandler(err, c)
+	}
 
 	// Global middleware
 	e.Use(echomiddleware.Recover())
