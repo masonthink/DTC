@@ -4,6 +4,7 @@
  */
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
+import { toast } from "@/hooks/use-toast";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
@@ -89,7 +90,9 @@ api.interceptors.response.use(
       const refreshToken = tokenStorage.getRefresh();
       if (!refreshToken) {
         tokenStorage.clear();
-        window.location.href = "/login";
+        toast({ title: "登录已过期", description: "请重新登录", variant: "destructive" });
+        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/login?returnUrl=${returnUrl}`;
         return Promise.reject(error);
       }
 
@@ -104,7 +107,9 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError as Error);
         tokenStorage.clear();
-        window.location.href = "/login";
+        toast({ title: "登录已过期", description: "请重新登录", variant: "destructive" });
+        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/login?returnUrl=${returnUrl}`;
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -116,6 +121,20 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// ─── Error extraction utility ─────────────────────────────────────────────
+
+export function extractApiError(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data;
+    if (data?.message) return data.message;
+    if (data?.error) return data.error;
+    if (err.response?.status === 429) return "请求过于频繁，请稍后再试";
+    if (err.response?.status === 500) return "服务器错误，请稍后重试";
+  }
+  if (err instanceof Error) return err.message;
+  return "发生未知错误";
+}
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
 

@@ -2,12 +2,18 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { SWRProvider } from "@/components/providers/SWRProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
-  title: "数字分身社区",
-  description: "用你的数字分身参与深度讨论，发现真正志同道合的人",
+  title: "Concors - AI 多角度讨论，帮你做更好的决策",
+  description: "提交一个问题，4 位 AI 从不同角度深度讨论，生成专属分析报告。发现志同道合的人。",
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
@@ -19,7 +25,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#f8fafc",
+  themeColor: "#f5f5f8",
 };
 
 export default function RootLayout({
@@ -28,9 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background text-foreground antialiased`}>
-        {children}
+    <html lang="zh-CN" suppressHydrationWarning className={inter.variable}>
+      <body className="bg-background text-foreground antialiased font-sans">
+        <SWRProvider>
+          {children}
+        </SWRProvider>
         <Toaster />
       </body>
     </html>

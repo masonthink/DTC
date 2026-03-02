@@ -28,47 +28,45 @@ export function DiscussionProgress({ status, submittedAt }: Props) {
             {/* Node */}
             <div className="relative flex-shrink-0">
               <div
-                className={`w-3 h-3 rounded-full border-2 transition-all ${
+                className={`w-2.5 h-2.5 rounded-full border-2 transition-all duration-300 ${
                   m.state === "completed"
-                    ? "bg-indigo-500 border-indigo-400"
+                    ? "bg-primary border-primary"
                     : m.state === "active"
-                    ? "bg-indigo-500 border-indigo-300 animate-pulse-glow"
-                    : "bg-slate-200 border-slate-300"
+                    ? "bg-primary border-primary/40 animate-pulse-glow"
+                    : "bg-muted border-border"
                 }`}
               />
-              {/* Tooltip */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-900 text-xs text-slate-300 px-2 py-1 rounded whitespace-nowrap z-10 shadow-lg">
-                {m.label}
-              </div>
             </div>
             {/* Connector */}
             {i < milestones.length - 1 && (
               <div
-                className={`flex-1 h-0.5 ${
-                  m.state === "completed" ? "bg-indigo-500" : "bg-slate-200"
+                className={`flex-1 h-0.5 transition-all duration-300 ${
+                  m.state === "completed" ? "bg-primary" : "bg-border"
                 }`}
               />
             )}
           </div>
         ))}
       </div>
+
       {/* Labels */}
-      <div className="flex justify-between mt-1.5">
+      <div className="flex justify-between mt-2">
         {milestones.map((m) => (
           <span
             key={m.label}
-            className={`text-[10px] ${
+            className={`text-[10px] font-medium leading-none ${
               m.state === "active"
-                ? "text-indigo-400 font-medium"
+                ? "text-primary"
                 : m.state === "completed"
-                ? "text-slate-500"
-                : "text-slate-600"
+                ? "text-muted-foreground"
+                : "text-muted-foreground/50"
             }`}
           >
             {m.shortLabel}
           </span>
         ))}
       </div>
+
       {/* Time estimate */}
       <TimeEstimate status={status} submittedAt={new Date(submittedAt)} />
     </div>
@@ -94,9 +92,9 @@ function buildMilestones(status: TopicStatus, submittedAt: Date): Milestone[] {
   const currentIdx = order.indexOf(status);
 
   return [
-    { label: "话题提交", shortLabel: "提交" },
-    { label: "匹配分身", shortLabel: "匹配" },
-    { label: "讨论进行", shortLabel: "讨论" },
+    { label: "问题提交", shortLabel: "提交" },
+    { label: "准备角色", shortLabel: "准备" },
+    { label: "深度分析", shortLabel: "分析" },
     { label: "生成报告", shortLabel: "报告" },
     { label: "完成", shortLabel: "完成" },
   ].map((m, i) => ({
@@ -114,10 +112,10 @@ function TimeEstimate({ status, submittedAt }: { status: TopicStatus; submittedA
   const hoursElapsed = (now.getTime() - submittedAt.getTime()) / 3_600_000;
 
   const messages: Partial<Record<TopicStatus, string>> = {
-    pending_matching: "正在为你寻找最合适的分身...",
-    matching: "正在为你寻找最合适的分身...",
-    matched: `匹配完成，讨论将在 ${Math.max(0, Math.round(1.5 - hoursElapsed))} 小时后开始`,
-    discussion_active: `讨论进行中，报告将在约 ${Math.max(0, Math.round(48 - hoursElapsed))} 小时后就绪`,
+    pending_matching: "正在准备四个分析角色...",
+    matching: "正在准备四个分析角色...",
+    matched: "角色准备就绪，分析即将开始",
+    discussion_active: "四个角色正在深度辩论中...",
     report_generating: "正在生成你的专属分析报告...",
   };
 
@@ -125,8 +123,8 @@ function TimeEstimate({ status, submittedAt }: { status: TopicStatus; submittedA
   if (!msg) return null;
 
   return (
-    <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse flex-shrink-0" />
+    <p className="text-[11px] text-muted-foreground mt-2.5 flex items-center gap-1.5">
+      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
       {msg}
     </p>
   );

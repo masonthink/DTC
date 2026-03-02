@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
 
 export default function GlobalError({
   error,
@@ -14,15 +15,17 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4 text-center">
-      <p className="text-5xl mb-6">⚠️</p>
-      <h1 className="text-xl font-bold text-white mb-3">出现了一些问题</h1>
-      <p className="text-slate-400 text-sm mb-8 max-w-xs">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-5">
+        <AlertTriangle className="w-7 h-7 text-amber-500" />
+      </div>
+      <h1 className="text-[18px] font-bold text-foreground mb-2">出现了一些问题</h1>
+      <p className="text-muted-foreground text-[13px] mb-8 max-w-xs leading-relaxed">
         页面加载失败，请尝试刷新
       </p>
       <button
         onClick={reset}
-        className="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-6 py-3 rounded-xl font-medium transition-all"
+        className="bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground px-6 py-3 rounded-xl font-semibold text-[13px] transition-all duration-150 shadow-primary-sm"
       >
         重新加载
       </button>

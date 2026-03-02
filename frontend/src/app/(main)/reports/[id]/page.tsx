@@ -2,8 +2,11 @@
 
 import { use } from "react";
 import useSWR from "swr";
-import { reportApi, connectionApi, type Report, type RecommendedAgent } from "@/lib/api";
+import { reportApi, connectionApi, extractApiError, type Report, type RecommendedAgent } from "@/lib/api";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -11,102 +14,125 @@ interface Props {
 
 export default function ReportPage({ params }: Props) {
   const { id } = use(params);
+  const router = useRouter();
   const { data: report, isLoading } = useSWR(`report:${id}`, () => reportApi.get(id));
 
   if (isLoading) return <ReportSkeleton />;
-  if (!report) return <div className="text-center text-slate-400 py-16">报告不存在</div>;
+  if (!report) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <p className="text-muted-foreground text-[14px]">报告不存在</p>
+    </div>
+  );
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <span className="text-xs text-indigo-400 uppercase tracking-wider font-medium">
-          讨论分析报告
-        </span>
-        <div className="mt-2 flex items-center gap-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <span>质量评分</span>
+    <div className="min-h-screen bg-background">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <p className="flex-1 text-[14px] font-semibold text-foreground">讨论分析报告</p>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+        {/* Report meta */}
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-semibold text-primary uppercase tracking-wider mb-1">分析报告</p>
+              <p className="text-[12px] text-muted-foreground">
+                {new Date(report.generated_at).toLocaleDateString("zh-CN", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })} 生成
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[11px] text-muted-foreground mb-0.5">质量评分</p>
               <QualityScore score={report.quality_score} />
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {new Date(report.generated_at).toLocaleDateString("zh-CN", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })} 生成
-            </p>
           </div>
         </div>
-      </div>
 
-      {/* Summary */}
-      <section className="bg-slate-100/80 border border-slate-200 rounded-2xl p-6 mb-6">
-        <h2 className="text-slate-900 font-semibold mb-4">📋 讨论摘要</h2>
-        <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
-          {report.summary}
-        </div>
-      </section>
-
-      {/* Opinion matrix */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <OpinionSection
-          icon="✅"
-          title="核心共识"
-          items={report.consensus_points}
-          color="emerald"
-        />
-        <OpinionSection
-          icon="⚡"
-          title="主要分歧"
-          items={report.divergence_points}
-          color="amber"
-        />
-        <OpinionSection
-          icon="❓"
-          title="关键疑问"
-          items={report.key_questions}
-          color="blue"
-        />
-        <OpinionSection
-          icon="🎯"
-          title="行动建议"
-          items={report.action_items}
-          color="indigo"
-        />
-      </div>
-
-      {/* Blind spots */}
-      {report.blind_spots.length > 0 && (
-        <section className="bg-slate-100/60 border border-slate-200 rounded-2xl p-5 mb-6">
-          <h3 className="text-slate-700 font-medium text-sm mb-3 flex items-center gap-2">
-            <span>🔍</span> 值得关注的盲点
-          </h3>
-          <ul className="space-y-2">
-            {report.blind_spots.map((item, i) => (
-              <li key={i} className="text-slate-400 text-sm flex items-start gap-2">
-                <span className="text-slate-600 mt-0.5 flex-shrink-0">·</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Recommended connections */}
-      {report.recommended_agents.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-slate-900 font-semibold mb-4">🤝 推荐连接</h2>
-          <div className="space-y-3">
-            {report.recommended_agents.map((agent) => (
-              <RecommendedAgentCard key={agent.agent_id} agent={agent} />
-            ))}
+        {/* Summary */}
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-xs">
+          <h2 className="text-[14px] font-semibold text-foreground mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center text-xs">📋</span>
+            讨论摘要
+          </h2>
+          <div className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-line">
+            {report.summary}
           </div>
         </section>
-      )}
 
-      {/* User rating */}
-      <UserRating reportId={id} currentRating={report.user_rating} />
+        {/* Opinion matrix */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <OpinionSection
+            icon="✅"
+            title="核心共识"
+            items={report.consensus_points}
+            color="emerald"
+          />
+          <OpinionSection
+            icon="⚡"
+            title="主要分歧"
+            items={report.divergence_points}
+            color="amber"
+          />
+          <OpinionSection
+            icon="❓"
+            title="关键疑问"
+            items={report.key_questions}
+            color="blue"
+          />
+          <OpinionSection
+            icon="🎯"
+            title="行动建议"
+            items={report.action_items}
+            color="indigo"
+          />
+        </div>
+
+        {/* Blind spots */}
+        {report.blind_spots.length > 0 && (
+          <section className="bg-muted/60 border border-border rounded-2xl p-5">
+            <h3 className="text-[13px] font-semibold text-foreground mb-3 flex items-center gap-2">
+              <span>🔍</span> 值得关注的盲点
+            </h3>
+            <ul className="space-y-2.5">
+              {report.blind_spots.map((item, i) => (
+                <li key={i} className="text-muted-foreground text-[13px] flex items-start gap-2.5 leading-relaxed">
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50 mt-2 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Recommended connections */}
+        {report.recommended_agents.length > 0 && (
+          <section>
+            <h2 className="text-[14px] font-semibold text-foreground mb-3 flex items-center gap-2">
+              <span>🤝</span> 值得认识的人
+            </h2>
+            <div className="space-y-3">
+              {report.recommended_agents.map((agent) => (
+                <RecommendedAgentCard key={agent.agent_id} agent={agent} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* User rating */}
+        <UserRating reportId={id} currentRating={report.user_rating} />
+      </div>
     </div>
   );
 }
@@ -123,21 +149,30 @@ function OpinionSection({
   color: "emerald" | "amber" | "blue" | "indigo";
 }) {
   const colorMap = {
-    emerald: "border-emerald-500/20 bg-emerald-500/5",
-    amber: "border-amber-500/20 bg-amber-500/5",
-    blue: "border-blue-500/20 bg-blue-500/5",
-    indigo: "border-indigo-500/20 bg-indigo-500/5",
+    emerald: "border-emerald-100 bg-emerald-50",
+    amber: "border-amber-100 bg-amber-50",
+    blue: "border-blue-100 bg-blue-50",
+    indigo: "border-primary/15 bg-primary/5",
+  };
+
+  const textColorMap = {
+    emerald: "text-emerald-600",
+    amber: "text-amber-600",
+    blue: "text-blue-600",
+    indigo: "text-primary",
   };
 
   return (
-    <div className={`border rounded-xl p-4 ${colorMap[color]}`}>
-      <h3 className="text-slate-700 font-medium text-sm mb-3">
-        {icon} {title}
+    <div className={`border rounded-2xl p-4 shadow-xs ${colorMap[color]}`}>
+      <h3 className={`${textColorMap[color]} font-semibold text-[13px] mb-3 flex items-center gap-1.5`}>
+        <span>{icon}</span> {title}
       </h3>
       <ul className="space-y-2">
         {items.map((item, i) => (
-          <li key={i} className="text-slate-400 text-xs leading-relaxed flex items-start gap-1.5">
-            <span className="text-slate-600 mt-0.5 flex-shrink-0">·</span>
+          <li key={i} className="text-foreground/75 text-[12px] leading-relaxed flex items-start gap-2">
+            <span className={`${textColorMap[color]} mt-1.5 flex-shrink-0`}>
+              <span className="block w-1 h-1 rounded-full bg-current" />
+            </span>
             {item}
           </li>
         ))}
@@ -149,13 +184,14 @@ function OpinionSection({
 function QualityScore({ score }: { score: number }) {
   const color =
     score >= 8
-      ? "text-emerald-400"
+      ? "text-emerald-600"
       : score >= 6
-      ? "text-amber-400"
-      : "text-red-400";
+      ? "text-amber-600"
+      : "text-red-500";
   return (
-    <span className={`font-bold ${color}`}>
-      {score.toFixed(1)}<span className="text-slate-600 font-normal">/10</span>
+    <span className={`text-[18px] font-bold ${color} leading-none`}>
+      {score.toFixed(1)}
+      <span className="text-muted-foreground font-normal text-[13px]">/10</span>
     </span>
   );
 }
@@ -177,28 +213,28 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
         requester_contact: contact,
       });
       setSent(true);
-    } catch {
-      // handle error
+    } catch (err) {
+      toast({ title: "连接请求失败", description: extractApiError(err), variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-4">
+    <div className="bg-card border border-border rounded-2xl p-4 shadow-xs">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-slate-900 text-sm font-mono font-medium">{agent.anon_id}</span>
-            <span className="text-xs text-slate-500">
-              综合得分 {(agent.final_score * 100).toFixed(0)}%
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-foreground text-[13px] font-mono font-semibold">{agent.anon_id}</span>
+            <span className="text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+              匹配度 {(agent.final_score * 100).toFixed(0)}%
             </span>
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {agent.reasons.map((r, i) => (
               <span
                 key={i}
-                className="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full"
+                className="text-[11px] bg-primary/8 text-primary px-2 py-0.5 rounded-full border border-primary/15 font-medium"
               >
                 {r}
               </span>
@@ -209,38 +245,38 @@ function RecommendedAgentCard({ agent }: { agent: RecommendedAgent }) {
         {!sent ? (
           <button
             onClick={() => setShowConnect(!showConnect)}
-            className="flex-shrink-0 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-colors"
+            className="flex-shrink-0 text-[12px] bg-primary hover:bg-primary/90 text-primary-foreground px-3.5 py-1.5 rounded-xl transition-all duration-150 font-medium shadow-primary-sm"
           >
             申请连接
           </button>
         ) : (
-          <span className="flex-shrink-0 text-xs text-emerald-400">已发送</span>
+          <span className="flex-shrink-0 text-[12px] text-emerald-600 font-medium">✓ 已发送</span>
         )}
       </div>
 
       {/* Connection request form */}
       {showConnect && !sent && (
-        <div className="mt-4 pt-4 border-t border-slate-200 space-y-3 animate-unlock">
-          <p className="text-xs text-slate-400">
+        <div className="mt-4 pt-4 border-t border-border space-y-3 animate-unlock">
+          <p className="text-[12px] text-muted-foreground leading-relaxed">
             申请连接后，对方会收到通知。双方确认后才会交换联系方式。
           </p>
           <input
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder="你的联系方式（微信/邮箱/手机）"
-            className="w-full bg-slate-200/60 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500"
+            className="w-full bg-background border border-border rounded-xl px-3.5 py-2.5 text-[13px] text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-150"
           />
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="申请理由（选填）"
             rows={2}
-            className="w-full bg-slate-200/60 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 resize-none"
+            className="w-full bg-background border border-border rounded-xl px-3.5 py-2.5 text-[13px] text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-150 resize-none"
           />
           <button
             onClick={handleConnect}
             disabled={loading || !contact.trim()}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm py-2 rounded-lg transition-colors"
+            className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-[13px] py-2.5 rounded-xl transition-all duration-150 font-medium shadow-primary-sm"
           >
             {loading ? "发送中..." : "确认发送申请"}
           </button>
@@ -259,23 +295,23 @@ function UserRating({ reportId, currentRating }: { reportId: string; currentRati
     try {
       await reportApi.rate(reportId, { rating: score });
       setSaved(true);
-    } catch {
-      // ignore
+    } catch (err) {
+      toast({ title: "评分提交失败", description: extractApiError(err), variant: "destructive" });
     }
   };
 
   return (
-    <div className="text-center py-6 border-t border-slate-200">
-      <p className="text-slate-400 text-sm mb-3">这份报告对你有帮助吗？</p>
+    <div className="text-center py-6 border-t border-border">
+      <p className="text-muted-foreground text-[13px] mb-4">这份报告对你有帮助吗？</p>
       <div className="flex justify-center gap-2">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             onClick={() => handleRate(n)}
-            className={`w-8 h-8 rounded-lg text-sm transition-all ${
+            className={`w-9 h-9 rounded-xl text-base transition-all duration-150 active:scale-90 ${
               rating >= n
-                ? "bg-amber-500 text-white"
-                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                ? "bg-amber-400 text-white shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-amber-50 hover:text-amber-400 border border-border"
             }`}
           >
             ★
@@ -283,7 +319,7 @@ function UserRating({ reportId, currentRating }: { reportId: string; currentRati
         ))}
       </div>
       {saved && (
-        <p className="text-xs text-slate-500 mt-2">感谢反馈！</p>
+        <p className="text-[12px] text-muted-foreground mt-3">感谢你的反馈！</p>
       )}
     </div>
   );
@@ -291,13 +327,16 @@ function UserRating({ reportId, currentRating }: { reportId: string; currentRati
 
 function ReportSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 animate-pulse">
-      <div className="h-4 bg-slate-100 rounded w-1/4 mb-4" />
-      <div className="h-48 bg-slate-100 rounded-2xl mb-6" />
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-32 bg-slate-100 rounded-xl" />
-        ))}
+    <div className="min-h-screen bg-background">
+      <div className="h-14 bg-card border-b border-border" />
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+        <div className="h-20 bg-muted rounded-2xl animate-pulse" />
+        <div className="h-40 bg-muted rounded-2xl animate-pulse" />
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-32 bg-muted rounded-2xl animate-pulse" />
+          ))}
+        </div>
       </div>
     </div>
   );

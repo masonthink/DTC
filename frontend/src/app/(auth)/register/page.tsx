@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { authApi, tokenStorage } from "@/lib/api";
+import { authApi, tokenStorage, extractApiError } from "@/lib/api";
 import Link from "next/link";
 
 const registerSchema = z
@@ -33,6 +33,8 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    clearErrors,
+    resetField,
     formState: { errors },
   } = useForm<RegisterForm>({ resolver: zodResolver(registerSchema) });
 
@@ -53,41 +55,56 @@ export default function RegisterPage() {
       );
       router.push("/agents/create");
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "注册失败，请稍后重试";
-      setError(msg);
+      setError(extractApiError(err));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-mesh flex items-center justify-center px-4 py-12">
+      {/* Decorative blobs */}
+      <div className="fixed top-0 left-0 right-0 bottom-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-violet-400/4 blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-sm animate-reveal-up">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-2xl font-bold text-slate-900">
-              <span className="text-indigo-600">C</span>oncors
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group">
+            <div className="w-8 h-8 rounded-xl bg-primary-gradient flex items-center justify-center shadow-primary-sm group-hover:shadow-primary-md transition-shadow duration-200">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="4.5" cy="4.5" r="2.8" fill="white" fillOpacity="0.9" />
+                <circle cx="11.5" cy="4.5" r="2.8" fill="white" fillOpacity="0.6" />
+                <circle cx="8" cy="11" r="2.8" fill="white" fillOpacity="0.75" />
+              </svg>
+            </div>
+            <span className="text-lg font-semibold tracking-tight text-foreground">
+              Concors
             </span>
           </Link>
-          <h1 className="text-xl font-bold text-slate-900">创建账号</h1>
-          <p className="text-slate-500 mt-1 text-sm">加入数字分身社区</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">创建账号</h1>
+          <p className="text-muted-foreground mt-1.5 text-[14px]">注册后即可获得 AI 多角度分析</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-md">
           {/* Mode toggle */}
-          <div className="flex rounded-xl bg-slate-100 p-1 mb-5">
+          <div className="flex rounded-xl bg-muted p-1 mb-5">
             {(["phone", "email"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
-                onClick={() => setMode(m)}
-                className={`flex-1 py-2 text-sm rounded-lg transition-all font-medium ${
+                onClick={() => {
+                  setMode(m);
+                  clearErrors();
+                  resetField(m === "phone" ? "email" : "phone");
+                }}
+                className={`flex-1 py-2 text-[13px] rounded-lg transition-all duration-200 font-medium ${
                   mode === m
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground/80"
                 }`}
               >
                 {m === "phone" ? "手机号" : "邮箱"}
@@ -97,73 +114,98 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="block text-sm text-slate-700 font-medium mb-1.5">昵称</label>
+              <label htmlFor="display_name" className="block text-[13px] font-medium text-foreground/80 mb-1.5">
+                昵称
+              </label>
               <input
+                id="display_name"
                 {...register("display_name")}
                 placeholder="你的昵称"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[14px]"
               />
               {errors.display_name && (
-                <p className="text-red-500 text-xs mt-1">{errors.display_name.message}</p>
+                <p className="text-destructive text-[12px] mt-1.5">{errors.display_name.message}</p>
               )}
             </div>
 
             {mode === "phone" ? (
               <div>
-                <label className="block text-sm text-slate-700 font-medium mb-1.5">手机号</label>
+                <label htmlFor="reg-phone" className="block text-[13px] font-medium text-foreground/80 mb-1.5">
+                  手机号
+                </label>
                 <input
+                  id="reg-phone"
                   {...register("phone")}
                   type="tel"
                   placeholder="请输入手机号"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[14px]"
                 />
                 {errors.phone && (
-                  <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
+                  <p className="text-destructive text-[12px] mt-1.5">{errors.phone.message}</p>
                 )}
               </div>
             ) : (
               <div>
-                <label className="block text-sm text-slate-700 font-medium mb-1.5">邮箱</label>
+                <label htmlFor="reg-email" className="block text-[13px] font-medium text-foreground/80 mb-1.5">
+                  邮箱
+                </label>
                 <input
+                  id="reg-email"
                   {...register("email")}
                   type="email"
                   placeholder="请输入邮箱"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[14px]"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                  <p className="text-destructive text-[12px] mt-1.5">{errors.email.message}</p>
                 )}
               </div>
             )}
 
             <div>
-              <label className="block text-sm text-slate-700 font-medium mb-1.5">密码</label>
+              <label htmlFor="reg-password" className="block text-[13px] font-medium text-foreground/80 mb-1.5">
+                密码
+              </label>
               <input
+                id="reg-password"
                 {...register("password")}
                 type="password"
                 placeholder="至少8位"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[14px]"
               />
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                <p className="text-destructive text-[12px] mt-1.5">{errors.password.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm text-slate-700 font-medium mb-1.5">确认密码</label>
+              <label htmlFor="reg-confirm" className="block text-[13px] font-medium text-foreground/80 mb-1.5">
+                确认密码
+              </label>
               <input
+                id="reg-confirm"
                 {...register("confirm")}
                 type="password"
                 placeholder="再次输入密码"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors text-sm"
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[14px]"
               />
               {errors.confirm && (
-                <p className="text-red-500 text-xs mt-1">{errors.confirm.message}</p>
+                <p className="text-destructive text-[12px] mt-1.5">{errors.confirm.message}</p>
               )}
             </div>
 
+            {errors.root && (
+              <div className="bg-destructive/8 border border-destructive/20 rounded-xl px-4 py-3 text-destructive text-[13px]">
+                {errors.root.message}
+              </div>
+            )}
+
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
+              <div className="bg-destructive/8 border border-destructive/20 rounded-xl px-4 py-3 text-destructive text-[13px] flex items-start gap-2.5">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0 mt-0.5">
+                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M8 5v4M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
                 {error}
               </div>
             )}
@@ -171,21 +213,28 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-indigo-600/20 mt-1"
+              className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-primary-sm hover:shadow-primary-md text-[15px] mt-1"
             >
-              {loading ? "注册中..." : "创建账号"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  注册中
+                </span>
+              ) : "创建账号"}
             </button>
           </form>
 
-          <p className="text-center text-slate-500 text-sm mt-5">
-            已有账号？{" "}
-            <Link
-              href="/login"
-              className="text-indigo-600 hover:text-indigo-500 font-medium transition-colors"
-            >
-              立即登录
-            </Link>
-          </p>
+          <div className="mt-5 pt-5 border-t border-border text-center">
+            <p className="text-muted-foreground text-[13px]">
+              已有账号？{" "}
+              <Link href="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                立即登录
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

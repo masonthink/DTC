@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { agentApi, type CreateAgentRequest } from "@/lib/api";
+import { agentApi, extractApiError, type CreateAgentRequest } from "@/lib/api";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
@@ -124,50 +124,50 @@ export default function AgentCreatePage() {
     setLoading(true);
     try {
       await agentApi.create(data as CreateAgentRequest);
-      toast({ title: "分身创建成功！", description: "现在可以提交话题了" });
+      toast({ title: "设置完成！", description: "现在可以提交问题了" });
       router.push("/dashboard");
-    } catch {
-      toast({ title: "创建失败", description: "请稍后重试", variant: "destructive" });
+    } catch (err) {
+      toast({ title: "创建失败", description: extractApiError(err), variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
+      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 py-4 flex items-center gap-3">
           {step > 0 ? (
             <button
               onClick={() => setStep((s) => s - 1)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
           ) : (
             <Link
               href="/agents"
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
           )}
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-slate-900">创建数字分身</h1>
+            <h1 className="text-[15px] font-bold text-foreground tracking-tight">设置你的专业背景</h1>
           </div>
           {/* Step dots */}
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 items-center">
             {steps.map((_, i) => (
               <div
                 key={i}
                 className={cn(
-                  "h-1.5 rounded-full transition-all",
+                  "h-1.5 rounded-full transition-all duration-300",
                   i === step
-                    ? "w-5 bg-indigo-500"
+                    ? "w-5 bg-primary"
                     : i < step
-                    ? "w-1.5 bg-indigo-700"
-                    : "w-1.5 bg-slate-300"
+                    ? "w-1.5 bg-primary/60"
+                    : "w-1.5 bg-border"
                 )}
               />
             ))}
@@ -181,8 +181,8 @@ export default function AgentCreatePage() {
           {step === 0 && (
             <div className="space-y-6">
               <div>
-                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
-                  分身类型
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                  你的身份
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   {AGENT_TYPES.map((t) => (
@@ -191,31 +191,32 @@ export default function AgentCreatePage() {
                       type="button"
                       onClick={() => setValue("agent_type", t.value as FormValues["agent_type"])}
                       className={cn(
-                        "p-4 rounded-2xl border text-left transition-all active:scale-95",
+                        "p-4 rounded-2xl border text-left transition-all duration-150 active:scale-95",
                         agentType === t.value
-                          ? "border-indigo-500 bg-indigo-600/10"
-                          : "border-slate-200 bg-white hover:border-slate-300"
+                          ? "border-primary bg-primary/8 shadow-xs"
+                          : "border-border bg-card hover:border-primary/30 hover:bg-muted/40"
                       )}
                     >
                       <span className="text-2xl block mb-2">{t.emoji}</span>
-                      <p className="text-slate-900 text-sm font-semibold">{t.label}</p>
-                      <p className="text-slate-500 text-xs mt-0.5 leading-tight">{t.desc}</p>
+                      <p className={cn("text-[13px] font-semibold transition-colors", agentType === t.value ? "text-primary" : "text-foreground")}>{t.label}</p>
+                      <p className="text-muted-foreground text-[11px] mt-0.5 leading-tight">{t.desc}</p>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  分身名称
+                <label htmlFor="agent-display-name" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  你的昵称
                 </label>
                 <input
+                  id="agent-display-name"
                   {...register("display_name")}
-                  placeholder="给你的分身起个名字"
-                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm"
+                  placeholder="AI 分析时会用这个名字"
+                  className="w-full bg-background border border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[13px]"
                 />
                 {errors.display_name && (
-                  <p className="text-red-400 text-xs mt-1.5">{errors.display_name.message}</p>
+                  <p className="text-red-500 text-[11px] mt-1.5">{errors.display_name.message}</p>
                 )}
               </div>
             </div>
@@ -225,7 +226,7 @@ export default function AgentCreatePage() {
           {step === 1 && (
             <div className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   主要行业
                 </label>
                 <Controller
@@ -239,10 +240,10 @@ export default function AgentCreatePage() {
                           type="button"
                           onClick={() => field.onChange(ind)}
                           className={cn(
-                            "py-2.5 px-3 rounded-xl text-xs font-medium border transition-all active:scale-95",
+                            "py-2.5 px-3 rounded-xl text-[11px] font-medium border transition-all duration-150 active:scale-95",
                             field.value === ind
-                              ? "border-indigo-500 bg-indigo-600/15 text-indigo-700"
-                              : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
+                              ? "border-primary bg-primary/8 text-primary"
+                              : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:bg-muted/40"
                           )}
                         >
                           {ind}
@@ -252,13 +253,13 @@ export default function AgentCreatePage() {
                   )}
                 />
                 {errors.questionnaire?.primary_industry && (
-                  <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.primary_industry.message}</p>
+                  <p className="text-red-500 text-[11px] mt-1.5">{errors.questionnaire.primary_industry.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  工作年限：{watch("questionnaire.years_experience")} 年
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  工作年限：<span className="text-foreground normal-case font-medium">{watch("questionnaire.years_experience")} 年</span>
                 </label>
                 <input
                   type="range"
@@ -266,31 +267,32 @@ export default function AgentCreatePage() {
                   max="25"
                   step="1"
                   {...register("questionnaire.years_experience", { valueAsNumber: true })}
-                  className="w-full accent-indigo-500"
+                  className="w-full"
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-1">
+                <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
                   <span>应届</span>
                   <span>25年+</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                <label htmlFor="current-role" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   当前职位
                 </label>
                 <input
+                  id="current-role"
                   {...register("questionnaire.current_role")}
                   placeholder="如：产品经理、CTO、创始人"
-                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm"
+                  className="w-full bg-background border border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[13px]"
                 />
                 {errors.questionnaire?.current_role && (
-                  <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.current_role.message}</p>
+                  <p className="text-red-500 text-[11px] mt-1.5">{errors.questionnaire.current_role.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  专业能力（多选）
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  专业能力 <span className="text-muted-foreground/60 normal-case font-normal">（多选）</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {EXPERTISE_OPTIONS.map((opt) => (
@@ -304,10 +306,10 @@ export default function AgentCreatePage() {
                         setValue("questionnaire.expertise", next);
                       }}
                       className={cn(
-                        "px-3 py-1.5 rounded-full text-xs font-medium border transition-all active:scale-95",
+                        "px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all duration-150 active:scale-95",
                         expertise.includes(opt)
-                          ? "border-indigo-500 bg-indigo-600/15 text-indigo-700"
-                          : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
+                          ? "border-primary bg-primary/8 text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-primary/30"
                       )}
                     >
                       {opt}
@@ -315,7 +317,7 @@ export default function AgentCreatePage() {
                   ))}
                 </div>
                 {errors.questionnaire?.expertise && (
-                  <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.expertise.message}</p>
+                  <p className="text-red-500 text-[11px] mt-1.5">{errors.questionnaire.expertise.message}</p>
                 )}
               </div>
             </div>
@@ -325,7 +327,7 @@ export default function AgentCreatePage() {
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   解决问题的方式
                 </label>
                 <Controller
@@ -339,21 +341,23 @@ export default function AgentCreatePage() {
                           type="button"
                           onClick={() => field.onChange(opt.value)}
                           className={cn(
-                            "w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all active:scale-[0.99]",
+                            "w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all duration-150 active:scale-[0.99]",
                             field.value === opt.value
-                              ? "border-indigo-500 bg-indigo-600/10 text-slate-900"
-                              : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
+                              ? "border-primary bg-primary/8"
+                              : "border-border bg-card hover:border-primary/30 hover:bg-muted/40"
                           )}
                         >
                           <div
                             className={cn(
-                              "w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors",
+                              "w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all duration-150",
                               field.value === opt.value
-                                ? "border-indigo-500 bg-indigo-500"
-                                : "border-slate-300"
+                                ? "border-primary bg-primary"
+                                : "border-border"
                             )}
                           />
-                          <span className="text-sm">{opt.label}</span>
+                          <span className={cn("text-[13px] transition-colors", field.value === opt.value ? "text-foreground font-medium" : "text-muted-foreground")}>
+                            {opt.label}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -362,7 +366,7 @@ export default function AgentCreatePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   决策风格
                 </label>
                 <Controller
@@ -376,10 +380,10 @@ export default function AgentCreatePage() {
                           type="button"
                           onClick={() => field.onChange(opt.value)}
                           className={cn(
-                            "py-3 px-4 rounded-xl border text-sm font-medium transition-all active:scale-95",
+                            "py-3 px-4 rounded-xl border text-[13px] font-medium transition-all duration-150 active:scale-95",
                             field.value === opt.value
-                              ? "border-indigo-500 bg-indigo-600/10 text-indigo-700"
-                              : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
+                              ? "border-primary bg-primary/8 text-primary"
+                              : "border-border bg-card text-muted-foreground hover:border-primary/30"
                           )}
                         >
                           {opt.label}
@@ -391,8 +395,8 @@ export default function AgentCreatePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  风险偏好：{riskTolerance}/10
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  风险偏好：<span className="text-foreground normal-case font-medium">{riskTolerance}/10</span>
                 </label>
                 <input
                   type="range"
@@ -400,17 +404,17 @@ export default function AgentCreatePage() {
                   max="10"
                   step="1"
                   {...register("questionnaire.risk_tolerance", { valueAsNumber: true })}
-                  className="w-full accent-indigo-500"
+                  className="w-full"
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-1">
+                <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
                   <span>保守稳健</span>
                   <span>激进冒险</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  创新倾向：{innovationFocus}/10
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  创新倾向：<span className="text-foreground normal-case font-medium">{innovationFocus}/10</span>
                 </label>
                 <input
                   type="range"
@@ -418,16 +422,16 @@ export default function AgentCreatePage() {
                   max="10"
                   step="1"
                   {...register("questionnaire.innovation_focus", { valueAsNumber: true })}
-                  className="w-full accent-indigo-500"
+                  className="w-full"
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-1">
+                <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
                   <span>守成稳定</span>
                   <span>颠覆创新</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   讨论中的角色
                 </label>
                 <Controller
@@ -441,15 +445,15 @@ export default function AgentCreatePage() {
                           type="button"
                           onClick={() => field.onChange(r.value)}
                           className={cn(
-                            "p-3 rounded-xl border text-left transition-all active:scale-95",
+                            "p-3 rounded-xl border text-left transition-all duration-150 active:scale-95",
                             field.value === r.value
-                              ? "border-indigo-500 bg-indigo-600/10"
-                              : "border-slate-200 bg-white hover:border-slate-300"
+                              ? "border-primary bg-primary/8"
+                              : "border-border bg-card hover:border-primary/30 hover:bg-muted/40"
                           )}
                         >
                           <span className="text-lg">{r.emoji}</span>
-                          <p className="text-slate-900 text-xs font-semibold mt-1">{r.label}</p>
-                          <p className="text-slate-500 text-xs leading-tight">{r.desc}</p>
+                          <p className={cn("text-[12px] font-semibold mt-1 transition-colors", field.value === r.value ? "text-primary" : "text-foreground")}>{r.label}</p>
+                          <p className="text-muted-foreground text-[11px] leading-tight">{r.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -458,31 +462,33 @@ export default function AgentCreatePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  我的讨论优势
+                <label htmlFor="discussion-strength" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  你擅长的讨论方式
                 </label>
                 <input
+                  id="discussion-strength"
                   {...register("questionnaire.discussion_strength")}
                   placeholder="如：能快速抓住问题本质，善于提出反例"
-                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm"
+                  className="w-full bg-background border border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[13px]"
                 />
                 {errors.questionnaire?.discussion_strength && (
-                  <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.discussion_strength.message}</p>
+                  <p className="text-red-500 text-[11px] mt-1.5">{errors.questionnaire.discussion_strength.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  分身简介 <span className="text-slate-600 normal-case">（20-500字）</span>
+                <label htmlFor="agent-bio" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  个人简介 <span className="text-muted-foreground/60 normal-case font-normal">（20–500字）</span>
                 </label>
                 <textarea
+                  id="agent-bio"
                   {...register("questionnaire.bio")}
                   rows={4}
                   placeholder="描述你的背景、思维方式和对问题的独特视角..."
-                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none transition-colors text-sm resize-none"
+                  className="w-full bg-background border border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150 text-[13px] resize-none"
                 />
                 {errors.questionnaire?.bio && (
-                  <p className="text-red-400 text-xs mt-1.5">{errors.questionnaire.bio.message}</p>
+                  <p className="text-red-500 text-[11px] mt-1.5">{errors.questionnaire.bio.message}</p>
                 )}
               </div>
             </div>
@@ -490,12 +496,12 @@ export default function AgentCreatePage() {
         </div>
 
         {/* Bottom action */}
-        <div className="sticky bottom-0 px-4 pb-8 pt-4 bg-gradient-to-t from-white via-white to-transparent">
+        <div className="sticky bottom-0 px-4 pb-8 pt-4 bg-gradient-to-t from-background via-background/95 to-transparent">
           {step < steps.length - 1 ? (
             <button
               type="button"
               onClick={goNext}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/25"
+              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 rounded-2xl transition-all duration-150 active:scale-[0.98] shadow-primary-md"
             >
               下一步
               <ChevronRight className="w-5 h-5" />
@@ -504,9 +510,9 @@ export default function AgentCreatePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/25"
+              className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-semibold py-4 rounded-2xl transition-all duration-150 active:scale-[0.98] shadow-primary-md"
             >
-              {loading ? "创建中..." : "完成，创建分身"}
+              {loading ? "创建中..." : "完成设置"}
             </button>
           )}
         </div>

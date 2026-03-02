@@ -3,10 +3,8 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
-import { tokenStorage } from "@/lib/api";
 import {
   LogOut,
-  User,
   ChevronRight,
   Bot,
   BookOpen,
@@ -31,8 +29,8 @@ export default function ProfilePage() {
     {
       title: "账号",
       items: [
-        { icon: Bot, label: "我的分身", href: "/agents", sub: "管理你的数字分身" },
-        { icon: BookOpen, label: "话题记录", href: "/topics", sub: "查看所有讨论话题" },
+        { icon: Bot, label: "我的背景", href: "/agents", sub: "管理你的专业背景档案" },
+        { icon: BookOpen, label: "问题记录", href: "/topics", sub: "查看所有提交的问题" },
       ],
     },
     {
@@ -45,69 +43,79 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-gradient-to-b from-indigo-950/40 to-slate-950 px-4 pt-12 pb-6">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-background">
+      {/* Profile header — uses a deep primary gradient for visual impact */}
+      <div className="relative bg-gradient-to-b from-primary/90 to-primary/70 px-4 pt-12 pb-8 overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-8 -right-8 w-48 h-48 rounded-full bg-white/5" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-black/10" />
+        </div>
+
+        <div className="relative flex items-center gap-4">
           {/* Avatar */}
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-slate-900 font-bold text-xl shadow-lg shadow-indigo-600/20 flex-shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/25 flex items-center justify-center text-white font-bold text-[20px] flex-shrink-0 shadow-lg">
             {initials}
           </div>
 
           <div className="flex-1 min-w-0">
             {user?.display_name && (
-              <h2 className="text-slate-900 font-bold text-xl">{user.display_name}</h2>
+              <h2 className="text-white font-bold text-[20px] mb-0.5">{user.display_name}</h2>
             )}
-            <p className="text-slate-400 text-sm mt-0.5 truncate">
-              {user?.phone ? `📱 ${user.phone}` : user?.email ? `✉️ ${user.email}` : "未设置联系方式"}
+            <p className="text-white/70 text-[13px] truncate">
+              {user?.phone
+                ? user.phone
+                : user?.email
+                ? user.email
+                : "未设置联系方式"}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="px-4 space-y-4">
+      <div className="px-4 pt-5 space-y-4">
         {menuSections.map((section) => (
           <div key={section.title}>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-1">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
               {section.title}
             </p>
-            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xs">
               {section.items.map((item, idx) => (
                 <div key={item.label}>
                   {item.href ? (
                     <Link
                       href={item.href}
-                      className="flex items-center gap-3 px-4 py-4 hover:bg-slate-100/50 active:bg-slate-200 transition-colors"
+                      className="flex items-center gap-3 px-4 py-4 hover:bg-muted/50 active:bg-muted transition-colors"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <item.icon className="w-4.5 h-4.5 text-slate-400" size={18} />
+                      <div className="w-9 h-9 rounded-xl bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                        <item.icon className="text-muted-foreground" size={16} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-900 text-sm font-medium">{item.label}</p>
+                        <p className="text-foreground text-[13px] font-medium">{item.label}</p>
                         {item.sub && (
-                          <p className="text-slate-500 text-xs mt-0.5">{item.sub}</p>
+                          <p className="text-muted-foreground text-[11px] mt-0.5">{item.sub}</p>
                         )}
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-600" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
                     </Link>
                   ) : (
                     <div className="flex items-center gap-3 px-4 py-4 opacity-50">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <item.icon className="w-4.5 h-4.5 text-slate-400" size={18} />
+                      <div className="w-9 h-9 rounded-xl bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                        <item.icon className="text-muted-foreground" size={16} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-900 text-sm font-medium">{item.label}</p>
+                        <p className="text-foreground text-[13px] font-medium">{item.label}</p>
                         {item.sub && (
-                          <p className="text-slate-500 text-xs mt-0.5">{item.sub}</p>
+                          <p className="text-muted-foreground text-[11px] mt-0.5">{item.sub}</p>
                         )}
                       </div>
-                      <span className="text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-medium text-muted-foreground bg-muted border border-border px-2 py-0.5 rounded-full">
                         即将上线
                       </span>
                     </div>
                   )}
                   {idx < section.items.length - 1 && (
-                    <div className="h-px bg-slate-100 mx-4" />
+                    <div className="h-px bg-border/60 mx-4" />
                   )}
                 </div>
               ))}
@@ -116,23 +124,23 @@ export default function ProfilePage() {
         ))}
 
         {/* About */}
-        <div className="bg-white border border-slate-200 rounded-2xl px-4 py-4">
+        <div className="bg-card border border-border rounded-2xl px-4 py-4 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center text-lg flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center text-base flex-shrink-0">
               🤖
             </div>
             <div className="flex-1">
-              <p className="text-slate-900 text-sm font-semibold">Concors</p>
-              <p className="text-slate-500 text-xs">让思想连接有价值的人</p>
+              <p className="text-foreground text-[13px] font-semibold">Concors</p>
+              <p className="text-muted-foreground text-[11px] mt-0.5">AI 多角度分析，帮你做更好的决策</p>
             </div>
-            <span className="text-xs text-slate-600">v0.1.0</span>
+            <span className="text-[11px] text-muted-foreground font-mono">v0.1.0</span>
           </div>
         </div>
 
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-colors active:scale-[0.98] text-sm font-medium"
+          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-150 active:scale-[0.98] text-[13px] font-medium"
         >
           <LogOut className="w-4 h-4" />
           退出登录

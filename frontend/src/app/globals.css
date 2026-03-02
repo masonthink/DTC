@@ -4,80 +4,264 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* ── Color System ─────────────────────────────────────────────────────────
+     * Palette direction: 高级感 (premium sophistication)
+     * Primary: A deep violet-indigo — intellectual, trustworthy, tech-forward
+     * Background: Warm off-white — approachable, not clinical
+     * Surfaces: Layered whites with subtle warmth
+     * ─────────────────────────────────────────────────────────────────────── */
+
+    /* Background: warm off-white instead of pure white */
+    --background: 220 20% 98%;
+    --foreground: 224 25% 12%;
+
+    /* Card surfaces: clean white */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 224 25% 12%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --popover-foreground: 224 25% 12%;
+
+    /* Primary: violet-indigo — distinctive, premium */
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: soft lavender tint */
+    --secondary: 240 20% 96%;
+    --secondary-foreground: 243 25% 30%;
+
+    /* Muted: warm gray */
+    --muted: 220 16% 95%;
+    --muted-foreground: 220 12% 52%;
+
+    /* Accent: same as secondary */
+    --accent: 240 20% 96%;
+    --accent-foreground: 243 25% 30%;
+
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders: very subtle, slightly cool */
+    --border: 220 16% 91%;
+    --input: 220 16% 91%;
+    --ring: 243 75% 59%;
+
+    /* Border radius: slightly more refined */
+    --radius: 0.625rem;
+
+    /* ── Elevation & Shadow ──────────────────────────────────────────────── */
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+
+    /* Primary-tinted shadows */
+    --shadow-primary-sm: 0 4px 12px -2px rgb(99 85 221 / 0.18);
+    --shadow-primary-md: 0 8px 20px -4px rgb(99 85 221 / 0.22);
+
+    /* ── Typography scale ────────────────────────────────────────────────── */
+    --font-size-xs: 0.6875rem;    /* 11px */
+    --font-size-sm: 0.8125rem;    /* 13px */
+    --font-size-base: 0.9375rem;  /* 15px */
+    --font-size-lg: 1.0625rem;    /* 17px */
+    --font-size-xl: 1.25rem;      /* 20px */
+    --font-size-2xl: 1.5625rem;   /* 25px */
+    --font-size-3xl: 1.9375rem;   /* 31px */
+
+    /* ── Spacing tokens ──────────────────────────────────────────────────── */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --background: 228 22% 9%;
+    --foreground: 220 16% 94%;
+
+    --card: 228 20% 12%;
+    --card-foreground: 220 16% 94%;
+
+    --popover: 228 20% 12%;
+    --popover-foreground: 220 16% 94%;
+
+    --primary: 243 72% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 228 18% 17%;
+    --secondary-foreground: 220 16% 80%;
+
+    --muted: 228 18% 17%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 228 18% 17%;
+    --accent-foreground: 220 16% 80%;
+
+    --destructive: 0 65% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 228 16% 20%;
+    --input: 228 16% 20%;
+    --ring: 243 72% 65%;
   }
 }
 
+/* ── Base styles ────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border;
   }
+
+  html {
+    /* Improve text rendering */
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    /* CJK-optimized line height */
+    line-height: 1.7;
+    /* Slightly improved letter spacing for CJK context */
+    letter-spacing: 0.01em;
+  }
+
+  /* Chinese text rhythm — generous line-height for readability */
+  p, li {
+    line-height: 1.75;
+  }
+
+  /* Headings — tighter tracking for display text */
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  /* Remove default focus ring, provide custom elegant one */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary) / 0.6);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Smoother scrolling */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 }
 
-/* Custom animations for async wait UX */
+/* ── Utility extensions ─────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Premium card treatment */
+  .card-elevated {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+    border-radius: calc(var(--radius) * 2);
+  }
+
+  /* Glassmorphism — used sparingly for floating elements */
+  .glass {
+    background: rgb(255 255 255 / 0.88);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgb(255 255 255 / 0.6);
+  }
+
+  /* Text gradient — for hero headlines */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(243 75% 55%) 0%, hsl(275 65% 58%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Subtle background pattern for landing */
+  .bg-mesh {
+    background-color: hsl(220 20% 98%);
+    background-image:
+      radial-gradient(at 20% 30%, hsl(243 75% 59% / 0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 70%, hsl(275 65% 58% / 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 0%, hsl(243 75% 59% / 0.04) 0px, transparent 50%);
+  }
+
+  /* Focus ring that's both visible and beautiful */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1;
+  }
+
+  /* Truncate with proper handling */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ── Custom animations ──────────────────────────────────────────────────────── */
+
+/* Pulse glow — for active discussion milestones */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(243 75% 59% / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(243 75% 59% / 0);
+  }
 }
 
+/* Float — for decorative elements */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+/* Shimmer — for loading skeletons */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+/* Reveal — for page entry animations */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Privacy layer unlock animation */
+/* Scale in — for modal/card appearances */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Privacy layer unlock */
 @keyframes unlock-reveal {
   from {
     opacity: 0;
@@ -91,6 +275,127 @@
   }
 }
 
+/* Typing dots */
+@keyframes typing-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Gradient shift — for hero decorative elements */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-reveal-up {
+  animation: reveal-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .animate-unlock {
-  animation: unlock-reveal 0.6s ease-out forwards;
+  animation: unlock-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* Staggered reveal for lists */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+
+/* ── Skeleton loading ───────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(220 16% 93%) 25%,
+    hsl(220 16% 97%) 50%,
+    hsl(220 16% 93%) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+/* ── Scrollbar styling ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+/* ── Selection ──────────────────────────────────────────────────────────────── */
+::selection {
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--foreground));
+}
+
+/* ── Input range styling ────────────────────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 100px;
+  background: hsl(var(--border));
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  transition: box-shadow 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15), 0 1px 3px rgb(0 0 0 / 0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+}
+
+/* ── Typography helpers for CJK ─────────────────────────────────────────────── */
+/* Punctuation kerning fix for Chinese */
+.cjk-text {
+  font-kerning: normal;
+  text-autospace: ideograph-alpha;
 }

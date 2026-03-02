@@ -12,34 +12,38 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; emoji: string }> = {
+const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; dot: string; emoji: string }> = {
   questioner: {
     label: "质疑者",
     emoji: "🔍",
-    color: "text-red-400",
-    bg: "bg-red-400/10",
-    border: "border-red-400/20",
+    color: "text-red-600",
+    bg: "bg-red-50",
+    border: "border-red-100",
+    dot: "bg-red-400",
   },
   supporter: {
     label: "支持者",
     emoji: "✅",
-    color: "text-emerald-400",
-    bg: "bg-emerald-400/10",
-    border: "border-emerald-400/20",
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-100",
+    dot: "bg-emerald-400",
   },
   supplementer: {
     label: "补充者",
     emoji: "💡",
-    color: "text-blue-400",
-    bg: "bg-blue-400/10",
-    border: "border-blue-400/20",
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-100",
+    dot: "bg-blue-400",
   },
   inquirer: {
-    label: "提问者",
+    label: "探究者",
     emoji: "❓",
-    color: "text-purple-400",
-    bg: "bg-purple-400/10",
-    border: "border-purple-400/20",
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    border: "border-violet-100",
+    dot: "bg-violet-400",
   },
 };
 
@@ -62,26 +66,26 @@ export default function DiscussionPage({ params }: Props) {
   const rounds = groupByRound(messages ?? []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
+      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-900">讨论记录</p>
+            <p className="text-[14px] font-semibold text-foreground">讨论记录</p>
             {discussion && (
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[11px] text-muted-foreground mt-0.5">
                 第 {discussion.current_round} 轮 · {STATUS_LABELS[discussion.status] ?? discussion.status}
               </p>
             )}
           </div>
-          <div className="w-8 h-8 bg-indigo-600/20 border border-indigo-500/20 rounded-xl flex items-center justify-center">
-            <Brain className="w-4 h-4 text-indigo-400" />
+          <div className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center">
+            <Brain className="w-4 h-4 text-primary" />
           </div>
         </div>
       </div>
@@ -90,27 +94,32 @@ export default function DiscussionPage({ params }: Props) {
 
       {!isLoading && messages?.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-          <p className="text-4xl mb-4">⏳</p>
-          <p className="text-slate-900 font-medium mb-2">讨论尚未开始</p>
-          <p className="text-slate-400 text-sm">AI 分身们还没有发言，请稍后再查看</p>
+          <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4 text-2xl">
+            ⏳
+          </div>
+          <p className="text-foreground font-medium text-[15px] mb-1.5">讨论尚未开始</p>
+          <p className="text-muted-foreground text-[13px]">AI 角色还没有发言，请稍后再查看</p>
         </div>
       )}
 
       {/* Participants */}
       {!isLoading && discussion?.participants && discussion.participants.length > 0 && (
-        <div className="px-4 pt-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">参与分身</p>
+        <div className="px-4 pt-5">
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">参与角色</p>
           <div className="flex gap-2 flex-wrap mb-5">
             {discussion.participants.map((p) => {
               const cfg = ROLE_CONFIG[p.role];
               return (
                 <div
                   key={p.agent_id}
-                  className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs", cfg?.bg, cfg?.border)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[11px] font-medium",
+                    cfg?.bg, cfg?.border, cfg?.color
+                  )}
                 >
                   <span>{cfg?.emoji}</span>
-                  <span className={cfg?.color}>{cfg?.label}</span>
-                  <span className="text-slate-500 font-mono">{p.anon_id}</span>
+                  <span>{cfg?.label}</span>
+                  <span className="text-foreground/40 font-mono text-[10px]">{p.anon_id}</span>
                 </div>
               );
             })}
@@ -119,16 +128,21 @@ export default function DiscussionPage({ params }: Props) {
       )}
 
       {/* Rounds */}
-      <div className="px-4 space-y-6 pb-6">
+      <div className="px-4 space-y-8 pb-6">
         {rounds.map(({ roundNum, msgs }) => (
           <div key={roundNum}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                第 {roundNum} 轮
-              </span>
-              <div className="h-px flex-1 bg-slate-200" />
+            {/* Round divider */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-px flex-1 bg-border" />
+              <div className="flex items-center gap-2 px-3 py-1 bg-muted rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  第 {roundNum} 轮
+                </span>
+              </div>
+              <div className="h-px flex-1 bg-border" />
             </div>
+
             <div className="space-y-3">
               {msgs.map((msg, i) => (
                 <MessageCard key={i} msg={msg} />
@@ -145,34 +159,35 @@ function MessageCard({ msg }: { msg: DiscussionMessage }) {
   const cfg = ROLE_CONFIG[msg.role] ?? {
     label: msg.role,
     emoji: "💬",
-    color: "text-slate-400",
-    bg: "bg-slate-100",
-    border: "border-slate-200",
+    color: "text-muted-foreground",
+    bg: "bg-muted",
+    border: "border-border",
+    dot: "bg-muted-foreground",
   };
 
   return (
     <div className={cn("rounded-2xl border p-4", cfg.bg, cfg.border)}>
       {/* Role badge + confidence */}
       <div className="flex items-center justify-between mb-3">
-        <span className={cn("flex items-center gap-1.5 text-xs font-medium", cfg.color)}>
-          <span>{cfg.emoji}</span>
+        <span className={cn("flex items-center gap-1.5 text-[12px] font-semibold", cfg.color)}>
+          <span className="text-sm">{cfg.emoji}</span>
           {cfg.label}
         </span>
         {msg.confidence > 0 && (
-          <span className="text-xs text-slate-500">
+          <span className="text-[11px] text-muted-foreground bg-white/60 px-2 py-0.5 rounded-full border border-white/80">
             置信度 {Math.round(msg.confidence * 100)}%
           </span>
         )}
       </div>
 
       {/* Content */}
-      <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+      <p className="text-[13px] text-foreground/85 leading-relaxed whitespace-pre-wrap">{msg.content}</p>
 
       {/* Key point */}
       {msg.key_point && (
-        <div className="mt-3 pt-3 border-t border-slate-200">
-          <p className="text-xs text-slate-500 mb-1">核心论点</p>
-          <p className={cn("text-xs font-medium leading-relaxed", cfg.color)}>{msg.key_point}</p>
+        <div className="mt-3 pt-3 border-t border-white/50">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">核心论点</p>
+          <p className={cn("text-[12px] font-medium leading-relaxed", cfg.color)}>{msg.key_point}</p>
         </div>
       )}
     </div>
@@ -214,13 +229,13 @@ function groupByRound(
 
 function DiscussionSkeleton() {
   return (
-    <div className="px-4 pt-4 space-y-4 animate-pulse">
+    <div className="px-4 pt-5 space-y-4">
       <div className="flex gap-2">
         {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-8 w-24 rounded-full" />)}
       </div>
       {[1, 2, 3].map((i) => (
         <div key={i}>
-          <Skeleton className="h-4 w-20 mx-auto mb-3" />
+          <Skeleton className="h-4 w-20 mx-auto mb-4 rounded-full" />
           <div className="space-y-3">
             <Skeleton className="h-28 w-full rounded-2xl" />
             <Skeleton className="h-28 w-full rounded-2xl" />

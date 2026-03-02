@@ -33,17 +33,17 @@ export default function TopicsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-slate-200">
+      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 pt-4 pb-0 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-slate-900">我的话题</h1>
+          <h1 className="text-[18px] font-bold text-foreground tracking-tight">我的问题</h1>
           <Link
             href="/topics/submit"
-            className="flex items-center gap-1.5 text-indigo-400 text-sm font-medium active:opacity-70"
+            className="flex items-center gap-1.5 text-primary text-[13px] font-medium active:opacity-70 hover:text-primary/80 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            提交
+            提交问题
           </Link>
         </div>
 
@@ -53,19 +53,19 @@ export default function TopicsPage() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-1.5 pb-3 px-1 mr-6 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-1.5 pb-3 px-1 mr-6 text-[13px] font-medium border-b-2 transition-all duration-150 ${
                 tab === t.key
-                  ? "text-slate-900 border-indigo-500"
-                  : "text-slate-500 border-transparent hover:text-slate-700"
+                  ? "text-foreground border-primary"
+                  : "text-muted-foreground border-transparent hover:text-foreground/70"
               }`}
             >
               {t.label}
               {t.count !== undefined && t.count > 0 && (
                 <span
-                  className={`text-xs px-1.5 py-0.5 rounded-full ${
+                  className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold tabular-nums ${
                     tab === t.key
-                      ? "bg-indigo-600/30 text-indigo-700"
-                      : "bg-slate-300 text-slate-400"
+                      ? "bg-primary/15 text-primary"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {t.count}
@@ -79,26 +79,26 @@ export default function TopicsPage() {
       <div className="px-4 pt-4 space-y-3">
         {isLoading && (
           <>
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
           </>
         )}
 
         {!isLoading && displayed.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="text-4xl mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4 text-2xl">
               {tab === "active" ? "⏳" : tab === "completed" ? "✅" : "💬"}
             </div>
-            <p className="text-slate-400 text-sm">
-              {tab === "active" ? "暂无进行中的话题" : tab === "completed" ? "暂无已完成的话题" : "还没有话题"}
+            <p className="text-muted-foreground text-[13px]">
+              {tab === "active" ? "暂无进行中的问题" : tab === "completed" ? "暂无已完成的问题" : "还没有提交过问题"}
             </p>
             {tab !== "completed" && (
               <Link
                 href="/topics/submit"
-                className="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-colors active:scale-95"
+                className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl text-[13px] font-medium transition-all active:scale-95 shadow-primary-sm"
               >
-                提交第一个话题
+                提交第一个问题
               </Link>
             )}
           </div>
@@ -118,37 +118,37 @@ function TopicCard({ topic }: { topic: Topic }) {
   return (
     <Link
       href={`/topics/${topic.id}`}
-      className={`block rounded-2xl border p-4 transition-all active:scale-[0.99] ${
+      className={`block rounded-2xl border p-4 transition-all duration-200 active:scale-[0.99] shadow-xs ${
         isCompleted
-          ? "bg-slate-50 border-slate-200/60 hover:border-slate-300/60"
-          : "bg-white border-slate-200 hover:border-slate-300"
+          ? "bg-muted/50 border-border/60 hover:border-border"
+          : "bg-card border-border hover:border-primary/25 hover:shadow-sm"
       }`}
     >
       <div className="flex items-start justify-between gap-3 mb-2.5">
-        <h3 className="text-slate-900 text-sm font-medium line-clamp-2 flex-1">
+        <h3 className="text-foreground text-[14px] font-medium line-clamp-2 flex-1 leading-snug">
           {topic.title}
         </h3>
         <TopicStatusBadge status={topic.status} />
       </div>
 
       {topic.description && (
-        <p className="text-slate-500 text-xs line-clamp-2 mb-3">
+        <p className="text-muted-foreground text-[12px] line-clamp-2 mb-3 leading-relaxed">
           {topic.description}
         </p>
       )}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+          <span className="text-[11px] text-foreground/60 bg-muted px-2 py-0.5 rounded-full">
             {TOPIC_TYPE_LABELS[topic.topic_type] ?? topic.topic_type}
           </span>
           {topic.tags?.slice(0, 2).map((tag) => (
-            <span key={tag} className="text-xs text-slate-500">
+            <span key={tag} className="text-[11px] text-muted-foreground">
               #{tag}
             </span>
           ))}
         </div>
-        <span className="text-xs text-slate-600 flex-shrink-0">
+        <span className="text-[11px] text-muted-foreground flex-shrink-0">
           {formatDistanceToNow(new Date(topic.submitted_at), {
             addSuffix: true,
             locale: zhCN,
@@ -157,9 +157,12 @@ function TopicCard({ topic }: { topic: Topic }) {
       </div>
 
       {isCompleted && topic.report_ready_at && (
-        <div className="mt-3 pt-3 border-t border-slate-200 flex items-center gap-2">
-          <span className="text-xs text-emerald-400">✓ 报告已生成</span>
-          <span className="text-xs text-slate-600">→ 查看报告</span>
+        <div className="mt-3 pt-3 border-t border-border/60 flex items-center gap-2">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="text-emerald-500 flex-shrink-0">
+            <path d="M2 6.5l3 3 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className="text-[12px] text-emerald-500 font-medium">报告已生成</span>
+          <span className="text-[12px] text-muted-foreground ml-auto">查看报告 →</span>
         </div>
       )}
     </Link>

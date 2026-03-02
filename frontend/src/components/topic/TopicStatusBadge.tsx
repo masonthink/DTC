@@ -6,39 +6,43 @@ interface Props {
 
 const STATUS_CONFIG: Record<
   TopicStatus,
-  { label: string; classes: string }
+  { label: string; classes: string; pulse?: boolean }
 > = {
   pending_matching: {
-    label: "匹配中",
-    classes: "bg-amber-400/10 text-amber-400 border-amber-400/20",
+    label: "准备中",
+    classes: "bg-amber-50 text-amber-600 border-amber-200/80",
+    pulse: true,
   },
   matching: {
-    label: "匹配中",
-    classes: "bg-amber-400/10 text-amber-400 border-amber-400/20",
+    label: "准备中",
+    classes: "bg-amber-50 text-amber-600 border-amber-200/80",
+    pulse: true,
   },
   matched: {
-    label: "已匹配",
-    classes: "bg-blue-400/10 text-blue-400 border-blue-400/20",
+    label: "准备就绪",
+    classes: "bg-blue-50 text-blue-600 border-blue-200/80",
   },
   discussion_active: {
-    label: "讨论中",
-    classes: "bg-indigo-400/10 text-indigo-400 border-indigo-400/20",
+    label: "分析中",
+    classes: "bg-primary/8 text-primary border-primary/20",
+    pulse: true,
   },
   report_generating: {
     label: "生成报告",
-    classes: "bg-purple-400/10 text-purple-400 border-purple-400/20",
+    classes: "bg-violet-50 text-violet-600 border-violet-200/80",
+    pulse: true,
   },
   completed: {
     label: "已完成",
-    classes: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
+    classes: "bg-emerald-50 text-emerald-600 border-emerald-200/80",
   },
   failed: {
     label: "失败",
-    classes: "bg-red-400/10 text-red-400 border-red-400/20",
+    classes: "bg-red-50 text-red-500 border-red-200/80",
   },
   cancelled: {
     label: "已取消",
-    classes: "bg-slate-400/10 text-slate-400 border-slate-400/20",
+    classes: "bg-muted text-muted-foreground border-border",
   },
 };
 
@@ -46,9 +50,9 @@ export function TopicStatusBadge({ status }: Props) {
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.cancelled;
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border flex-shrink-0 ${config.classes}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border flex-shrink-0 ${config.classes}`}
     >
-      {["matching", "discussion_active", "report_generating"].includes(status) && (
+      {config.pulse && (
         <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
       )}
       {config.label}
