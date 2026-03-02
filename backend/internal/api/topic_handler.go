@@ -30,6 +30,9 @@ func (h *TopicHandler) Submit(c echo.Context) error {
 	req.SubmitterUserID = userID
 	t, err := h.svc.Submit(c.Request().Context(), req)
 	if err != nil {
+		if isValidationError(err) {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
 		return httpError(err)
 	}
 	return c.JSON(http.StatusCreated, t)

@@ -12,6 +12,15 @@ import (
 	"github.com/digital-twin-community/backend/internal/connection"
 )
 
+// isValidationError returns true for simple validation/business rule errors
+// that should map to 400 Bad Request.
+func isValidationError(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "required") ||
+		strings.Contains(msg, "too long") ||
+		strings.Contains(msg, "invalid") && !strings.Contains(msg, "syntax for type")
+}
+
 // httpError maps domain errors to Echo HTTP errors.
 func httpError(err error) *echo.HTTPError {
 	switch {

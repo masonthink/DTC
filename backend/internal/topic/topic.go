@@ -61,7 +61,7 @@ type Topic struct {
 // SubmitRequest is the input for submitting a new topic.
 type SubmitRequest struct {
 	SubmitterUserID  string    `json:"-"`
-	SubmitterAgentID string    `json:"submitter_agent_id"`
+	SubmitterAgentID string    `json:"agent_id"`
 	TopicType        TopicType `json:"topic_type"`
 	Title            string    `json:"title"`
 	Description      string    `json:"description"`
