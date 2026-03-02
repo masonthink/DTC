@@ -233,10 +233,14 @@ func main() {
 			code = he.Code
 		}
 		if code >= 500 {
+			logErr := err
+			if he, ok := err.(*echo.HTTPError); ok && he.Internal != nil {
+				logErr = he.Internal
+			}
 			logger.Error("internal server error",
 				zap.String("method", c.Request().Method),
 				zap.String("path", c.Request().URL.Path),
-				zap.Error(err),
+				zap.Error(logErr),
 			)
 		}
 		e.DefaultHTTPErrorHandler(err, c)

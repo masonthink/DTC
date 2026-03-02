@@ -41,5 +41,5 @@ func httpError(err error) *echo.HTTPError {
 		strings.Contains(err.Error(), "invalid input syntax for type") {
 		return echo.NewHTTPError(http.StatusNotFound, "not found")
 	}
-	return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
+	return echo.NewHTTPError(http.StatusInternalServerError, "internal server error").SetInternal(err)
 }
