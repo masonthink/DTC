@@ -105,6 +105,7 @@ type JWTConfig struct {
 	Secret          string
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
+	BcryptCost      int // 0 → bcrypt.DefaultCost; set to bcrypt.MinCost in tests
 }
 
 type KMSConfig struct {

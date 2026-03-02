@@ -120,7 +120,11 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*User, *To
 		}
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	cost := s.cfg.BcryptCost
+	if cost == 0 {
+		cost = bcrypt.DefaultCost
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), cost)
 	if err != nil {
 		return nil, nil, fmt.Errorf("hash password: %w", err)
 	}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/digital-twin-community/backend/internal/auth"
 	"github.com/digital-twin-community/backend/internal/config"
@@ -92,6 +93,7 @@ func newTestService() (*auth.Service, *mockRepo) {
 		Secret:          "test-secret-must-be-at-least-32-chars!",
 		AccessTokenTTL:  time.Hour,
 		RefreshTokenTTL: 24 * time.Hour,
+		BcryptCost:      bcrypt.MinCost,
 	}
 	svc := auth.NewService(repo, cfg, zap.NewNop())
 	return svc, repo
