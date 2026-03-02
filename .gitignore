@@ -27,5 +27,7 @@ data/
 !package-lock.json
 !tsconfig.json
 !vercel.json
+!frontend/public/manifest.json
 frontend/.next/
 frontend/node_modules/
+.vercel
