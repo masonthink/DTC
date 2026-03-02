@@ -278,6 +278,7 @@ func (s *Scheduler) EnqueueReportGeneration(ctx context.Context, discussionID, t
 //  1. Discussion has status REPORT_GENERATING but a report already exists → mark COMPLETED
 //  2. Topic has status report_generating but discussion is COMPLETED → mark completed
 //  3. Discussion stuck in ROUND_4_COMPLETED for >15 min without report task → re-enqueue report
+//  3b. Discussion stuck in REPORT_GENERATING for >10 min without report → reset to ROUND_4_COMPLETED
 func (s *Scheduler) repairInconsistentStatuses(ctx context.Context) {
 	if s.pool == nil {
 		return
@@ -338,6 +339,22 @@ func (s *Scheduler) repairInconsistentStatuses(ctx context.Context) {
 			s.logger.Error("repair: re-enqueue report failed",
 				zap.String("discussion_id", discID), zap.Error(err))
 		}
+	}
+
+	// Case 3b: discussion stuck in REPORT_GENERATING > 10 min, no report → reset to ROUND_4_COMPLETED
+	// This handles the case where the report generation task was lost (e.g., after a restart).
+	// Case 3 will then re-enqueue the report on the next tick.
+	res, err = s.pool.Exec(ctx, `
+		UPDATE discussions d
+		SET status = 'round_4_completed'::discussion_status, updated_at = NOW() - INTERVAL '20 minutes'
+		WHERE d.status = 'report_generating'::discussion_status
+		  AND NOT EXISTS (SELECT 1 FROM reports r WHERE r.discussion_id = d.id)
+		  AND d.updated_at < NOW() - INTERVAL '10 minutes'`)
+	if err != nil {
+		s.logger.Error("repair: reset stuck report_generating discussions", zap.Error(err))
+	} else if res.RowsAffected() > 0 {
+		s.logger.Warn("repair: reset stuck REPORT_GENERATING → ROUND_4_COMPLETED for re-enqueue",
+			zap.Int64("count", res.RowsAffected()))
 	}
 
 	// Case 4: discussion stuck in early round states (queued/running/completed for rounds 1-3)
