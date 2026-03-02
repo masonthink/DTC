@@ -194,9 +194,15 @@ export default function SubmitTopicPage() {
             <div>
               <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
                 话题标题{" "}
-                <span className="text-slate-600 normal-case font-normal">
-                  {title?.length ?? 0}/200
-                </span>
+                {(title?.length ?? 0) < 5 ? (
+                  <span className="text-red-400 normal-case font-normal">
+                    还差 {5 - (title?.length ?? 0)} 个字
+                  </span>
+                ) : (
+                  <span className="text-slate-600 normal-case font-normal">
+                    {title?.length}/200
+                  </span>
+                )}
               </label>
               <input
                 {...register("title")}
@@ -212,9 +218,15 @@ export default function SubmitTopicPage() {
             <div>
               <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
                 详细描述{" "}
-                <span className="text-slate-600 normal-case font-normal">
-                  {description?.length ?? 0}/2000
-                </span>
+                {(description?.length ?? 0) < 20 ? (
+                  <span className="text-red-400 normal-case font-normal">
+                    还差 {20 - (description?.length ?? 0)} 个字
+                  </span>
+                ) : (
+                  <span className="text-slate-600 normal-case font-normal">
+                    {description?.length}/2000
+                  </span>
+                )}
               </label>
               <textarea
                 {...register("description")}
