@@ -33,4 +33,5 @@ export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|apple-touch-icon.png).*)",
   ],
+  regions: ["iad1", "sin1", "hkg1", "sfo1"],
 };
