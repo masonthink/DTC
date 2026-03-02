@@ -215,10 +215,10 @@ func (s *Scheduler) enqueueExpireConnections(ctx context.Context) {
 // relative to the matching time.
 func DiscussionSchedule(matchedAt time.Time) map[int]time.Time {
 	return map[int]time.Time{
-		1: matchedAt.Add(1*time.Hour + 30*time.Minute), // T+1.5h
-		2: matchedAt.Add(4 * time.Hour),                // T+4h
-		3: matchedAt.Add(8 * time.Hour),                // T+8h
-		4: matchedAt.Add(12 * time.Hour),               // T+12h (with 12h notification)
+		1: matchedAt.Add(2 * time.Minute),  // T+2min (prod: T+1.5h)
+		2: matchedAt.Add(5 * time.Minute),  // T+5min (prod: T+4h)
+		3: matchedAt.Add(8 * time.Minute),  // T+8min (prod: T+8h)
+		4: matchedAt.Add(11 * time.Minute), // T+11min (prod: T+12h)
 	}
 }
 
