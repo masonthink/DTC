@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { topicApi, discussionApi, type Topic } from "@/lib/api";
+import { topicApi, type Topic } from "@/lib/api";
 import { TopicStatusBadge } from "@/components/topic/TopicStatusBadge";
 import { DiscussionProgress } from "@/components/discussion/DiscussionProgress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,16 +33,6 @@ export default function TopicDetailPage() {
   const { data: topic, isLoading } = useSWR(
     id ? `topics/${id}` : null,
     () => topicApi.get(id)
-  );
-
-  const { data: discussion } = useSWR(
-    topic?.status === "discussion_active" && id
-      ? `discussions-by-topic-${id}`
-      : null,
-    async () => {
-      // We need to find discussion by topic - for now try common IDs
-      return null;
-    }
   );
 
   if (isLoading) return <TopicSkeleton />;
@@ -181,27 +171,38 @@ export default function TopicDetailPage() {
           </Link>
         )}
 
-        {topic.status === "discussion_active" && (
-          <div className="flex items-center gap-3 bg-indigo-600/10 border border-indigo-500/30 rounded-2xl p-5">
+        {(topic.status === "discussion_active" || topic.status === "report_generating" || topic.status === "completed") && topic.discussion_id && (
+          <Link
+            href={`/discussions/${topic.discussion_id}`}
+            className="flex items-center gap-3 bg-indigo-600/10 border border-indigo-500/30 rounded-2xl p-5 active:scale-[0.99] transition-all"
+          >
             <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-indigo-400" />
             </div>
-            <div>
-              <p className="text-white font-medium text-sm">讨论进行中</p>
+            <div className="flex-1">
+              <p className="text-white font-medium text-sm">
+                {topic.status === "discussion_active" ? "讨论进行中" : "查看讨论记录"}
+              </p>
               <p className="text-indigo-400/70 text-xs mt-0.5">
-                AI 分身们正在深度讨论你的话题
+                {topic.status === "discussion_active"
+                  ? "AI 分身们正在深度讨论你的话题"
+                  : "查看 AI 分身们的完整讨论过程"}
               </p>
             </div>
-            <div className="ml-auto flex gap-1">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce"
-                  style={{ animationDelay: `${i * 0.15}s` }}
-                />
-              ))}
-            </div>
-          </div>
+            {topic.status === "discussion_active" ? (
+              <div className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <ArrowLeft className="w-4 h-4 text-indigo-400 rotate-180" />
+            )}
+          </Link>
         )}
       </div>
     </div>

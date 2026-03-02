@@ -211,6 +211,20 @@ export interface Agent {
   quality_score: number;
   discussion_count: number;
   created_at: string;
+  questionnaire?: {
+    primary_industry: string;
+    years_experience: number;
+    current_role: string;
+    expertise: string[];
+    problem_approach: string;
+    decision_style: string;
+    risk_tolerance: number;
+    innovation_focus: number;
+    preferred_role: string;
+    discussion_strength: string;
+    bio: string;
+    additional_context?: string;
+  };
 }
 
 export interface CreateAgentRequest {
@@ -244,6 +258,8 @@ export interface Topic {
   submitted_at: string;
   matched_at?: string;
   report_ready_at?: string;
+  discussion_id?: string;
+  questionnaire?: Record<string, unknown>;
 }
 
 export type TopicStatus =
@@ -286,15 +302,16 @@ export interface DiscussionParticipant {
 }
 
 export interface DiscussionMessage {
-  id: string;
-  discussion_id: string;
-  anon_id: string;
+  round_num: number;
+  agent_id: string;
   role: DiscussionParticipant["role"];
-  round_number: number;
   content: string;
   key_point: string;
+  addressed_to: DiscussionParticipant["role"];
   confidence: number;
-  created_at: string;
+  similarity_to_prev?: number;
+  was_rewritten?: boolean;
+  model_used?: string;
 }
 
 export interface Report {

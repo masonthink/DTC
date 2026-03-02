@@ -41,15 +41,15 @@ func (r *Repository) Create(ctx context.Context, t *topic.Topic) error {
 
 // FindByID retrieves a topic by primary key.
 func (r *Repository) FindByID(ctx context.Context, id string) (*topic.Topic, error) {
-	const q = topicSelectCols + ` WHERE id = $1`
+	const q = topicSelectCols + ` WHERE t.id = $1`
 	return r.scanOne(r.db.QueryRow(ctx, q, id))
 }
 
 // FindByUserID returns paginated topics for a user.
 func (r *Repository) FindByUserID(ctx context.Context, userID string, limit, offset int) ([]*topic.Topic, error) {
 	const q = topicSelectCols + `
-		WHERE submitter_user_id = $1
-		ORDER BY submitted_at DESC
+		WHERE t.submitter_user_id = $1
+		ORDER BY t.submitted_at DESC
 		LIMIT $2 OFFSET $3`
 	rows, err := r.db.Query(ctx, q, userID, limit, offset)
 	if err != nil {
@@ -142,11 +142,11 @@ func (r *Repository) FindPendingNotifications(ctx context.Context, notifType str
 		return nil, fmt.Errorf("unknown notif type: %s", notifType)
 	}
 	q := topicSelectCols + fmt.Sprintf(`
-		WHERE %s = false
-		  AND matched_at IS NOT NULL
-		  AND matched_at <= $1
-		  AND status NOT IN ('cancelled', 'failed')
-		ORDER BY matched_at ASC
+		WHERE t.%s = false
+		  AND t.matched_at IS NOT NULL
+		  AND t.matched_at <= $1
+		  AND t.status NOT IN ('cancelled', 'failed')
+		ORDER BY t.matched_at ASC
 		LIMIT 100`, col)
 	rows, err := r.db.Query(ctx, q, since)
 	if err != nil {
@@ -159,8 +159,8 @@ func (r *Repository) FindPendingNotifications(ctx context.Context, notifType str
 // FindPendingMatching returns topics waiting for agent matching.
 func (r *Repository) FindPendingMatching(ctx context.Context, limit int) ([]*topic.Topic, error) {
 	const q = topicSelectCols + `
-		WHERE status = 'pending_matching'::topic_status
-		ORDER BY submitted_at ASC
+		WHERE t.status = 'pending_matching'::topic_status
+		ORDER BY t.submitted_at ASC
 		LIMIT $1`
 	rows, err := r.db.Query(ctx, q, limit)
 	if err != nil {
@@ -170,13 +170,15 @@ func (r *Repository) FindPendingMatching(ctx context.Context, limit int) ([]*top
 	return r.collectRows(rows)
 }
 
-// topicSelectCols is the base SELECT clause for topics.
+// topicSelectCols is the base SELECT clause for topics, including the discussion ID if one exists.
 const topicSelectCols = `
-	SELECT id, submitter_user_id, submitter_agent_id, topic_type,
-	       title, description, background, tags, status::text,
-	       submitted_at, matched_at, discussion_started_at, report_ready_at, completed_at,
-	       notified_1h, notified_12h, notified_48h
-	FROM topics`
+	SELECT t.id, t.submitter_user_id, t.submitter_agent_id, t.topic_type,
+	       t.title, t.description, t.background, t.tags, t.status::text,
+	       t.submitted_at, t.matched_at, t.discussion_started_at, t.report_ready_at, t.completed_at,
+	       t.notified_1h, t.notified_12h, t.notified_48h,
+	       d.id AS discussion_id
+	FROM topics t
+	LEFT JOIN discussions d ON d.topic_id = t.id`
 
 func (r *Repository) scanOne(row pgx.Row) (*topic.Topic, error) {
 	t, err := scanTopicRow(row.Scan)
@@ -187,7 +189,7 @@ func (r *Repository) scanOne(row pgx.Row) (*topic.Topic, error) {
 }
 
 func (r *Repository) collectRows(rows pgx.Rows) ([]*topic.Topic, error) {
-	var topics []*topic.Topic
+	topics := make([]*topic.Topic, 0)
 	for rows.Next() {
 		t, err := scanTopicRow(rows.Scan)
 		if err != nil {
@@ -203,12 +205,14 @@ func scanTopicRow(scan func(dest ...any) error) (*topic.Topic, error) {
 	var topicType, status string
 	var tags []string
 	var matchedAt, discussionStartedAt, reportReadyAt, completedAt *time.Time
+	var discussionID *string
 
 	err := scan(
 		&t.ID, &t.SubmitterUserID, &t.SubmitterAgentID, &topicType,
 		&t.Title, &t.Description, &t.Background, &tags, &status,
 		&t.SubmittedAt, &matchedAt, &discussionStartedAt, &reportReadyAt, &completedAt,
 		&t.Notified1h, &t.Notified12h, &t.Notified48h,
+		&discussionID,
 	)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -224,6 +228,7 @@ func scanTopicRow(scan func(dest ...any) error) (*topic.Topic, error) {
 	t.DiscussionStartedAt = discussionStartedAt
 	t.ReportReadyAt = reportReadyAt
 	t.CompletedAt = completedAt
+	t.DiscussionID = discussionID
 	return &t, nil
 }
 

@@ -73,7 +73,7 @@ function AgentCard({ agent }: { agent: Agent }) {
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-4 active:bg-slate-800 transition-colors">
+    <Link href={`/agents/${agent.id}`} className="block bg-slate-900 border border-slate-700/50 rounded-2xl p-4 active:bg-slate-800 transition-colors">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600/30 to-purple-600/20 border border-indigo-500/20 flex items-center justify-center text-2xl flex-shrink-0">
@@ -114,6 +114,6 @@ function AgentCard({ agent }: { agent: Agent }) {
 
         <ChevronRight className="w-4 h-4 text-slate-600 flex-shrink-0 mt-1" />
       </div>
-    </div>
+    </Link>
   );
 }

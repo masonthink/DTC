@@ -55,6 +55,7 @@ type Topic struct {
 	Notified1h          bool       `json:"notified_1h"`
 	Notified12h         bool       `json:"notified_12h"`
 	Notified48h         bool       `json:"notified_48h"`
+	DiscussionID        *string    `json:"discussion_id,omitempty"`
 }
 
 // SubmitRequest is the input for submitting a new topic.
