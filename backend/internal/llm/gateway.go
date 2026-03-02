@@ -27,6 +27,7 @@ const (
 	ProviderAnthropic Provider = "anthropic"
 	ProviderOpenAI    Provider = "openai"
 	ProviderDeepSeek  Provider = "deepseek"
+	ProviderKimi      Provider = "kimi"
 )
 
 // TaskType categorizes the LLM call to select the right model.
@@ -110,6 +111,7 @@ func NewGateway(cfg *config.LLMConfig, rdb *redis.Client, logger *zap.Logger) *G
 		ProviderAnthropic: new(atomic.Int64),
 		ProviderOpenAI:    new(atomic.Int64),
 		ProviderDeepSeek:  new(atomic.Int64),
+		ProviderKimi:      new(atomic.Int64),
 	}
 	return &Gateway{
 		cfg:    cfg,
@@ -263,14 +265,19 @@ func (g *Gateway) selectProviderAndModel(taskType TaskType) (Provider, string) {
 func (g *Gateway) fallbackProviderAndModel(failed Provider, taskType TaskType) (Provider, string) {
 	fallback := Provider(g.cfg.FallbackProvider)
 	if fallback == failed {
-		// 如果 fallback 和 failed 相同，尝试 OpenAI
-		fallback = ProviderOpenAI
+		// 如果 fallback 和 failed 相同，尝试 DeepSeek
+		fallback = ProviderDeepSeek
 	}
-	model := "deepseek-chat"
-	if fallback == ProviderOpenAI {
-		model = "gpt-4o-mini"
+	switch fallback {
+	case ProviderOpenAI:
+		return fallback, "gpt-4o-mini"
+	case ProviderKimi:
+		return fallback, "moonshot-v1-8k"
+	case ProviderAnthropic:
+		return fallback, "claude-haiku-4-5-20251001"
+	default: // deepseek
+		return ProviderDeepSeek, "deepseek-chat"
 	}
-	return fallback, model
 }
 
 // executeWithRetry calls the LLM with exponential backoff retry.
@@ -326,6 +333,8 @@ func (g *Gateway) callProvider(ctx context.Context, provider Provider, model str
 		return g.callDeepSeek(ctx, model, req, start)
 	case ProviderOpenAI:
 		return g.callOpenAI(ctx, model, req, start)
+	case ProviderKimi:
+		return g.callKimi(ctx, model, req, start)
 	default:
 		return nil, fmt.Errorf("unknown provider: %s", provider)
 	}
@@ -444,6 +453,12 @@ func (g *Gateway) callDeepSeek(ctx context.Context, model string, req Request, s
 func (g *Gateway) callOpenAI(ctx context.Context, model string, req Request, start time.Time) (*Response, error) {
 	return g.callOpenAICompatible(ctx, "https://api.openai.com/v1/chat/completions",
 		g.cfg.OpenAIAPIKey, model, req, start, ProviderOpenAI)
+}
+
+// callKimi calls the Kimi (Moonshot AI) API (OpenAI-compatible).
+func (g *Gateway) callKimi(ctx context.Context, model string, req Request, start time.Time) (*Response, error) {
+	return g.callOpenAICompatible(ctx, "https://api.moonshot.cn/v1/chat/completions",
+		g.cfg.KimiAPIKey, model, req, start, ProviderKimi)
 }
 
 // callOpenAICompatible calls any OpenAI-compatible API endpoint.
@@ -672,13 +687,17 @@ func calculateAnthropicCost(model string, promptTokens, completionTokens int) fl
 
 func calculateOpenAICost(model string, promptTokens, completionTokens int) float64 {
 	prices := map[string][2]float64{
-		"gpt-4o":      {5.0, 15.0},
-		"gpt-4o-mini": {0.15, 0.60},
-		"deepseek-chat": {0.14, 0.28},
+		"gpt-4o":            {5.0, 15.0},
+		"gpt-4o-mini":       {0.15, 0.60},
+		"deepseek-chat":     {0.14, 0.28},
+		// Kimi (Moonshot AI) pricing per 1M tokens (CNY converted ~7.2, approx USD)
+		"moonshot-v1-8k":   {0.17, 0.17},
+		"moonshot-v1-32k":  {0.35, 0.35},
+		"moonshot-v1-128k": {0.97, 0.97},
 	}
 	p, ok := prices[model]
 	if !ok {
-		p = [2]float64{0.14, 0.28}
+		p = [2]float64{0.35, 0.35}
 	}
 	return float64(promptTokens)/1_000_000*p[0] + float64(completionTokens)/1_000_000*p[1]
 }

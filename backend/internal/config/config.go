@@ -80,10 +80,11 @@ type LLMConfig struct {
 	AnthropicAPIKey  string
 	OpenAIAPIKey     string
 	DeepSeekAPIKey   string
+	KimiAPIKey       string
 	VoyageAPIKey     string
 
 	// 路由策略
-	PrimaryProvider  string // anthropic, openai, deepseek
+	PrimaryProvider  string // anthropic, openai, deepseek, kimi
 	FallbackProvider string
 
 	// 模型选择
@@ -177,12 +178,13 @@ func Load() (*Config, error) {
 			AnthropicAPIKey:   getEnv("ANTHROPIC_API_KEY", ""),
 			OpenAIAPIKey:      getEnv("OPENAI_API_KEY", ""),
 			DeepSeekAPIKey:    getEnv("DEEPSEEK_API_KEY", ""),
+			KimiAPIKey:        getEnv("KIMI_API_KEY", ""),
 			VoyageAPIKey:      getEnv("VOYAGE_API_KEY", ""),
-			PrimaryProvider:   getEnv("LLM_PRIMARY_PROVIDER", "anthropic"),
+			PrimaryProvider:   getEnv("LLM_PRIMARY_PROVIDER", "kimi"),
 			FallbackProvider:  getEnv("LLM_FALLBACK_PROVIDER", "deepseek"),
-			PrimaryModel:      getEnv("LLM_PRIMARY_MODEL", "claude-sonnet-4-6"),
-			ComplexModel:      getEnv("LLM_COMPLEX_MODEL", "claude-opus-4-6"),
-			LightModel:        getEnv("LLM_LIGHT_MODEL", "claude-haiku-4-5-20251001"),
+			PrimaryModel:      getEnv("LLM_PRIMARY_MODEL", "moonshot-v1-32k"),
+			ComplexModel:      getEnv("LLM_COMPLEX_MODEL", "moonshot-v1-128k"),
+			LightModel:        getEnv("LLM_LIGHT_MODEL", "moonshot-v1-8k"),
 			EmbeddingModel:    getEnv("LLM_EMBEDDING_MODEL", "voyage-3"),
 			MaxMonthlyUSD:     getEnvFloat("LLM_MAX_MONTHLY_USD", 500.0),
 			PromptCacheTTL:    getEnvDuration("LLM_PROMPT_CACHE_TTL", 24*time.Hour),
