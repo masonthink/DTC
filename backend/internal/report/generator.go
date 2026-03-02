@@ -609,12 +609,31 @@ func (g *Generator) reportSystemPrompt() string {
 
 func parseOpinionMatrix(content string) (*OpinionMatrix, error) {
 	content = strings.TrimSpace(content)
+	// Strip markdown code blocks
 	if strings.HasPrefix(content, "```") {
 		lines := strings.Split(content, "\n")
 		if len(lines) >= 3 {
 			content = strings.Join(lines[1:len(lines)-1], "\n")
 		}
 	}
+	// Extract JSON object by finding outermost braces
+	if start := strings.Index(content, "{"); start >= 0 {
+		if end := strings.LastIndex(content, "}"); end > start {
+			content = content[start : end+1]
+		}
+	}
+	// Replace common Unicode characters that break JSON parsing
+	replacer := strings.NewReplacer(
+		"\u201c", `"`, // left double quote "
+		"\u201d", `"`, // right double quote "
+		"\u2018", "'", // left single quote '
+		"\u2019", "'", // right single quote '
+		"\u2014", "-", // em dash —
+		"\u2013", "-", // en dash –
+		"\u2026", "...", // ellipsis …
+	)
+	content = replacer.Replace(content)
+
 	var matrix OpinionMatrix
 	if err := json.Unmarshal([]byte(content), &matrix); err != nil {
 		return nil, fmt.Errorf("invalid JSON: %w", err)

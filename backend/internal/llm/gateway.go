@@ -725,14 +725,7 @@ func calculateOpenAICost(model string, promptTokens, completionTokens int) float
 
 // parseDiscussionOutput parses the LLM JSON response for discussion rounds.
 func parseDiscussionOutput(content string) (*DiscussionOutput, error) {
-	// 尝试从 content 中提取 JSON（可能包裹在 markdown code block 中）
-	content = strings.TrimSpace(content)
-	if strings.HasPrefix(content, "```") {
-		lines := strings.Split(content, "\n")
-		if len(lines) >= 3 {
-			content = strings.Join(lines[1:len(lines)-1], "\n")
-		}
-	}
+	content = extractJSON(content)
 
 	var output DiscussionOutput
 	if err := json.Unmarshal([]byte(content), &output); err != nil {
@@ -780,6 +773,36 @@ func isRateLimitError(err error) bool {
 func isTransientError(err error) bool {
 	_, ok := err.(*TransientError)
 	return ok
+}
+
+// extractJSON cleans LLM output to extract valid JSON.
+// Handles markdown code blocks, surrounding text, and Unicode fancy quotes.
+func extractJSON(content string) string {
+	content = strings.TrimSpace(content)
+	// Strip markdown code blocks
+	if strings.HasPrefix(content, "```") {
+		lines := strings.Split(content, "\n")
+		if len(lines) >= 3 {
+			content = strings.Join(lines[1:len(lines)-1], "\n")
+		}
+	}
+	// Extract JSON object by finding outermost braces
+	if start := strings.Index(content, "{"); start >= 0 {
+		if end := strings.LastIndex(content, "}"); end > start {
+			content = content[start : end+1]
+		}
+	}
+	// Replace common Unicode characters that break JSON parsing
+	replacer := strings.NewReplacer(
+		"\u201c", `"`, // left double quote "
+		"\u201d", `"`, // right double quote "
+		"\u2018", "'", // left single quote '
+		"\u2019", "'", // right single quote '
+		"\u2014", "-", // em dash —
+		"\u2013", "-", // en dash –
+		"\u2026", "...", // ellipsis …
+	)
+	return replacer.Replace(content)
 }
 
 // utilities
