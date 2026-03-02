@@ -60,10 +60,16 @@ func (r *Repository) FindByTopicID(ctx context.Context, topicID string) (*discus
 	return r.scanOne(r.db.QueryRow(ctx, q, topicID))
 }
 
-// UpdateStatus updates the discussion status.
+// UpdateStatus updates the discussion status and infers current_round from status name.
 func (r *Repository) UpdateStatus(ctx context.Context, id string, status discussion.DiscussionStatus) error {
 	const q = `
-		UPDATE discussions SET status = $2::discussion_status, updated_at = NOW()
+		UPDATE discussions SET
+			status = $2::discussion_status,
+			current_round = CASE
+				WHEN $2 ~ '^round_[1-4]_' THEN CAST(SUBSTRING($2 FROM '^round_([1-4])_') AS integer)
+				ELSE current_round
+			END,
+			updated_at = NOW()
 		WHERE id = $1`
 	_, err := r.db.Exec(ctx, q, id, dbStatus(status))
 	return err

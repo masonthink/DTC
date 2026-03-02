@@ -50,5 +50,9 @@ func httpError(err error) *echo.HTTPError {
 		strings.Contains(err.Error(), "invalid input syntax for type") {
 		return echo.NewHTTPError(http.StatusNotFound, "not found")
 	}
+	// Validation / business rule errors → 400
+	if isValidationError(err) {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	return echo.NewHTTPError(http.StatusInternalServerError, "internal server error").SetInternal(err)
 }
