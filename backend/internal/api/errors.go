@@ -4,6 +4,7 @@ package api
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 
@@ -35,5 +36,10 @@ func httpError(err error) *echo.HTTPError {
 	case errors.Is(err, connection.ErrContactNotAvailable):
 		return echo.NewHTTPError(http.StatusForbidden, "contact not available until connection is accepted")
 	}
-	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	// PostgreSQL invalid UUID / enum input → treat as not found
+	if strings.Contains(err.Error(), "invalid input syntax for type uuid") ||
+		strings.Contains(err.Error(), "invalid input syntax for type") {
+		return echo.NewHTTPError(http.StatusNotFound, "not found")
+	}
+	return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
 }
