@@ -66,12 +66,13 @@ func (r *Repository) UpdateStatus(ctx context.Context, id string, status discuss
 		UPDATE discussions SET
 			status = $2::discussion_status,
 			current_round = CASE
-				WHEN $2 ~ '^round_[1-4]_' THEN CAST(SUBSTRING($2 FROM '^round_([1-4])_') AS integer)
+				WHEN $3 ~ '^round_[1-4]_' THEN CAST(SUBSTRING($3 FROM '^round_([1-4])_') AS integer)
 				ELSE current_round
 			END,
 			updated_at = NOW()
 		WHERE id = $1`
-	_, err := r.db.Exec(ctx, q, id, dbStatus(status))
+	s := dbStatus(status)
+	_, err := r.db.Exec(ctx, q, id, s, s)
 	return err
 }
 
