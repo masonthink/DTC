@@ -47,7 +47,10 @@ func (h *TopicHandler) List(c echo.Context) error {
 	if err != nil {
 		return httpError(err)
 	}
-	return c.JSON(http.StatusOK, topics)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"items": topics,
+		"total": len(topics),
+	})
 }
 
 // Get handles GET /topics/:id.

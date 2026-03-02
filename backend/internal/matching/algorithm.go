@@ -343,12 +343,20 @@ func (m *Matcher) degradedMatch(candidates []Candidate, topicVec []float32, n in
 	return filtered
 }
 
+// seedAgentIDs are fixed valid UUIDs for the cold-start generalist seed agents.
+var seedAgentIDs = [4]string{
+	"00000000-0000-0000-0000-000000000001",
+	"00000000-0000-0000-0000-000000000002",
+	"00000000-0000-0000-0000-000000000003",
+	"00000000-0000-0000-0000-000000000004",
+}
+
 func (m *Matcher) generalistSeeds(count int) []Candidate {
 	seeds := make([]Candidate, count)
 	for i := range seeds {
 		seeds[i] = Candidate{
-			AgentID:    fmt.Sprintf("seed-generalist-%d", i+1),
-			AnonID:     fmt.Sprintf("anon-seed-%d", i+1),
+			AgentID:    seedAgentIDs[i%4],
+			AnonID:     fmt.Sprintf("seed-%d", i+1),
 			Industries: []string{generalistIndustry},
 			Skills:     []string{"general"},
 			ThinkingStyle: map[string]float64{
