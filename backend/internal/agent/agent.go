@@ -56,39 +56,39 @@ type Questionnaire struct {
 
 // Agent is the core domain object for a digital avatar.
 type Agent struct {
-	ID              string
-	UserID          string
-	AgentType       AgentType
-	DisplayName     string
-	Questionnaire   Questionnaire
-	Industries      []string
-	Skills          []string
-	ThinkingStyle   ThinkingStyle
-	ExperienceYears int
-	AnonID          string  // AGT-XXXXXXXX format
-	QdrantPointID   string
-	QualityScore    float64
-	DiscussionCount int
-	ConnectionCount int
-	IsActive        bool
-	LastActiveAt    time.Time
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	ID              string        `json:"id"`
+	UserID          string        `json:"user_id"`
+	AgentType       AgentType     `json:"agent_type"`
+	DisplayName     string        `json:"display_name"`
+	Questionnaire   Questionnaire `json:"questionnaire"`
+	Industries      []string      `json:"industries"`
+	Skills          []string      `json:"skills"`
+	ThinkingStyle   ThinkingStyle `json:"thinking_style"`
+	ExperienceYears int           `json:"experience_years"`
+	AnonID          string        `json:"anon_id"`
+	QdrantPointID   string        `json:"qdrant_point_id,omitempty"`
+	QualityScore    float64       `json:"quality_score"`
+	DiscussionCount int           `json:"discussion_count"`
+	ConnectionCount int           `json:"connection_count"`
+	IsActive        bool          `json:"is_active"`
+	LastActiveAt    time.Time     `json:"last_active_at"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
 // CreateRequest is the input for creating a new agent.
 type CreateRequest struct {
-	UserID        string
-	AgentType     AgentType
-	DisplayName   string
-	Questionnaire Questionnaire
+	UserID        string        `json:"-"`
+	AgentType     AgentType     `json:"agent_type"`
+	DisplayName   string        `json:"display_name"`
+	Questionnaire Questionnaire `json:"questionnaire"`
 }
 
 // UpdateRequest allows partial updates to an agent profile.
 type UpdateRequest struct {
-	DisplayName   *string
-	AgentType     *AgentType
-	Questionnaire *Questionnaire
+	DisplayName   *string        `json:"display_name,omitempty"`
+	AgentType     *AgentType     `json:"agent_type,omitempty"`
+	Questionnaire *Questionnaire `json:"questionnaire,omitempty"`
 }
 
 // EmbeddingText returns a plain-text representation of this agent for vector embedding.
@@ -162,6 +162,10 @@ func NewService(repo Repository, logger *zap.Logger) *Service {
 
 // Create creates a new digital avatar.
 func (s *Service) Create(ctx context.Context, req CreateRequest) (*Agent, error) {
+	// Apply defaults before validation
+	if req.AgentType == "" {
+		req.AgentType = AgentTypeProfessional
+	}
 	if err := validateCreate(req); err != nil {
 		return nil, err
 	}
@@ -244,9 +248,6 @@ func generateAnonID() string {
 func validateCreate(req CreateRequest) error {
 	if req.UserID == "" {
 		return fmt.Errorf("user_id required")
-	}
-	if req.AgentType == "" {
-		req.AgentType = AgentTypeProfessional
 	}
 	if req.Questionnaire.PrimaryIndustry == "" {
 		return fmt.Errorf("primary_industry required")

@@ -95,52 +95,52 @@ const maxErrorsBeforeDegraded = 3
 
 // Discussion is the top-level aggregate for a single multi-round discussion.
 type Discussion struct {
-	ID           string
-	TopicID      string
-	TopicText    string // full topic text used in LLM prompts; set by the match worker
-	Status       DiscussionStatus
-	CurrentRound int
-	ErrorCount   int
-	Participants []Participant
-	Messages     []Message
-	IsDegraded     bool
-	DegradedReason string
+	ID             string           `json:"id"`
+	TopicID        string           `json:"topic_id"`
+	TopicText      string           `json:"topic_text,omitempty"` // full topic text used in LLM prompts; set by the match worker
+	Status         DiscussionStatus `json:"status"`
+	CurrentRound   int              `json:"current_round"`
+	ErrorCount     int              `json:"error_count,omitempty"`
+	Participants   []Participant    `json:"participants"`
+	Messages       []Message        `json:"messages"`
+	IsDegraded     bool             `json:"is_degraded,omitempty"`
+	DegradedReason string           `json:"degraded_reason,omitempty"`
 }
 
 // Message is a lightweight record stored inside Discussion.Messages.
 type Message struct {
-	RoundNum int
-	AgentID  string
-	Role     Role
-	Content  string
-	KeyPoint string
+	RoundNum int    `json:"round_num"`
+	AgentID  string `json:"agent_id"`
+	Role     Role   `json:"role"`
+	Content  string `json:"content"`
+	KeyPoint string `json:"key_point"`
 }
 
 // Participant represents one digital avatar assigned to the discussion.
 type Participant struct {
-	AgentID       string
-	Role          Role
-	AnonID        string
-	Industries    []string
-	Skills        []string
-	ThinkingStyle map[string]float64
-	Background    string
+	AgentID       string             `json:"agent_id"`
+	Role          Role               `json:"role"`
+	AnonID        string             `json:"anon_id"`
+	Industries    []string           `json:"industries"`
+	Skills        []string           `json:"skills"`
+	ThinkingStyle map[string]float64 `json:"thinking_style"`
+	Background    string             `json:"background"`
 }
 
 // RoundMessage is the full output produced by one participant in one round.
 type RoundMessage struct {
-	RoundNum         int // set by the caller when saving; 1-based
-	AgentID          string
-	Role             Role
-	Content          string
-	KeyPoint         string
-	AddressedTo      Role
-	Confidence       float64
-	ModelUsed        string
-	PromptTokens     int
-	CompletionTokens int
-	SimilarityToPrev float64
-	WasRewritten     bool
+	RoundNum         int     `json:"round_num"` // set by the caller when saving; 1-based
+	AgentID          string  `json:"agent_id"`
+	Role             Role    `json:"role"`
+	Content          string  `json:"content"`
+	KeyPoint         string  `json:"key_point"`
+	AddressedTo      Role    `json:"addressed_to"`
+	Confidence       float64 `json:"confidence"`
+	ModelUsed        string  `json:"model_used,omitempty"`
+	PromptTokens     int     `json:"prompt_tokens,omitempty"`
+	CompletionTokens int     `json:"completion_tokens,omitempty"`
+	SimilarityToPrev float64 `json:"similarity_to_prev,omitempty"`
+	WasRewritten     bool    `json:"was_rewritten,omitempty"`
 }
 
 // ---------------------------------------------------------------------------

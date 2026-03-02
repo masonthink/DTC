@@ -38,19 +38,19 @@ var (
 
 // Connection is the core domain object.
 type Connection struct {
-	ID                string
-	RequesterUserID   string
-	TargetUserID      string
-	RequesterAgentID  string
-	TargetAgentID     string
-	TopicID           string
-	Status            Status
-	RequestMessage    string
-	RequesterContact  string // decrypted, only available after accepted
-	TargetContact     string // decrypted, only available after accepted
-	RequestedAt       time.Time
-	RespondedAt       *time.Time
-	ExpiresAt         time.Time
+	ID               string     `json:"id"`
+	RequesterUserID  string     `json:"requester_user_id"`
+	TargetUserID     string     `json:"target_user_id"`
+	RequesterAgentID string     `json:"requester_agent_id"`
+	TargetAgentID    string     `json:"target_agent_id"`
+	TopicID          string     `json:"topic_id"`
+	Status           Status     `json:"status"`
+	RequestMessage   string     `json:"request_message"`
+	RequesterContact string     `json:"requester_contact,omitempty"` // decrypted, only available after accepted
+	TargetContact    string     `json:"target_contact,omitempty"`    // decrypted, only available after accepted
+	RequestedAt      time.Time  `json:"requested_at"`
+	RespondedAt      *time.Time `json:"responded_at,omitempty"`
+	ExpiresAt        time.Time  `json:"expires_at"`
 }
 
 // EncryptedContact holds AES-GCM encrypted contact bytes.
@@ -61,20 +61,20 @@ type EncryptedContact struct {
 
 // RequestInput is the input for creating a connection request.
 type RequestInput struct {
-	RequesterUserID  string
-	RequesterAgentID string
-	TargetAgentID    string // 目标 Agent（通过 AnonID 或报告推荐）
-	TopicID          string
-	RequestMessage   string
-	RequesterContact string // 申请方联系方式（将加密存储）
+	RequesterUserID  string `json:"-"`
+	RequesterAgentID string `json:"requester_agent_id"`
+	TargetAgentID    string `json:"target_agent_id"` // 目标 Agent（通过 AnonID 或报告推荐）
+	TopicID          string `json:"topic_id,omitempty"`
+	RequestMessage   string `json:"request_message,omitempty"`
+	RequesterContact string `json:"requester_contact"` // 申请方联系方式（将加密存储）
 }
 
 // RespondInput is the input for accepting/rejecting a connection.
 type RespondInput struct {
-	ConnectionID  string
-	TargetUserID  string
-	Accept        bool
-	TargetContact string // 目标方联系方式（仅 Accept 时需要，将加密存储）
+	ConnectionID  string `json:"-"`
+	TargetUserID  string `json:"-"`
+	Accept        bool   `json:"accept"`
+	TargetContact string `json:"target_contact,omitempty"` // 目标方联系方式（仅 Accept 时需要，将加密存储）
 }
 
 // Repository abstracts data access for connections.

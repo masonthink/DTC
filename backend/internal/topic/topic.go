@@ -38,34 +38,34 @@ const (
 
 // Topic is the core domain object.
 type Topic struct {
-	ID                 string
-	SubmitterUserID    string
-	SubmitterAgentID   string
-	TopicType          TopicType
-	Title              string
-	Description        string
-	Background         string
-	Tags               []string
-	Status             Status
-	SubmittedAt        time.Time
-	MatchedAt          *time.Time
-	DiscussionStartedAt *time.Time
-	ReportReadyAt      *time.Time
-	CompletedAt        *time.Time
-	Notified1h         bool
-	Notified12h        bool
-	Notified48h        bool
+	ID                  string     `json:"id"`
+	SubmitterUserID     string     `json:"submitter_user_id"`
+	SubmitterAgentID    string     `json:"submitter_agent_id"`
+	TopicType           TopicType  `json:"topic_type"`
+	Title               string     `json:"title"`
+	Description         string     `json:"description"`
+	Background          string     `json:"background"`
+	Tags                []string   `json:"tags"`
+	Status              Status     `json:"status"`
+	SubmittedAt         time.Time  `json:"submitted_at"`
+	MatchedAt           *time.Time `json:"matched_at,omitempty"`
+	DiscussionStartedAt *time.Time `json:"discussion_started_at,omitempty"`
+	ReportReadyAt       *time.Time `json:"report_ready_at,omitempty"`
+	CompletedAt         *time.Time `json:"completed_at,omitempty"`
+	Notified1h          bool       `json:"notified_1h"`
+	Notified12h         bool       `json:"notified_12h"`
+	Notified48h         bool       `json:"notified_48h"`
 }
 
 // SubmitRequest is the input for submitting a new topic.
 type SubmitRequest struct {
-	SubmitterUserID  string
-	SubmitterAgentID string
-	TopicType        TopicType
-	Title            string
-	Description      string
-	Background       string
-	Tags             []string
+	SubmitterUserID  string    `json:"-"`
+	SubmitterAgentID string    `json:"submitter_agent_id"`
+	TopicType        TopicType `json:"topic_type"`
+	Title            string    `json:"title"`
+	Description      string    `json:"description"`
+	Background       string    `json:"background,omitempty"`
+	Tags             []string  `json:"tags"`
 }
 
 // Repository abstracts data access for topics.

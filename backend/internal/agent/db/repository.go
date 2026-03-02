@@ -181,7 +181,7 @@ func (r *Repository) scanOne(row pgx.Row) (*agent.Agent, error) {
 }
 
 func (r *Repository) collectRows(rows pgx.Rows) ([]*agent.Agent, error) {
-	var agents []*agent.Agent
+	agents := make([]*agent.Agent, 0)
 	for rows.Next() {
 		a, err := scanAgentRow(rows.Scan)
 		if err != nil {
