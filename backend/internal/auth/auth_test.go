@@ -197,7 +197,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 
 	if _, _, err := svc.Register(ctx, auth.RegisterRequest{
 		Phone:       "+8613800138000",
-		Password:    "correctpassword",
+		Password:    "correct123",
 		DisplayName: "用户",
 	}); err != nil {
 		t.Fatalf("Register: %v", err)
@@ -205,7 +205,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 
 	_, _, err := svc.Login(ctx, auth.LoginRequest{
 		Phone:    "+8613800138000",
-		Password: "wrongpassword",
+		Password: "wrong1234",
 	})
 	if err != auth.ErrInvalidCredentials {
 		t.Errorf("got %v, want ErrInvalidCredentials", err)

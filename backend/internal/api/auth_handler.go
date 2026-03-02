@@ -22,7 +22,7 @@ func NewAuthHandler(svc *auth.Service) *AuthHandler {
 func (h *AuthHandler) Register(c echo.Context) error {
 	var req auth.RegisterRequest
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	user, tokens, err := h.svc.Register(c.Request().Context(), req)
 	if err != nil {
@@ -40,7 +40,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 func (h *AuthHandler) Login(c echo.Context) error {
 	var req auth.LoginRequest
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	user, tokens, err := h.svc.Login(c.Request().Context(), req)
 	if err != nil {
@@ -60,7 +60,7 @@ func (h *AuthHandler) Refresh(c echo.Context) error {
 		RefreshToken string `json:"refresh_token"`
 	}
 	if err := c.Bind(&body); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	tokens, err := h.svc.RefreshTokens(c.Request().Context(), body.RefreshToken)
 	if err != nil {

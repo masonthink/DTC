@@ -124,6 +124,12 @@ func (s *Service) Request(ctx context.Context, input RequestInput) (*Connection,
 	if input.RequesterContact == "" {
 		return nil, fmt.Errorf("requester_contact required")
 	}
+	if len(input.RequesterContact) > 500 {
+		return nil, fmt.Errorf("requester_contact too long (max 500 chars)")
+	}
+	if len(input.RequestMessage) > 2000 {
+		return nil, fmt.Errorf("request_message too long (max 2000 chars)")
+	}
 
 	// Look up target agent's user
 	targetUserID, _, err := s.agentRepo.FindByID(ctx, input.TargetAgentID)

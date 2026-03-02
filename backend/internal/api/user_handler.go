@@ -36,7 +36,7 @@ func (h *UserHandler) UpdateFCMToken(c echo.Context) error {
 		Token string `json:"token"`
 	}
 	if err := c.Bind(&body); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	if body.Token == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "token required")

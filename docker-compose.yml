@@ -12,7 +12,7 @@ services:
     container_name: dtc-postgres
     environment:
       POSTGRES_USER: dtc
-      POSTGRES_PASSWORD: dtc_dev_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dtc_dev_password}
       POSTGRES_DB: digital_twin_community
     ports:
       - "5432:5432"
@@ -31,13 +31,13 @@ services:
   redis:
     image: redis:7-alpine
     container_name: dtc-redis
-    command: redis-server --appendonly yes --requirepass dtc_dev_redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-dtc_dev_redis}
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "dtc_dev_redis", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-dtc_dev_redis}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -78,7 +78,7 @@ services:
       REDIS_PASSWORD: "dtc_dev_redis"
       QDRANT_HOST: "qdrant"
       QDRANT_PORT: "6334"
-      JWT_SECRET: "local-dev-secret-change-in-production"
+      JWT_SECRET: "${JWT_SECRET:-local-dev-secret-change-in-production}"
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
       DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY:-}"
       VOYAGE_API_KEY: "${VOYAGE_API_KEY:-}"
@@ -100,10 +100,10 @@ services:
     image: hibiken/asynqmon:latest
     container_name: dtc-asynqmon
     ports:
-      - "8081:8080"
+      - "127.0.0.1:8081:8080"
     environment:
       REDIS_ADDR: "redis:6379"
-      REDIS_PASSWORD: "dtc_dev_redis"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-dtc_dev_redis}"
     depends_on:
       - redis
 

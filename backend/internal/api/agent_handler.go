@@ -30,7 +30,7 @@ func (h *AgentHandler) Create(c echo.Context) error {
 	userID := apimiddleware.UserIDFromContext(c)
 	var req agent.CreateRequest
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	req.UserID = userID
 	a, err := h.svc.Create(c.Request().Context(), req)
@@ -71,7 +71,7 @@ func (h *AgentHandler) Update(c echo.Context) error {
 	id := c.Param("id")
 	var req agent.UpdateRequest
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	a, err := h.svc.Update(c.Request().Context(), id, userID, req)
 	if err != nil {

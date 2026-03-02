@@ -25,7 +25,7 @@ func (h *TopicHandler) Submit(c echo.Context) error {
 	userID := apimiddleware.UserIDFromContext(c)
 	var req topic.SubmitRequest
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	req.SubmitterUserID = userID
 	t, err := h.svc.Submit(c.Request().Context(), req)

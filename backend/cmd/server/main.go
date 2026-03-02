@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"os"
@@ -202,10 +203,21 @@ func main() {
 	topicSvc := topic.NewService(topicRepo, logger)
 
 	// ─── Connection Service ───────────────────────────────────────────────────
-	// Derive a 32-byte AES key from the JWT secret.
-	// In production, replace this with a key loaded from Cloud KMS.
-	keyHash := sha256.Sum256([]byte(cfg.JWT.Secret))
-	encKey := keyHash[:]
+	// Use dedicated encryption key if provided; fall back to JWT-derived key in development only.
+	var encKey []byte
+	if cfg.Encryption.ContactKeyHex != "" {
+		var err error
+		encKey, err = hex.DecodeString(cfg.Encryption.ContactKeyHex)
+		if err != nil || len(encKey) != 32 {
+			logger.Fatal("CONTACT_ENCRYPTION_KEY must be a 64-char hex string (32 bytes)")
+		}
+	} else if cfg.App.Env == "production" {
+		logger.Fatal("CONTACT_ENCRYPTION_KEY is required in production (generate with: openssl rand -hex 32)")
+	} else {
+		logger.Warn("CONTACT_ENCRYPTION_KEY not set – deriving from JWT_SECRET (development only)")
+		keyHash := sha256.Sum256([]byte(cfg.JWT.Secret))
+		encKey = keyHash[:]
+	}
 	connSvc, err := connection.NewService(connRepo, connAgentRepo, encKey, logger)
 	if err != nil {
 		logger.Fatal("create connection service", zap.Error(err))
@@ -218,8 +230,8 @@ func main() {
 	authHandler := api.NewAuthHandler(authSvc)
 	agentHandler := api.NewAgentHandler(agentSvc, embeddingSvc, logger)
 	topicHandler := api.NewTopicHandler(topicSvc)
-	discussionHandler := api.NewDiscussionHandler(discussionRepo)
-	reportHandler := api.NewReportHandler(reportRepo)
+	discussionHandler := api.NewDiscussionHandler(discussionRepo, topicRepo)
+	reportHandler := api.NewReportHandler(reportRepo, topicRepo)
 	connHandler := api.NewConnectionHandler(connSvc, connRepo)
 	userHandler := api.NewUserHandler(authSvc)
 

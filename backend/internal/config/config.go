@@ -12,18 +12,19 @@ import (
 
 // Config holds all application configuration.
 type Config struct {
-	App      AppConfig
-	DB       DBConfig
-	Redis    RedisConfig
-	Qdrant   QdrantConfig
-	LLM      LLMConfig
-	JWT      JWTConfig
-	KMS      KMSConfig
-	Firebase FirebaseConfig
-	SendGrid SendGridConfig
-	GCS      GCSConfig
-	Server   ServerConfig
-	CORS     CORSConfig
+	App        AppConfig
+	DB         DBConfig
+	Redis      RedisConfig
+	Qdrant     QdrantConfig
+	LLM        LLMConfig
+	JWT        JWTConfig
+	Encryption EncryptionConfig
+	KMS        KMSConfig
+	Firebase   FirebaseConfig
+	SendGrid   SendGridConfig
+	GCS        GCSConfig
+	Server     ServerConfig
+	CORS       CORSConfig
 }
 
 // CORSConfig controls which origins the server accepts cross-origin requests from.
@@ -113,6 +114,10 @@ type JWTConfig struct {
 	BcryptCost      int // 0 → bcrypt.DefaultCost; set to bcrypt.MinCost in tests
 }
 
+type EncryptionConfig struct {
+	ContactKeyHex string // 64-char hex string (32 bytes) for AES-256-GCM contact encryption
+}
+
 type KMSConfig struct {
 	ProjectID  string
 	LocationID string
@@ -199,8 +204,11 @@ func Load() (*Config, error) {
 		},
 		JWT: JWTConfig{
 			Secret:          requireEnv("JWT_SECRET"),
-			AccessTokenTTL:  getEnvDuration("JWT_ACCESS_TTL", 24*time.Hour),
+			AccessTokenTTL:  getEnvDuration("JWT_ACCESS_TTL", 15*time.Minute),
 			RefreshTokenTTL: getEnvDuration("JWT_REFRESH_TTL", 30*24*time.Hour),
+		},
+		Encryption: EncryptionConfig{
+			ContactKeyHex: getEnv("CONTACT_ENCRYPTION_KEY", ""),
 		},
 		KMS: KMSConfig{
 			ProjectID:  getEnv("GCP_PROJECT_ID", ""),
@@ -224,7 +232,16 @@ func Load() (*Config, error) {
 	}
 
 	cfg.CORS = CORSConfig{
-		AllowedOrigins: strings.Split(getEnv("CORS_ALLOWED_ORIGINS", "*"), ","),
+		AllowedOrigins: strings.Split(getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000"), ","),
+	}
+
+	// Fail-safe: refuse to start in production with wildcard CORS
+	if cfg.App.Env == "production" {
+		for _, origin := range cfg.CORS.AllowedOrigins {
+			if strings.TrimSpace(origin) == "*" {
+				panic("CORS_ALLOWED_ORIGINS must not be '*' in production")
+			}
+		}
 	}
 
 	return cfg, nil

@@ -25,7 +25,7 @@ func (h *ConnectionHandler) Request(c echo.Context) error {
 	userID := apimiddleware.UserIDFromContext(c)
 	var input connection.RequestInput
 	if err := c.Bind(&input); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	input.RequesterUserID = userID
 	conn, err := h.svc.Request(c.Request().Context(), input)
@@ -61,7 +61,7 @@ func (h *ConnectionHandler) Respond(c echo.Context) error {
 	id := c.Param("id")
 	var input connection.RespondInput
 	if err := c.Bind(&input); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	input.ConnectionID = id
 	input.TargetUserID = userID

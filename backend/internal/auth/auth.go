@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"unicode"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -104,8 +105,14 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*User, *To
 	if len(req.Password) < 8 {
 		return nil, nil, fmt.Errorf("password must be at least 8 characters")
 	}
+	if !hasLetter(req.Password) || !hasDigit(req.Password) {
+		return nil, nil, fmt.Errorf("password must contain at least one letter and one digit")
+	}
 	if req.DisplayName == "" {
 		return nil, nil, fmt.Errorf("display_name required")
+	}
+	if len(req.DisplayName) > 100 {
+		return nil, nil, fmt.Errorf("display_name too long (max 100 chars)")
 	}
 
 	// Check for existing user
@@ -296,4 +303,22 @@ func recordToUser(r *UserRecord) *User {
 func hashToken(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return fmt.Sprintf("%x", sum[:])
+}
+
+func hasLetter(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasDigit(s string) bool {
+	for _, r := range s {
+		if unicode.IsDigit(r) {
+			return true
+		}
+	}
+	return false
 }

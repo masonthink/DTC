@@ -196,5 +196,14 @@ func validateSubmit(req SubmitRequest) error {
 	if req.Description == "" {
 		return fmt.Errorf("description required")
 	}
+	if len(req.Description) > 10000 {
+		return fmt.Errorf("description too long (max 10000 chars)")
+	}
+	if len(req.Background) > 5000 {
+		return fmt.Errorf("background too long (max 5000 chars)")
+	}
+	if len(req.Tags) > 20 {
+		return fmt.Errorf("too many tags (max 20)")
+	}
 	return nil
 }
