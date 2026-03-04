@@ -83,6 +83,12 @@ func (r *Repository) FindByDiscussionID(ctx context.Context, discussionID string
 	return r.scanOne(r.db.QueryRow(ctx, q, discussionID))
 }
 
+// FindByTopicID retrieves the report for a topic.
+func (r *Repository) FindByTopicID(ctx context.Context, topicID string) (*report.Report, error) {
+	const q = reportSelectCols + ` WHERE topic_id = $1`
+	return r.scanOne(r.db.QueryRow(ctx, q, topicID))
+}
+
 // UpdateUserRating stores a user's star rating (1-5) and optional feedback.
 func (r *Repository) UpdateUserRating(ctx context.Context, id string, rating int, feedback string) error {
 	const q = `

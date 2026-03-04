@@ -22,18 +22,28 @@ func NewReportHandler(repo report.Repository, topicRepo topic.Repository) *Repor
 }
 
 // Get handles GET /reports/:id.
+// Accepts either a report ID or a topic ID for convenience.
 func (h *ReportHandler) Get(c echo.Context) error {
 	userID := apimiddleware.UserIDFromContext(c)
 	id := c.Param("id")
-	r, err := h.repo.FindByID(c.Request().Context(), id)
+	ctx := c.Request().Context()
+
+	// Try by report ID first, then fall back to topic ID.
+	r, err := h.repo.FindByID(ctx, id)
 	if err != nil {
 		return httpError(err)
+	}
+	if r == nil {
+		r, err = h.repo.FindByTopicID(ctx, id)
+		if err != nil {
+			return httpError(err)
+		}
 	}
 	if r == nil {
 		return echo.NewHTTPError(http.StatusNotFound, "report not found")
 	}
 	// Verify ownership through the associated topic
-	t, err := h.topicRepo.FindByID(c.Request().Context(), r.TopicID)
+	t, err := h.topicRepo.FindByID(ctx, r.TopicID)
 	if err != nil || t == nil || t.SubmitterUserID != userID {
 		return echo.NewHTTPError(http.StatusForbidden, "access denied")
 	}
@@ -41,18 +51,26 @@ func (h *ReportHandler) Get(c echo.Context) error {
 }
 
 // Rate handles POST /reports/:id/rating.
+// Accepts either a report ID or a topic ID for convenience.
 func (h *ReportHandler) Rate(c echo.Context) error {
 	userID := apimiddleware.UserIDFromContext(c)
 	id := c.Param("id")
+	ctx := c.Request().Context()
 	// Verify ownership before allowing rating
-	r, err := h.repo.FindByID(c.Request().Context(), id)
+	r, err := h.repo.FindByID(ctx, id)
 	if err != nil {
 		return httpError(err)
 	}
 	if r == nil {
+		r, err = h.repo.FindByTopicID(ctx, id)
+		if err != nil {
+			return httpError(err)
+		}
+	}
+	if r == nil {
 		return echo.NewHTTPError(http.StatusNotFound, "report not found")
 	}
-	t, err := h.topicRepo.FindByID(c.Request().Context(), r.TopicID)
+	t, err := h.topicRepo.FindByID(ctx, r.TopicID)
 	if err != nil || t == nil || t.SubmitterUserID != userID {
 		return echo.NewHTTPError(http.StatusForbidden, "access denied")
 	}
@@ -69,7 +87,7 @@ func (h *ReportHandler) Rate(c echo.Context) error {
 	if len(body.Feedback) > 5000 {
 		return echo.NewHTTPError(http.StatusBadRequest, "feedback too long (max 5000 chars)")
 	}
-	if err := h.repo.UpdateUserRating(c.Request().Context(), id, body.Rating, body.Feedback); err != nil {
+	if err := h.repo.UpdateUserRating(ctx, r.ID, body.Rating, body.Feedback); err != nil {
 		return httpError(err)
 	}
 	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})

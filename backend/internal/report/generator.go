@@ -733,6 +733,8 @@ type Repository interface {
 	FindByID(ctx context.Context, id string) (*Report, error)
 	// FindByDiscussionID retrieves the report for a discussion.
 	FindByDiscussionID(ctx context.Context, discussionID string) (*Report, error)
+	// FindByTopicID retrieves the report for a topic.
+	FindByTopicID(ctx context.Context, topicID string) (*Report, error)
 	// UpdateUserRating stores a user's star rating and optional feedback.
 	UpdateUserRating(ctx context.Context, id string, rating int, feedback string) error
 }
