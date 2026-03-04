@@ -184,7 +184,7 @@ export default function AgentCreatePage() {
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                   分身类型
                 </p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {AGENT_TYPES.map((t) => (
                     <button
                       key={t.value}
@@ -233,7 +233,7 @@ export default function AgentCreatePage() {
                   name="questionnaire.primary_industry"
                   control={control}
                   render={({ field }) => (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                       {INDUSTRIES.map((ind) => (
                         <button
                           key={ind}

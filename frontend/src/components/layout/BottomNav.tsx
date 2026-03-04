@@ -17,7 +17,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       {/* Frosted glass background with gradient mask at top */}
       <div className="absolute inset-0 bg-card/92 backdrop-blur-2xl border-t border-border/60" />
 

@@ -5,7 +5,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-mesh">
       {/* Navigation */}
       <header className="sticky top-0 z-50 glass border-b border-white/60">
-        <div className="max-w-screen-sm mx-auto px-5 h-14 flex items-center justify-between">
+        <div className="max-w-screen-sm md:max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             {/* Logo mark */}
             <div className="w-7 h-7 rounded-lg bg-primary-gradient flex items-center justify-center flex-shrink-0">
@@ -39,7 +39,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="max-w-screen-sm mx-auto px-5">
+      <main className="max-w-screen-sm md:max-w-5xl mx-auto px-5">
 
         {/* ── Hero ─────────────────────────────────────────────────────────── */}
         <section className="pt-16 pb-14 text-center">
@@ -50,7 +50,7 @@ export default function LandingPage() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-[32px] font-bold leading-[1.25] tracking-tight text-foreground mb-5 animate-reveal-up stagger-1">
+          <h1 className="text-[32px] md:text-[48px] font-bold leading-[1.25] tracking-tight text-foreground mb-5 animate-reveal-up stagger-1">
             创建你的数字分身
             <br />
             <span className="text-gradient-primary">通过 AI 讨论找到搭子</span>
@@ -102,7 +102,7 @@ export default function LandingPage() {
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
             {[
               {
                 step: "01",
@@ -183,7 +183,7 @@ export default function LandingPage() {
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               {
                 icon: (
@@ -325,7 +325,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border/60 py-8">
-        <div className="max-w-screen-sm mx-auto px-5">
+        <div className="max-w-screen-sm md:max-w-5xl mx-auto px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-md bg-primary-gradient flex items-center justify-center">

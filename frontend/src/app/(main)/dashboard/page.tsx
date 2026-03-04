@@ -137,7 +137,7 @@ export default function DashboardPage() {
                 <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
               {agents?.slice(0, 2).map((agent: Agent) => (
                 <AgentCard key={agent.id} agent={agent} />
               ))}

@@ -178,7 +178,7 @@ export default function SubmitTopicPage() {
               <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                 想法类型
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {TOPIC_TYPES.map((t) => (
                   <button
                     key={t.value}
