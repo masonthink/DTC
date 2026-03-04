@@ -301,10 +301,13 @@ const STYLE_LABELS: Record<string, string> = {
 };
 
 const PREFERRED_ROLE_LABELS: Record<string, string> = {
-  critic: "质疑者",
-  advocate: "支持者",
-  explorer: "探索者",
-  questioner: "质疑者",
+  critic: "追问型",
+  advocate: "建设型",
+  explorer: "发散型",
+  questioner: "追问型",
+  supporter: "建设型",
+  supplementer: "发散型",
+  inquirer: "分析型",
 };
 
 function ThinkingBar({ label, value }: { label: string; value: number }) {

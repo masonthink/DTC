@@ -135,8 +135,8 @@ export default function LandingPage() {
                     <circle cx="9" cy="12" r="2" fill="currentColor" opacity="0.6"/>
                   </svg>
                 ),
-                title: "四个分身深度讨论",
-                desc: "质疑者找风险，支持者给论据，补充者提供新视角，探究者追问本质",
+                title: "多个分身结构化讨论",
+                desc: "每个分身基于自身行业背景，给出立场、论据、回应和延伸问题",
               },
               {
                 step: "04",
@@ -206,7 +206,7 @@ export default function LandingPage() {
                   </svg>
                 ),
                 title: "多分身讨论",
-                desc: "支持、质疑、补充、追问，四种视角全面覆盖",
+                desc: "不同行业背景的分身，从各自专业角度结构化碰撞",
                 color: "text-blue-500",
                 bg: "bg-blue-50 border-blue-100",
               },

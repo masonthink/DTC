@@ -69,10 +69,10 @@ const DECISION_STYLES = [
 ];
 
 const DISCUSSION_ROLES = [
-  { value: "questioner", label: "提问者", emoji: "❓", desc: "善于发现关键问题" },
-  { value: "supporter", label: "支持者", emoji: "✅", desc: "补充论据，深化论点" },
-  { value: "supplementer", label: "补充者", emoji: "💡", desc: "提供新视角和信息" },
-  { value: "inquirer", label: "探究者", emoji: "🔍", desc: "深入追问，挖掘本质" },
+  { value: "questioner", label: "追问型", emoji: "❓", desc: "喜欢追问到底，挖掘本质" },
+  { value: "supporter", label: "建设型", emoji: "🔧", desc: "擅长提出具体可行的方案" },
+  { value: "supplementer", label: "发散型", emoji: "💡", desc: "善于引入新视角和跨界思考" },
+  { value: "inquirer", label: "分析型", emoji: "📊", desc: "偏好数据和逻辑推理" },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -432,7 +432,7 @@ export default function AgentCreatePage() {
 
               <div>
                 <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  讨论中的角色
+                  讨论风格偏好
                 </label>
                 <Controller
                   name="questionnaire.preferred_role"

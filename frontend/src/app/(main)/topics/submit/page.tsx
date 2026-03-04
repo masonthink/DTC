@@ -289,7 +289,7 @@ export default function SubmitTopicPage() {
               <div className="space-y-3">
                 {[
                   { time: "T+0", label: "系统为你匹配背景最相关的分身" },
-                  { time: "T+1min", label: "四个分身从不同角度激烈讨论" },
+                  { time: "T+1min", label: "多个分身基于各自背景结构化讨论" },
                   { time: "T+5min", label: "生成报告，推荐最值得认识的真人搭子" },
                 ].map((item, i) => (
                   <div key={item.time} className="flex items-center gap-3">

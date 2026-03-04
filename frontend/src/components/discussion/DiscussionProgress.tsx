@@ -112,10 +112,10 @@ function TimeEstimate({ status, submittedAt }: { status: TopicStatus; submittedA
   const hoursElapsed = (now.getTime() - submittedAt.getTime()) / 3_600_000;
 
   const messages: Partial<Record<TopicStatus, string>> = {
-    pending_matching: "正在匹配四个讨论分身...",
-    matching: "正在匹配四个讨论分身...",
+    pending_matching: "正在匹配讨论分身...",
+    matching: "正在匹配讨论分身...",
     matched: "分身匹配就绪，讨论即将开始",
-    discussion_active: "四个分身正在深度讨论中...",
+    discussion_active: "分身们正在深度讨论中...",
     report_generating: "正在生成你的专属讨论报告...",
   };
 
