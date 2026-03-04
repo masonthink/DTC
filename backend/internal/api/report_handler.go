@@ -47,7 +47,30 @@ func (h *ReportHandler) Get(c echo.Context) error {
 	if err != nil || t == nil || t.SubmitterUserID != userID {
 		return echo.NewHTTPError(http.StatusForbidden, "access denied")
 	}
-	return c.JSON(http.StatusOK, r)
+	return c.JSON(http.StatusOK, reportResponse(r))
+}
+
+// reportResponse flattens the Report struct into the snake_case JSON the frontend expects.
+func reportResponse(r *report.Report) map[string]interface{} {
+	userRating := interface{}(nil)
+	if r.UserRating > 0 {
+		userRating = r.UserRating
+	}
+	return map[string]interface{}{
+		"id":                 r.ID,
+		"discussion_id":     r.DiscussionID,
+		"topic_id":          r.TopicID,
+		"summary":           r.Summary,
+		"consensus_points":  r.OpinionMatrix.ConsensusPoints,
+		"divergence_points": r.OpinionMatrix.DivergencePoints,
+		"key_questions":     r.OpinionMatrix.KeyQuestions,
+		"action_items":      r.OpinionMatrix.ActionItems,
+		"blind_spots":       r.OpinionMatrix.BlindSpots,
+		"recommended_agents": r.RecommendedAgents,
+		"quality_score":     r.QualityScore,
+		"user_rating":       userRating,
+		"generated_at":      r.GeneratedAt,
+	}
 }
 
 // Rate handles POST /reports/:id/rating.
