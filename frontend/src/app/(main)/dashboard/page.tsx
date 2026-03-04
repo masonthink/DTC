@@ -31,8 +31,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
+      {/* Header: mobile only, hidden on desktop where DesktopHeader takes over */}
+      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60 md:hidden">
         <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-primary-gradient flex items-center justify-center flex-shrink-0">

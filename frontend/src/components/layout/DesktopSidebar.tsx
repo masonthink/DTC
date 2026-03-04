@@ -2,83 +2,74 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, PlusCircle, Users, User } from "lucide-react";
+import { Home, Lightbulb, Users, Bot, PenSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const tabs = [
+const navItems = [
   { href: "/dashboard", icon: Home, label: "首页" },
-  { href: "/topics", icon: BookOpen, label: "想法" },
-  { href: "/topics/submit", icon: PlusCircle, label: "发布", primary: true },
+  { href: "/topics", icon: Lightbulb, label: "想法" },
   { href: "/connections", icon: Users, label: "搭子" },
-  { href: "/profile", icon: User, label: "我的" },
+  { href: "/agents", icon: Bot, label: "分身" },
 ];
 
 export function DesktopSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-60 flex-shrink-0 border-r border-border/60 bg-card/50 h-screen sticky top-0">
-      {/* Logo */}
-      <div className="px-5 h-14 flex items-center gap-2 border-b border-border/40">
-        <div className="w-7 h-7 rounded-lg bg-primary-gradient flex items-center justify-center flex-shrink-0">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <circle cx="4" cy="4" r="2.5" fill="white" fillOpacity="0.9" />
-            <circle cx="10" cy="4" r="2.5" fill="white" fillOpacity="0.6" />
-            <circle cx="7" cy="10" r="2.5" fill="white" fillOpacity="0.75" />
-          </svg>
-        </div>
-        <span className="text-[15px] font-semibold tracking-tight text-foreground">
-          Concors
-        </span>
-        <span className="text-[9px] font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider leading-none">
-          Beta
-        </span>
-      </div>
-
-      {/* Nav items */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {tabs.map((tab) => {
+    <aside className="hidden md:flex flex-col w-[68px] flex-shrink-0 border-r border-border/60 bg-card/80 h-[calc(100vh-56px)] sticky top-14">
+      {/* Navigation items */}
+      <nav className="flex-1 flex flex-col items-center gap-1 px-2 pt-4">
+        {navItems.map((item) => {
           const isActive =
-            pathname === tab.href ||
-            (tab.href !== "/dashboard" && pathname.startsWith(tab.href + "/"));
-
-          if (tab.primary) {
-            return (
-              <Link
-                key={tab.href}
-                href={tab.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150",
-                  "bg-primary text-primary-foreground shadow-primary-sm hover:bg-primary/90",
-                  isActive && "shadow-primary-md"
-                )}
-              >
-                <tab.icon className="w-[18px] h-[18px]" strokeWidth={2.5} />
-                <span className="text-[13px] font-semibold">{tab.label}</span>
-              </Link>
-            );
-          }
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
 
           return (
             <Link
-              key={tab.href}
-              href={tab.href}
+              key={item.href}
+              href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150",
+                "flex flex-col items-center justify-center w-full py-2 rounded-xl transition-all duration-150 group",
                 isActive
-                  ? "bg-primary/8 text-primary font-medium"
+                  ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
+              aria-current={isActive ? "page" : undefined}
             >
-              <tab.icon
-                className="w-[18px] h-[18px]"
+              <item.icon
+                className="w-5 h-5 mb-0.5"
                 strokeWidth={isActive ? 2.25 : 1.75}
               />
-              <span className="text-[13px]">{tab.label}</span>
+              <span
+                className={cn(
+                  "text-[10px] leading-none",
+                  isActive ? "font-semibold" : "font-medium"
+                )}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
       </nav>
+
+      {/* CTA: Submit topic */}
+      <div className="px-2 pb-4">
+        <Link
+          href="/topics/submit"
+          className={cn(
+            "flex flex-col items-center justify-center w-full py-2.5 rounded-xl transition-all duration-200",
+            "bg-primary text-primary-foreground shadow-primary-sm",
+            "hover:bg-primary/90 hover:shadow-primary-md",
+            "active:scale-95"
+          )}
+        >
+          <PenSquare className="w-5 h-5 mb-0.5" strokeWidth={2} />
+          <span className="text-[10px] leading-none font-semibold">
+            发布想法
+          </span>
+        </Link>
+      </div>
     </aside>
   );
 }

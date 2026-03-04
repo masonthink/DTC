@@ -67,7 +67,7 @@ export default function SubmitTopicPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
+      <div className="sticky top-0 md:top-14 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 py-4 flex items-center gap-3">
           {step === 2 ? (
             <button

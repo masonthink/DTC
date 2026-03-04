@@ -35,7 +35,7 @@ export default function TopicsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
+      <div className="sticky top-0 md:top-14 z-10 bg-card/92 backdrop-blur-2xl border-b border-border/60">
         <div className="px-4 pt-4 pb-0 flex items-center justify-between">
           <h1 className="text-[18px] font-bold text-foreground tracking-tight">我的想法</h1>
           <Link
