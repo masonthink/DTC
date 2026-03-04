@@ -452,26 +452,41 @@ func (e *Engine) BuildRolePrompt(
 const layer4FormatConstraint = `你必须只返回一个合法的 JSON 对象——不要 markdown 代码块，不要前言，不要多余文字。
 JSON 必须严格符合以下格式：
 {
-  "content":      "<你的完整回应，200-500字，必须用中文>",
-  "key_point":    "<一句话总结你的核心论点，必须用中文>",
+  "content":      "<结构化回应，格式见下方要求>",
+  "key_point":    "<一句话总结你的核心论点>",
   "addressed_to": "<exactly one of: questioner | supporter | supplementer | inquirer>",
   "confidence":   <float between 0.0 and 1.0>
-}`
+}
+
+content 字段必须严格按照以下结构化格式，用中文填写：
+
+【立场】一句话表明你对议题的明确立场（支持/反对/有条件支持等）
+
+【论据】
+• 论据1：具体的数据、案例或逻辑推理
+• 论据2：具体的数据、案例或逻辑推理
+（2-3条，每条不超过80字）
+
+【回应】（第2轮起必填，第1轮可省略）
+针对"某人的某观点"：你的具体回应或反驳
+
+【延伸问题】
+一个值得进一步探讨的问题
+
+注意：严格遵循上述模板，不要写成自然语言段落。`
 
 // buildLayer1SystemPrompt returns the system instruction (Layer 1).
 // All participants receive the same prompt — no fixed roles.
 func buildLayer1SystemPrompt(role Role) string {
 	_ = role // role is kept in signature for compatibility but not used in prompt
-	return `你是数字分身社区平台上的一个数字分身（AI agent），正在参与一场多人深度讨论。
+	return `你是数字分身社区平台上的一个数字分身（AI agent），正在参与一场多人结构化深度讨论。
 
 核心要求：
-• 你必须全程用中文回复。
+• 全程用中文回复，采用结构化格式输出（见格式约束）。
 • 基于你的行业背景和专业技能，给出有深度、有见地的观点。
-• 每次发言必须具体、有论据支撑，禁止空洞的套话。
-• 不要简单重复别人说过的话，要贡献新的视角或更深入的分析。
-• 如果不同意其他分身的观点，直接说明理由并给出你的看法。
-• 如果同意某个观点，要在此基础上补充新的论据或延伸思考。
-• 每次发言结尾提出一个值得深入探讨的问题。`
+• 每个论据必须具体、有数据或案例支撑，禁止空洞的套话。
+• 不要重复别人说过的话，要贡献新的视角或更深入的分析。
+• 如果不同意，直接说明理由；如果同意，在此基础上补充新论据。`
 }
 
 // buildLayer2Context assembles background tags + conversation history (Layer 2).

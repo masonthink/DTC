@@ -157,8 +157,8 @@ function MessageCard({ msg, anonId, colorIndex }: { msg: DiscussionMessage; anon
         )}
       </div>
 
-      {/* Content */}
-      <p className="text-[13px] text-foreground/85 leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+      {/* Structured content */}
+      <StructuredContent content={msg.content} accentColor={palette.color} />
 
       {/* Key point */}
       {msg.key_point && (
@@ -167,6 +167,60 @@ function MessageCard({ msg, anonId, colorIndex }: { msg: DiscussionMessage; anon
           <p className={cn("text-[12px] font-medium leading-relaxed", palette.color)}>{msg.key_point}</p>
         </div>
       )}
+    </div>
+  );
+}
+
+// Parse structured content sections like 【立场】, 【论据】, 【回应】, 【延伸问题】
+function parseStructuredSections(content: string): { label: string; body: string }[] | null {
+  const sectionPattern = /【([^】]+)】/g;
+  const matches: RegExpExecArray[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = sectionPattern.exec(content)) !== null) {
+    matches.push(m);
+  }
+  if (matches.length === 0) return null; // fallback to plain text
+
+  const sections: { label: string; body: string }[] = [];
+  for (let i = 0; i < matches.length; i++) {
+    const label = matches[i][1];
+    const start = matches[i].index + matches[i][0].length;
+    const end = i + 1 < matches.length ? matches[i + 1].index : content.length;
+    sections.push({ label, body: content.slice(start, end).trim() });
+  }
+  return sections;
+}
+
+const SECTION_STYLES: Record<string, { icon: string; labelColor: string }> = {
+  "立场": { icon: "🎯", labelColor: "text-primary" },
+  "论据": { icon: "📊", labelColor: "text-blue-600" },
+  "回应": { icon: "💬", labelColor: "text-amber-600" },
+  "延伸问题": { icon: "❓", labelColor: "text-violet-600" },
+};
+
+function StructuredContent({ content, accentColor }: { content: string; accentColor: string }) {
+  const sections = parseStructuredSections(content);
+
+  // Fallback: render as plain text if not structured
+  if (!sections) {
+    return <p className="text-[13px] text-foreground/85 leading-relaxed whitespace-pre-wrap">{content}</p>;
+  }
+
+  return (
+    <div className="space-y-2.5">
+      {sections.map((sec, i) => {
+        const style = SECTION_STYLES[sec.label] ?? { icon: "•", labelColor: accentColor };
+        return (
+          <div key={i}>
+            <p className={cn("text-[11px] font-semibold mb-1 flex items-center gap-1", style.labelColor)}>
+              <span>{style.icon}</span> {sec.label}
+            </p>
+            <div className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap pl-4">
+              {sec.body}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
