@@ -351,12 +351,15 @@ var seedAgentIDs = [4]string{
 	"00000000-0000-0000-0000-000000000004",
 }
 
+// seedAnonNames are human-readable anonymous names for seed agents.
+var seedAnonNames = [4]string{"Alex", "Jordan", "Morgan", "Riley"}
+
 func (m *Matcher) generalistSeeds(count int) []Candidate {
 	seeds := make([]Candidate, count)
 	for i := range seeds {
 		seeds[i] = Candidate{
 			AgentID:    seedAgentIDs[i%4],
-			AnonID:     fmt.Sprintf("seed-%d", i+1),
+			AnonID:     seedAnonNames[i%4],
 			Industries: []string{generalistIndustry},
 			Skills:     []string{"general"},
 			ThinkingStyle: map[string]float64{

@@ -549,7 +549,7 @@ func (g *Generator) buildOpinionExtractionPrompt(topic Topic, keyPoints []KeyPoi
 		sb.WriteString(fmt.Sprintf("\n【第%d轮】\n", round))
 		for _, kp := range keyPoints {
 			if kp.RoundNumber == round {
-				sb.WriteString(fmt.Sprintf("- %s（%s）：%s\n", kp.AnonID, roleLabel(kp.Role), kp.KeyPoint))
+				sb.WriteString(fmt.Sprintf("- %s：%s\n", kp.AnonID, kp.KeyPoint))
 			}
 		}
 	}
@@ -648,19 +648,6 @@ func parseOpinionMatrix(content string) (*OpinionMatrix, error) {
 func countChineseWords(s string) int {
 	// For Chinese text, count runes as "words"
 	return utf8.RuneCountInString(s)
-}
-
-func roleLabel(role string) string {
-	labels := map[string]string{
-		"questioner":   "质疑者",
-		"supporter":    "支持者",
-		"supplementer": "补充者",
-		"inquirer":     "提问者",
-	}
-	if l, ok := labels[role]; ok {
-		return l
-	}
-	return role
 }
 
 func buildInsightCounts(messages []DiscussionMessage) map[string]int {

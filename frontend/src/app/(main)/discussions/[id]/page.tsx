@@ -7,40 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; dot: string; emoji: string }> = {
-  questioner: {
-    label: "质疑者",
-    emoji: "🔍",
-    color: "text-red-600",
-    bg: "bg-red-50",
-    border: "border-red-100",
-    dot: "bg-red-400",
-  },
-  supporter: {
-    label: "支持者",
-    emoji: "✅",
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-100",
-    dot: "bg-emerald-400",
-  },
-  supplementer: {
-    label: "补充者",
-    emoji: "💡",
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    border: "border-blue-100",
-    dot: "bg-blue-400",
-  },
-  inquirer: {
-    label: "探究者",
-    emoji: "❓",
-    color: "text-violet-600",
-    bg: "bg-violet-50",
-    border: "border-violet-100",
-    dot: "bg-violet-400",
-  },
-};
+// Color palette for distinguishing participants (by index, not role)
+const PARTICIPANT_COLORS = [
+  { color: "text-red-600", bg: "bg-red-50", border: "border-red-100", dot: "bg-red-400" },
+  { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", dot: "bg-emerald-400" },
+  { color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", dot: "bg-blue-400" },
+  { color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-100", dot: "bg-violet-400" },
+];
 
 export default function DiscussionPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,6 +29,18 @@ export default function DiscussionPage() {
   );
 
   const isLoading = discussionLoading || messagesLoading;
+
+  // Build agent_id → index mapping for consistent colors
+  const agentIndexMap = new Map<string, number>();
+  discussion?.participants?.forEach((p, i) => {
+    agentIndexMap.set(p.agent_id, i);
+  });
+
+  // Build agent_id → anon_id mapping
+  const agentAnonMap = new Map<string, string>();
+  discussion?.participants?.forEach((p) => {
+    agentAnonMap.set(p.agent_id, p.anon_id);
+  });
 
   // Group messages by round
   const rounds = groupByRound(messages ?? []);
@@ -102,19 +87,18 @@ export default function DiscussionPage() {
         <div className="px-4 pt-5">
           <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">参与分身</p>
           <div className="flex gap-2 flex-wrap mb-5">
-            {discussion.participants.map((p) => {
-              const cfg = ROLE_CONFIG[p.role];
+            {discussion.participants.map((p, i) => {
+              const palette = PARTICIPANT_COLORS[i % PARTICIPANT_COLORS.length];
               return (
                 <div
                   key={p.agent_id}
                   className={cn(
                     "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[11px] font-medium",
-                    cfg?.bg, cfg?.border, cfg?.color
+                    palette.bg, palette.border, palette.color
                   )}
                 >
-                  <span>{cfg?.emoji}</span>
-                  <span>{cfg?.label}</span>
-                  <span className="text-foreground/40 font-mono text-[10px]">{p.anon_id}</span>
+                  <span className={cn("w-2 h-2 rounded-full", palette.dot)} />
+                  <span className="font-mono">{p.anon_id}</span>
                 </div>
               );
             })}
@@ -140,7 +124,12 @@ export default function DiscussionPage() {
 
             <div className="space-y-3">
               {msgs.map((msg, i) => (
-                <MessageCard key={i} msg={msg} />
+                <MessageCard
+                  key={i}
+                  msg={msg}
+                  anonId={agentAnonMap.get(msg.agent_id) ?? msg.agent_id.slice(0, 6)}
+                  colorIndex={agentIndexMap.get(msg.agent_id) ?? 0}
+                />
               ))}
             </div>
           </div>
@@ -150,23 +139,16 @@ export default function DiscussionPage() {
   );
 }
 
-function MessageCard({ msg }: { msg: DiscussionMessage }) {
-  const cfg = ROLE_CONFIG[msg.role] ?? {
-    label: msg.role,
-    emoji: "💬",
-    color: "text-muted-foreground",
-    bg: "bg-muted",
-    border: "border-border",
-    dot: "bg-muted-foreground",
-  };
+function MessageCard({ msg, anonId, colorIndex }: { msg: DiscussionMessage; anonId: string; colorIndex: number }) {
+  const palette = PARTICIPANT_COLORS[colorIndex % PARTICIPANT_COLORS.length];
 
   return (
-    <div className={cn("rounded-2xl border p-4", cfg.bg, cfg.border)}>
-      {/* Role badge + confidence */}
+    <div className={cn("rounded-2xl border p-4", palette.bg, palette.border)}>
+      {/* Speaker badge + confidence */}
       <div className="flex items-center justify-between mb-3">
-        <span className={cn("flex items-center gap-1.5 text-[12px] font-semibold", cfg.color)}>
-          <span className="text-sm">{cfg.emoji}</span>
-          {cfg.label}
+        <span className={cn("flex items-center gap-1.5 text-[12px] font-semibold", palette.color)}>
+          <span className={cn("w-2 h-2 rounded-full", palette.dot)} />
+          <span className="font-mono">{anonId}</span>
         </span>
         {msg.confidence > 0 && (
           <span className="text-[11px] text-muted-foreground bg-white/60 px-2 py-0.5 rounded-full border border-white/80">
@@ -182,7 +164,7 @@ function MessageCard({ msg }: { msg: DiscussionMessage }) {
       {msg.key_point && (
         <div className="mt-3 pt-3 border-t border-white/50">
           <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">核心论点</p>
-          <p className={cn("text-[12px] font-medium leading-relaxed", cfg.color)}>{msg.key_point}</p>
+          <p className={cn("text-[12px] font-medium leading-relaxed", palette.color)}>{msg.key_point}</p>
         </div>
       )}
     </div>

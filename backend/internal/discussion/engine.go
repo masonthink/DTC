@@ -449,72 +449,29 @@ func (e *Engine) BuildRolePrompt(
 	}
 }
 
-const layer4FormatConstraint = `You MUST respond with ONLY a single valid JSON object — no markdown fences, no preamble, no trailing text.
-The object must conform exactly to this schema:
+const layer4FormatConstraint = `你必须只返回一个合法的 JSON 对象——不要 markdown 代码块，不要前言，不要多余文字。
+JSON 必须严格符合以下格式：
 {
-  "content":      "<your full response, 100-300 words>",
-  "key_point":    "<one sentence summarising your core argument>",
+  "content":      "<你的完整回应，200-500字，必须用中文>",
+  "key_point":    "<一句话总结你的核心论点，必须用中文>",
   "addressed_to": "<exactly one of: questioner | supporter | supplementer | inquirer>",
   "confidence":   <float between 0.0 and 1.0>
 }`
 
-// buildLayer1SystemPrompt returns the role-fixed instruction set (Layer 1).
+// buildLayer1SystemPrompt returns the system instruction (Layer 1).
+// All participants receive the same prompt — no fixed roles.
 func buildLayer1SystemPrompt(role Role) string {
-	const base = `You are a digital avatar (数字分身) participating in a structured intellectual discussion on the 数字分身社区 platform.
-You have been assigned a specific role that you MUST embody strictly throughout the conversation.
-Do NOT produce vague or non-committal statements. Every claim must be precise and grounded.`
+	_ = role // role is kept in signature for compatibility but not used in prompt
+	return `你是数字分身社区平台上的一个数字分身（AI agent），正在参与一场多人深度讨论。
 
-	switch role {
-	case RoleQuestioner:
-		return base + `
-
-ROLE: 质疑者 (Questioner / Devil's Advocate)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• Your PRIMARY mission is to find logical flaws, unsupported assumptions, and weak evidence in arguments.
-• You MUST challenge every claim with a specific counter-example or falsifying condition.
-• You are FORBIDDEN from agreeing wholesale with any prior statement without rigorous scrutiny.
-• Identify the weakest link in the current argument chain and address it directly.
-• Never use hedging language like "perhaps" — state your critique with precision.
-• End every contribution with a pointed question that exposes a potential contradiction or gap.`
-
-	case RoleSupporter:
-		return base + `
-
-ROLE: 支持者 (Supporter / Evidence Provider)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• Your PRIMARY mission is to build the strongest possible case FOR the main thesis using concrete evidence.
-• You MUST cite specific mechanisms, data patterns, or domain precedents — generic endorsements are prohibited.
-• When the questioner raises a flaw, you MUST rebut it directly with counter-evidence rather than deflecting.
-• Strengthen the weakest part of the thesis.
-• Never use vague phrases like "studies show" without specifying what kind of evidence pattern applies.
-• End every contribution with a question that invites deeper elaboration of supporting evidence.`
-
-	case RoleSupplementer:
-		return base + `
-
-ROLE: 补充者 (Supplementer / Perspective Expander)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• Your PRIMARY mission is to broaden the discussion by introducing adjacent dimensions not yet covered.
-• You MUST add a new conceptual angle, cross-domain analogy, or systemic consideration in every response.
-• Do NOT simply restate what the questioner or supporter said — add orthogonal value.
-• Identify blind spots: what important factor is the discussion ignoring entirely?
-• Vague "on the other hand" pivots are forbidden — your supplement must be specific and actionable.
-• End every contribution with a question that draws attention to the newly introduced dimension.`
-
-	case RoleInquirer:
-		return base + `
-
-ROLE: 提问者 (Inquirer / Assumption Prober)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• Your PRIMARY mission is to surface and challenge the hidden assumptions underlying all positions.
-• You MUST identify at least one unstated premise in the current exchange and probe it directly.
-• Ask questions that reframe the problem rather than drill deeper into the existing framing.
-• You are FORBIDDEN from stating opinions — your only tool is the Socratic question.
-• Every question must be open-ended, non-leading, and designed to expose an assumption.
-• End every contribution with your sharpest, most fundamental question of the round.`
-	}
-
-	return base
+核心要求：
+• 你必须全程用中文回复。
+• 基于你的行业背景和专业技能，给出有深度、有见地的观点。
+• 每次发言必须具体、有论据支撑，禁止空洞的套话。
+• 不要简单重复别人说过的话，要贡献新的视角或更深入的分析。
+• 如果不同意其他分身的观点，直接说明理由并给出你的看法。
+• 如果同意某个观点，要在此基础上补充新的论据或延伸思考。
+• 每次发言结尾提出一个值得深入探讨的问题。`
 }
 
 // buildLayer2Context assembles background tags + conversation history (Layer 2).
@@ -522,29 +479,29 @@ func buildLayer2Context(participant Participant, topic string, history []RoundMe
 	var sb strings.Builder
 
 	sb.WriteString("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-	sb.WriteString("DISCUSSION TOPIC\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+	sb.WriteString("讨论话题\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 	sb.WriteString(topic)
 	sb.WriteString("\n\n")
 
 	sb.WriteString("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-	sb.WriteString("YOUR AVATAR PROFILE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-	sb.WriteString(fmt.Sprintf("Anonymous ID   : %s\n", participant.AnonID))
+	sb.WriteString("你的分身档案\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+	sb.WriteString(fmt.Sprintf("匿名 ID        : %s\n", participant.AnonID))
 
 	if len(participant.Industries) > 0 {
-		sb.WriteString(fmt.Sprintf("Industries     : %s\n", strings.Join(participant.Industries, ", ")))
+		sb.WriteString(fmt.Sprintf("行业领域       : %s\n", strings.Join(participant.Industries, ", ")))
 	}
 	if len(participant.Skills) > 0 {
-		sb.WriteString(fmt.Sprintf("Skills         : %s\n", strings.Join(participant.Skills, ", ")))
+		sb.WriteString(fmt.Sprintf("专业技能       : %s\n", strings.Join(participant.Skills, ", ")))
 	}
 	if len(participant.ThinkingStyle) > 0 {
-		sb.WriteString("Thinking style :\n")
+		sb.WriteString("思维风格       :\n")
 		for axis, score := range participant.ThinkingStyle {
 			bar := buildScoreBar(score)
 			sb.WriteString(fmt.Sprintf("  %-22s %s %.2f\n", axis, bar, score))
 		}
 	}
 	if participant.Background != "" {
-		sb.WriteString("\nBackground summary:\n")
+		sb.WriteString("\n背景简介:\n")
 		sb.WriteString(participant.Background)
 		sb.WriteString("\n")
 	}
@@ -552,7 +509,7 @@ func buildLayer2Context(participant Participant, topic string, history []RoundMe
 	const historyWindowRounds = 2
 	if len(history) > 0 {
 		sb.WriteString("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-		sb.WriteString("CONVERSATION HISTORY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+		sb.WriteString("对话历史\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
 		start := 0
 		if roundNum > historyWindowRounds+1 {
@@ -561,12 +518,23 @@ func buildLayer2Context(participant Participant, topic string, history []RoundMe
 				start = cutoff
 			}
 		}
+		// Map agent IDs to numbered labels for anonymity
+		agentNum := make(map[string]int)
+		counter := 0
 		for i := start; i < len(history); i++ {
 			m := history[i]
-			sb.WriteString(fmt.Sprintf("[%s]\n", strings.ToUpper(string(m.Role))))
+			if _, ok := agentNum[m.AgentID]; !ok {
+				counter++
+				agentNum[m.AgentID] = counter
+			}
+			label := fmt.Sprintf("分身 %d", agentNum[m.AgentID])
+			if m.AgentID == participant.AgentID {
+				label = "你"
+			}
+			sb.WriteString(fmt.Sprintf("[%s]\n", label))
 			sb.WriteString(m.Content)
 			if m.KeyPoint != "" {
-				sb.WriteString(fmt.Sprintf("\n  KEY POINT: %s", m.KeyPoint))
+				sb.WriteString(fmt.Sprintf("\n  核心论点: %s", m.KeyPoint))
 			}
 			sb.WriteString("\n\n")
 		}
@@ -576,48 +544,46 @@ func buildLayer2Context(participant Participant, topic string, history []RoundMe
 
 // buildLayer3Task constructs the per-round task instruction (Layer 3).
 func buildLayer3Task(role Role, roundNum int, history []RoundMessage) string {
+	_ = role // role kept for signature compatibility
 	var sb strings.Builder
 
 	sb.WriteString("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-	sb.WriteString(fmt.Sprintf("ROUND %d TASK\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", roundNum))
+	sb.WriteString(fmt.Sprintf("第 %d 轮任务\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", roundNum))
 
-	lastRelevant := findLastRelevantMessage(history, role)
+	lastMsg := findLastMessage(history)
 
 	switch roundNum {
 	case 1:
-		sb.WriteString("This is the OPENING round. Introduce your position from your assigned role's perspective.\n")
-		sb.WriteString("Be direct, specific, and concrete from the very first sentence.\n")
+		sb.WriteString("这是开场轮。基于你的专业背景，对这个话题给出你最核心的观点。\n")
+		sb.WriteString("从第一句话开始就要直接、具体、有力。\n")
 	case 2:
-		sb.WriteString("This is the DEVELOPMENT round. Advance the argument — do NOT restate round 1.\n")
-		if lastRelevant != nil {
-			sb.WriteString(fmt.Sprintf("Respond SPECIFICALLY to this point: \"%s\"\n", lastRelevant.KeyPoint))
+		sb.WriteString("这是展开轮。推进讨论——不要重复第一轮的内容。\n")
+		if lastMsg != nil {
+			sb.WriteString(fmt.Sprintf("请针对这个观点展开回应：「%s」\n", lastMsg.KeyPoint))
 		}
 	case 3:
-		sb.WriteString("This is the DEEPENING round. Explore the core tension that has emerged.\n")
-		if lastRelevant != nil {
-			sb.WriteString(fmt.Sprintf("Address the unresolved tension around: \"%s\"\n", lastRelevant.KeyPoint))
+		sb.WriteString("这是深化轮。挖掘讨论中浮现的核心分歧或关键问题。\n")
+		if lastMsg != nil {
+			sb.WriteString(fmt.Sprintf("请围绕这个未解决的问题深入分析：「%s」\n", lastMsg.KeyPoint))
 		}
-		sb.WriteString("Do not recycle earlier points — probe edge cases, systemic implications, or second-order effects.\n")
+		sb.WriteString("不要重复之前的论点——探索边界情况、系统性影响或二阶效应。\n")
 	case 4:
-		sb.WriteString("This is the SYNTHESIS round. State your FINAL, most refined position.\n")
-		if lastRelevant != nil {
-			sb.WriteString(fmt.Sprintf("Synthesise your view in light of: \"%s\"\n", lastRelevant.KeyPoint))
+		sb.WriteString("这是总结轮。给出你最终的、最精炼的观点。\n")
+		if lastMsg != nil {
+			sb.WriteString(fmt.Sprintf("结合这个观点来总结你的立场：「%s」\n", lastMsg.KeyPoint))
 		}
-		sb.WriteString("Acknowledge the strongest opposing argument and explain why your view stands despite it.\n")
-	}
-
-	switch role {
-	case RoleQuestioner:
-		sb.WriteString("\nAs questioner: zero in on the single most damaging logical gap in the strongest argument so far.\n")
-	case RoleSupporter:
-		sb.WriteString("\nAs supporter: address the most forceful critique raised so far with the sharpest counter-evidence.\n")
-	case RoleSupplementer:
-		sb.WriteString("\nAs supplementer: name the ONE dimension most conspicuously absent from this discussion.\n")
-	case RoleInquirer:
-		sb.WriteString("\nAs inquirer: surface the deepest hidden assumption that, if false, would invalidate the dominant view.\n")
+		sb.WriteString("承认讨论中最有力的反对意见，并解释为什么你的观点依然成立。\n")
 	}
 
 	return sb.String()
+}
+
+// findLastMessage returns the most recent message in history.
+func findLastMessage(history []RoundMessage) *RoundMessage {
+	if len(history) == 0 {
+		return nil
+	}
+	return &history[len(history)-1]
 }
 
 func buildScoreBar(score float64) string {
@@ -632,15 +598,6 @@ func buildScoreBar(score float64) string {
 	return "[" + strings.Repeat("█", filled) + strings.Repeat("░", total-filled) + "]"
 }
 
-func findLastRelevantMessage(history []RoundMessage, role Role) *RoundMessage {
-	for i := len(history) - 1; i >= 0; i-- {
-		m := history[i]
-		if m.AddressedTo == role || m.Role != role {
-			return &history[i]
-		}
-	}
-	return nil
-}
 
 // ---------------------------------------------------------------------------
 // Similarity Check
@@ -766,12 +723,12 @@ func completedStatus(round int) DiscussionStatus {
 
 func appendRewriteInstruction(messages []llm.Message, similarity float64) []llm.Message {
 	instruction := fmt.Sprintf(
-		`REWRITE REQUIRED: Your most recent output is %.0f%% semantically similar to your previous round's output (threshold: %.0f%%).
-You MUST substantially differentiate your response:
-• Introduce a different angle or piece of evidence that you have NOT used before.
-• Change your opening sentence entirely.
-• If you were building a case, now deconstruct one of its assumptions; if questioning, propose a concrete alternative.
-• The conceptual content must differ meaningfully from your previous response.`,
+		`必须重写：你最近的输出与上一轮的回复语义相似度达 %.0f%%（阈值 %.0f%%）。
+你必须大幅改变回复内容：
+• 引入你之前未使用过的不同角度或论据。
+• 完全更换你的开头句子。
+• 如果之前在论证，现在试着解构其中一个前提假设；如果之前在质疑，提出一个具体的替代方案。
+• 内容必须与你上一轮的回复有实质性的区别。`,
 		similarity*100, similarityThreshold*100,
 	)
 	return append(messages, llm.Message{Role: "user", Content: instruction})
