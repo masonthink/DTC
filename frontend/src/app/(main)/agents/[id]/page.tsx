@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import { agentApi, type Agent } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,10 +9,6 @@ import { ArrowLeft, Edit2, Check, X, Star, MessageSquare, Zap } from "lucide-rea
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-
-interface Props {
-  params: Promise<{ id: string }>;
-}
 
 const AGENT_TYPE_OPTIONS: { value: Agent["agent_type"]; label: string; emoji: string }[] = [
   { value: "professional", label: "职场精英", emoji: "💼" },
@@ -28,8 +24,8 @@ const ROLE_COLORS: Record<string, string> = {
   inquirer: "text-violet-600 bg-violet-50 border-violet-100",
 };
 
-export default function AgentDetailPage({ params }: Props) {
-  const { id } = use(params);
+export default function AgentDetailPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: agent, isLoading } = useSWR(`agents/${id}`, () => agentApi.get(id));
   const [editing, setEditing] = useState(false);

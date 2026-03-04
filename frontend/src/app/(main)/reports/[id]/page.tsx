@@ -1,19 +1,14 @@
 "use client";
 
-import { use } from "react";
 import useSWR from "swr";
 import { reportApi, connectionApi, extractApiError, type Report, type RecommendedAgent } from "@/lib/api";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
-
-export default function ReportPage({ params }: Props) {
-  const { id } = use(params);
+export default function ReportPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: report, isLoading } = useSWR(`report:${id}`, () => reportApi.get(id));
 

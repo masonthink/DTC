@@ -1,16 +1,11 @@
 "use client";
 
-import { use } from "react";
 import useSWR from "swr";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { discussionApi, type DiscussionMessage } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Props {
-  params: Promise<{ id: string }>;
-}
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; dot: string; emoji: string }> = {
   questioner: {
@@ -47,8 +42,8 @@ const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string; bo
   },
 };
 
-export default function DiscussionPage({ params }: Props) {
-  const { id } = use(params);
+export default function DiscussionPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const { data: discussion, isLoading: discussionLoading } = useSWR(
