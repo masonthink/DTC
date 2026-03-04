@@ -58,7 +58,7 @@ export default function LandingPage() {
 
           {/* Subtext */}
           <p className="text-[15px] text-muted-foreground leading-cjk mb-9 max-w-[300px] mx-auto animate-reveal-up stagger-2">
-            创建你的数字分身 agent，提交你正在思考的话题，AI 分身们从四个角度展开讨论，帮你发现志同道合的人
+            创建你的数字分身 agent，提交你正在思考的话题，帮你发现志同道合的人
           </p>
 
           {/* Primary CTA */}
