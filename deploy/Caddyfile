@@ -3,7 +3,7 @@
 # Cloudflare 控制台设置：
 #   SSL/TLS → 模式：完全（Full）
 #   SSL/TLS → 边缘证书 → 始终使用 HTTPS：开启
-#   DNS → A 记录 api.yourdomain.com → VPS IP → 橙色云朵（代理已启用）
+#   DNS → A 记录 api.concors.ai → VPS IP → 橙色云朵（代理已启用）
 
 {
     # 声明 Cloudflare 为可信代理，Caddy 才能还原真实客户端 IP
@@ -26,8 +26,8 @@
         131.0.72.0/22
 }
 
-# 将 api.yourdomain.com 替换为实际域名
-api.yourdomain.com {
+# 将 api.concors.ai 替换为实际域名
+api.concors.ai {
 
     reverse_proxy backend:8080 {
         health_uri      /health
