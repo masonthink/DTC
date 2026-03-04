@@ -45,7 +45,7 @@ export default function TopicDetailPage() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-muted-foreground">话题详情</p>
+            <p className="text-[11px] text-muted-foreground">想法详情</p>
           </div>
           <TopicStatusBadge status={topic.status} />
         </div>
@@ -179,7 +179,7 @@ export default function TopicDetailPage() {
               </p>
               <p className="text-primary/60 text-[11px] mt-0.5">
                 {topic.status === "discussion_active"
-                  ? "AI 分身们正在深度讨论你的话题"
+                  ? "AI 分身们正在深度讨论你的想法"
                   : "查看 AI 分身们的完整讨论过程"}
               </p>
             </div>
@@ -243,9 +243,9 @@ function NotFound() {
       <div className="w-16 h-16 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4 text-2xl">
         🔍
       </div>
-      <p className="text-foreground font-semibold text-[15px] mb-2">话题不存在</p>
+      <p className="text-foreground font-semibold text-[15px] mb-2">想法不存在</p>
       <Link href="/topics" className="text-primary text-[13px] hover:text-primary/80 transition-colors">
-        返回话题列表
+        返回想法列表
       </Link>
     </div>
   );

@@ -13,7 +13,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Concors Beta - 数字分身社区，用 AI 讨论找搭子",
-  description: "创建你的数字分身 agent，提交创业想法、职业决策等话题，AI 分身代表你展开多角度讨论，帮你找到志同道合的搭子。",
+  description: "创建你的数字分身 agent，提交创业想法、职业决策等想法，AI 分身代表你展开多角度讨论，帮你找到志同道合的搭子。",
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",

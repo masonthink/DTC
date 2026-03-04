@@ -58,7 +58,7 @@ export default function LandingPage() {
 
           {/* Subtext */}
           <p className="text-[15px] text-muted-foreground leading-cjk mb-9 max-w-[300px] mx-auto animate-reveal-up stagger-2">
-            创建你的数字分身 agent，提交你正在思考的话题，帮你发现志同道合的人
+            创建你的数字分身 agent，提交你正在思考的想法，帮你发现志同道合的人
           </p>
 
           {/* Primary CTA */}
@@ -122,7 +122,7 @@ export default function LandingPage() {
                     <path d="M3 13V5a2 2 0 012-2h8a2 2 0 012 2v8l-3-1.5L9 13l-3-1.5L3 13z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
                   </svg>
                 ),
-                title: "提交你的话题",
+                title: "提交你的想法",
                 desc: "正在纠结的创业方向？技术选型？职业决策？写下来就好",
               },
               {

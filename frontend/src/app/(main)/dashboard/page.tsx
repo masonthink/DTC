@@ -72,7 +72,7 @@ export default function DashboardPage() {
                 欢迎来到 Concors
               </h2>
               <p className="text-white/75 text-[13px] leading-relaxed mb-4">
-                创建你的数字分身，提交感兴趣的话题，分身会帮你筛选出最值得认识的搭子。
+                创建你的数字分身，提交感兴趣的想法，分身会帮你筛选出最值得认识的搭子。
               </p>
               <Link
                 href="/agents/create"
@@ -112,7 +112,7 @@ export default function DashboardPage() {
                 {pendingConnections > 0
                   ? "去看看是谁对你感兴趣"
                   : acceptedConnections > 0
-                  ? "继续提交话题，发现更多搭子"
+                  ? "继续提交想法，发现更多搭子"
                   : "讨论越多，越容易找到搭子"}
               </p>
             </div>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
               className="flex items-center justify-center gap-2 border border-dashed border-border hover:border-primary/40 hover:bg-primary/4 rounded-2xl p-4 text-muted-foreground hover:text-primary transition-all duration-200 text-[13px] mt-2 active:scale-[0.99]"
             >
               <span className="text-base">+</span>
-              提交新话题，找搭子
+              提交新想法，找搭子
             </Link>
           </section>
         )}
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                 <path d="M9 12h10M9 16h6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
               </svg>
             </div>
-            <h3 className="text-foreground font-semibold text-[15px] mb-1.5">提交一个话题，开始找搭子</h3>
+            <h3 className="text-foreground font-semibold text-[15px] mb-1.5">提交一个想法，开始找搭子</h3>
             <p className="text-muted-foreground text-[13px] mb-6 max-w-[240px] leading-relaxed">
               你的分身会代表你和其他分身讨论，帮你筛选出最值得认识的人
             </p>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
               href="/topics/submit"
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-7 py-2.5 rounded-xl text-[14px] font-semibold transition-all active:scale-95 shadow-primary-sm hover:shadow-primary-md"
             >
-              提交第一个话题
+              提交第一个想法
             </Link>
           </div>
         )}

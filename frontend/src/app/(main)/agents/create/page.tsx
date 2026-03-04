@@ -124,7 +124,7 @@ export default function AgentCreatePage() {
     setLoading(true);
     try {
       await agentApi.create(data as CreateAgentRequest);
-      toast({ title: "分身创建成功！", description: "现在可以提交话题了" });
+      toast({ title: "分身创建成功！", description: "现在可以提交想法了" });
       router.push("/dashboard");
     } catch (err) {
       toast({ title: "创建失败", description: extractApiError(err), variant: "destructive" });

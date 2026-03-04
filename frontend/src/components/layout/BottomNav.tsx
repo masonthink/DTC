@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const tabs = [
   { href: "/dashboard", icon: Home, label: "首页" },
-  { href: "/topics", icon: BookOpen, label: "话题" },
+  { href: "/topics", icon: BookOpen, label: "想法" },
   { href: "/topics/submit", icon: PlusCircle, label: "发布", primary: true },
   { href: "/connections", icon: Users, label: "搭子" },
   { href: "/profile", icon: User, label: "我的" },
@@ -35,7 +35,7 @@ export function BottomNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
-                aria-label="发布话题"
+                aria-label="发布想法"
                 className="flex flex-col items-center pb-2 pt-1 px-3"
               >
                 <div

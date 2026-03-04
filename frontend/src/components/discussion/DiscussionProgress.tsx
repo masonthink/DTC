@@ -92,7 +92,7 @@ function buildMilestones(status: TopicStatus, submittedAt: Date): Milestone[] {
   const currentIdx = order.indexOf(status);
 
   return [
-    { label: "话题提交", shortLabel: "提交" },
+    { label: "想法提交", shortLabel: "提交" },
     { label: "匹配分身", shortLabel: "匹配" },
     { label: "讨论进行", shortLabel: "讨论" },
     { label: "生成报告", shortLabel: "报告" },

@@ -494,7 +494,7 @@ func buildLayer2Context(participant Participant, topic string, history []RoundMe
 	var sb strings.Builder
 
 	sb.WriteString("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-	sb.WriteString("讨论话题\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+	sb.WriteString("讨论想法\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 	sb.WriteString(topic)
 	sb.WriteString("\n\n")
 
@@ -569,7 +569,7 @@ func buildLayer3Task(role Role, roundNum int, history []RoundMessage) string {
 
 	switch roundNum {
 	case 1:
-		sb.WriteString("这是开场轮。基于你的专业背景，对这个话题给出你最核心的观点。\n")
+		sb.WriteString("这是开场轮。基于你的专业背景，对这个想法给出你最核心的观点。\n")
 		sb.WriteString("从第一句话开始就要直接、具体、有力。\n")
 	case 2:
 		sb.WriteString("这是展开轮。推进讨论——不要重复第一轮的内容。\n")

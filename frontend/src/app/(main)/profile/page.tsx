@@ -30,7 +30,7 @@ export default function ProfilePage() {
       title: "账号",
       items: [
         { icon: Bot, label: "我的分身", href: "/agents", sub: "管理你的数字分身" },
-        { icon: BookOpen, label: "话题记录", href: "/topics", sub: "查看所有讨论话题" },
+        { icon: BookOpen, label: "想法记录", href: "/topics", sub: "查看所有讨论想法" },
       ],
     },
     {

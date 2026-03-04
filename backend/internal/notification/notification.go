@@ -148,7 +148,7 @@ func (s *Service) SendMatchPreview(ctx context.Context, userID, topicID, topicTi
 		UserID:  userID,
 		TopicID: topicID,
 		Type:    TypeMatchPreview,
-		Title:   "你的话题匹配成功了！",
+		Title:   "你的想法匹配成功了！",
 		Body:    fmt.Sprintf("「%s」已匹配到4位数字分身，讨论即将开始～", truncate(topicTitle, 20)),
 		Data: map[string]string{
 			"topic_id": topicID,

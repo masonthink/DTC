@@ -17,14 +17,14 @@ const TOPIC_TYPES = [
   { value: "tech_choice", label: "技术选型", emoji: "⚙️", desc: "架构、工具、技术栈" },
   { value: "product_design", label: "产品设计", emoji: "🎨", desc: "功能、交互、用户体验" },
   { value: "investment", label: "投资判断", emoji: "📈", desc: "项目评估、市场分析" },
-  { value: "other", label: "其他", emoji: "💬", desc: "其他深度话题" },
+  { value: "other", label: "其他", emoji: "💬", desc: "其他深度想法" },
 ];
 
 const schema = z.object({
   agent_id: z.string().min(1, "请选择一个分身"),
-  topic_type: z.string().min(1, "请选择话题类型"),
-  title: z.string().min(5, "话题标题至少5个字").max(200),
-  description: z.string().min(20, "话题描述至少20个字").max(2000),
+  topic_type: z.string().min(1, "请选择想法类型"),
+  title: z.string().min(5, "想法标题至少5个字").max(200),
+  description: z.string().min(20, "想法描述至少20个字").max(2000),
   background: z.string().max(1000).optional(),
 });
 
@@ -86,7 +86,7 @@ export default function SubmitTopicPage() {
           )}
           <div className="flex-1">
             <h1 className="text-[15px] font-bold text-foreground tracking-tight">
-              {step === 1 ? "提交话题" : "确认提交"}
+              {step === 1 ? "提交想法" : "确认提交"}
             </h1>
           </div>
           {/* Step indicator */}
@@ -176,7 +176,7 @@ export default function SubmitTopicPage() {
             {/* Topic type */}
             <div>
               <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                话题类型
+                想法类型
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {TOPIC_TYPES.map((t) => (
@@ -205,7 +205,7 @@ export default function SubmitTopicPage() {
             {/* Title */}
             <div>
               <label htmlFor="topic-title" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                话题标题{" "}
+                想法标题{" "}
                 {(title?.length ?? 0) < 5 ? (
                   <span className="text-red-500 normal-case font-normal">
                     还差 {5 - (title?.length ?? 0)} 个字
@@ -219,7 +219,7 @@ export default function SubmitTopicPage() {
               <input
                 id="topic-title"
                 {...register("title")}
-                placeholder="简洁地描述你的话题"
+                placeholder="简洁地描述你的想法"
                 className="w-full bg-background border border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground/60 text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150"
               />
               {errors.title && (
@@ -244,7 +244,7 @@ export default function SubmitTopicPage() {
               <textarea
                 id="topic-description"
                 {...register("description")}
-                placeholder="描述你的具体话题、当前思考、以及你最希望讨论的方向..."
+                placeholder="描述你的具体想法、当前思考、以及你最希望讨论的方向..."
                 rows={5}
                 className="w-full bg-background border border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground/60 text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all duration-150 resize-none"
               />
@@ -276,7 +276,7 @@ export default function SubmitTopicPage() {
           <div className="px-4 pt-5 space-y-4">
             {/* Preview card */}
             <div className="bg-card border border-border rounded-2xl p-5 shadow-xs">
-              <p className="text-[11px] font-semibold text-primary uppercase tracking-wider mb-3">话题预览</p>
+              <p className="text-[11px] font-semibold text-primary uppercase tracking-wider mb-3">想法预览</p>
               <p className="text-foreground font-semibold text-[14px] mb-2 leading-snug">{watch("title")}</p>
               <p className="text-muted-foreground text-[13px] line-clamp-5 leading-relaxed">
                 {watch("description")}
@@ -330,7 +330,7 @@ export default function SubmitTopicPage() {
               disabled={submitting}
               className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-semibold py-4 rounded-2xl transition-all duration-150 active:scale-[0.98] shadow-primary-md"
             >
-              {submitting ? "提交中..." : "确认提交话题"}
+              {submitting ? "提交中..." : "确认提交想法"}
             </button>
           )}
         </div>

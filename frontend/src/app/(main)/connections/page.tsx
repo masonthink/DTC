@@ -87,7 +87,7 @@ export default function ConnectionsPage() {
             </div>
             <h3 className="text-foreground font-semibold text-[15px] mb-2">还没有找到搭子</h3>
             <p className="text-muted-foreground text-[13px] max-w-xs leading-relaxed">
-              提交一个你正在思考的话题，分身会帮你筛选出值得认识的人
+              提交一个你正在思考的想法，分身会帮你筛选出值得认识的人
             </p>
           </div>
         )}
@@ -291,7 +291,7 @@ function ContactsView({ connectionId, topicId }: { connectionId: string; topicId
             href={`/topics/${topicId}`}
             className="text-[12px] text-primary font-medium hover:text-primary/80 transition-colors"
           >
-            讨论话题：{topic.title} →
+            讨论想法：{topic.title} →
           </Link>
         </div>
       )}
