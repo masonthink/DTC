@@ -8,7 +8,7 @@ jobs:
     name: Fix SSH Firewall
     runs-on: ubuntu-latest
     steps:
-      - name: SSH - diagnose and fix sshd
+      - name: SSH - check iptables and nftables in detail
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -16,34 +16,33 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 3m
           script: |
-            echo "=== 50-cloud-init.conf content ==="
-            sudo cat /etc/ssh/sshd_config.d/50-cloud-init.conf 2>&1
+            echo "=== Full iptables rules (all chains) ==="
+            sudo iptables-save 2>&1 | head -80
             echo ""
 
-            echo "=== Full effective sshd config (first 60 lines) ==="
-            sudo sshd -T 2>&1 | head -60
+            echo "=== nftables rules ==="
+            sudo nft list ruleset 2>&1 | head -80
             echo ""
 
-            echo "=== Current unauthenticated SSH connections ==="
-            ss -tn state established '( sport = :22 )' 2>&1 | wc -l
-            ss -tn state established '( sport = :22 )' 2>&1 | head -20
+            echo "=== Check for any IP blacklists ==="
+            sudo ipset list 2>&1 | head -30 || echo "no ipset"
             echo ""
 
-            echo "=== Fix: increase MaxStartups to handle scan traffic ==="
-            sudo sed -i '/^#\?MaxStartups/d' /etc/ssh/sshd_config
-            echo "MaxStartups 50:30:200" | sudo tee -a /etc/ssh/sshd_config
+            echo "=== Recent sshd rejections in auth log ==="
+            sudo grep "Connection closed" /var/log/auth.log 2>/dev/null | tail -10 || sudo journalctl -u ssh --no-pager -n 30 2>&1 | grep -i "close\|refuse\|drop\|reject\|ban"
             echo ""
 
-            echo "=== Validate config ==="
-            sudo sshd -t 2>&1 && echo "Config OK" || echo "Config INVALID"
+            echo "=== Open port 8443 in ufw ==="
+            sudo ufw allow 8443/tcp 2>&1
             echo ""
 
-            echo "=== Restart sshd ==="
-            sudo systemctl restart ssh 2>&1
+            echo "=== Open ports 80 and 443 too ==="
+            sudo ufw allow 80/tcp 2>&1
+            sudo ufw allow 443/tcp 2>&1
             echo ""
 
-            echo "=== sshd logs ==="
-            sudo journalctl -u ssh --no-pager -n 10 2>&1
+            echo "=== Final ufw status ==="
+            sudo ufw status verbose 2>&1
             echo ""
 
             echo "=== Done ==="
