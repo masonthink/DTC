@@ -33,45 +33,36 @@ jobs:
             sudo grep -E "^(AllowUsers|DenyUsers|AllowGroups|Match|MaxAuthTries|PermitRootLogin|PasswordAuthentication)" /etc/ssh/sshd_config 2>&1 || true
             echo ""
 
-            echo "=== List sshd_config.d/ ==="
-            ls -la /etc/ssh/sshd_config.d/ 2>&1
+            echo "=== Before: all Port lines in sshd_config ==="
+            grep -n "^Port" /etc/ssh/sshd_config 2>&1
             echo ""
 
-            echo "=== Show extra config files ==="
-            for f in /etc/ssh/sshd_config.d/*.conf; do
-              echo "--- $f ---"
-              cat "$f" 2>&1
-              echo ""
-            done
-
-            echo "=== Fix: remove duplicate Port entries from sshd_config.d ==="
-            for f in /etc/ssh/sshd_config.d/*.conf; do
-              if grep -q "^Port 22$" "$f" 2>/dev/null; then
-                echo "Removing Port 22 from $f"
-                sudo sed -i '/^Port 22$/d' "$f"
-              fi
-            done
+            echo "=== Fix: deduplicate Port lines - keep only first Port 22 and Port 8443 ==="
+            sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+            # Remove ALL Port lines, then add back just what we need
+            sudo sed -i '/^Port /d' /etc/ssh/sshd_config
+            # Add Port 22 and Port 8443 after the Include line
+            sudo sed -i '/^Include \/etc\/ssh\/sshd_config.d/a Port 22\nPort 8443' /etc/ssh/sshd_config
             echo ""
 
-            echo "=== Fix: ensure only one Port 22 in main config ==="
-            echo "Before:"
-            grep "^Port" /etc/ssh/sshd_config 2>&1
+            echo "=== After: all Port lines ==="
+            grep -n "^Port" /etc/ssh/sshd_config 2>&1
+            echo ""
+
+            echo "=== Also check sshd_config.d for Port lines ==="
+            grep -rn "^Port" /etc/ssh/sshd_config.d/ 2>&1 || echo "none"
+            echo ""
+
+            echo "=== Validate config ==="
+            sudo sshd -t 2>&1 && echo "Config OK" || echo "Config INVALID"
             echo ""
 
             echo "=== Restart sshd ==="
             sudo systemctl restart ssh 2>&1 || sudo systemctl restart sshd 2>&1
             echo ""
 
-            echo "=== Verify sshd is running ==="
-            sudo systemctl status ssh --no-pager 2>&1 | head -15
-            echo ""
-
             echo "=== sshd logs after restart ==="
             sudo journalctl -u ssh --no-pager -n 10 2>&1
-            echo ""
-
-            echo "=== Remove stale known_hosts on local ==="
-            echo "You may need to run: ssh-keygen -R 45.32.57.146"
             echo ""
 
             echo "=== Done ==="
