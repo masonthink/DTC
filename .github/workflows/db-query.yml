@@ -1,0 +1,31 @@
+name: DB Query
+
+on:
+  workflow_dispatch:
+
+jobs:
+  query:
+    name: Query Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and query users table
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: deploy
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "=== Docker containers ==="
+            docker ps --format "table {{.Names}}\t{{.Status}}"
+            echo ""
+            echo "=== User count ==="
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_users FROM users;"
+            echo ""
+            echo "=== Recent users ==="
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT id, email, display_name, created_at FROM users ORDER BY created_at DESC LIMIT 20;"
+            echo ""
+            echo "=== Agents count ==="
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_agents FROM agents;"
+            echo ""
+            echo "=== Topics count ==="
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_topics FROM topics;"
