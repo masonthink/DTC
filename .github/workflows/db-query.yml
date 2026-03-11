@@ -33,21 +33,30 @@ jobs:
             sudo grep -E "^(AllowUsers|DenyUsers|AllowGroups|Match|MaxAuthTries|PermitRootLogin|PasswordAuthentication)" /etc/ssh/sshd_config 2>&1 || true
             echo ""
 
-            echo "=== Fix: allow SSH from all sources ==="
-            sudo ufw allow ssh 2>&1 || true
-            sudo ufw allow 22/tcp 2>&1 || true
+            echo "=== sshd full config (non-comment) ==="
+            sudo grep -v '^#' /etc/ssh/sshd_config | grep -v '^$' 2>&1
             echo ""
 
-            echo "=== Fix: reset fail2ban sshd jail ==="
-            sudo fail2ban-client unban --all 2>&1 || true
+            echo "=== sshd host keys ==="
+            ls -la /etc/ssh/ssh_host_* 2>&1
             echo ""
 
-            echo "=== Fix: ensure ufw default allows SSH ==="
-            sudo ufw status verbose 2>&1
+            echo "=== sshd logs (last 30 lines) ==="
+            sudo journalctl -u ssh --no-pager -n 30 2>&1 || sudo journalctl -u sshd --no-pager -n 30 2>&1
             echo ""
 
-            echo "=== Reload sshd ==="
-            sudo systemctl reload sshd 2>&1 || sudo systemctl reload ssh 2>&1 || true
+            echo "=== Test local SSH connection ==="
+            ssh -v -o ConnectTimeout=5 -o StrictHostKeyChecking=no deploy@localhost "echo local-ok" 2>&1 || true
+            echo ""
+
+            echo "=== MaxStartups and connection limits ==="
+            sudo grep -i "maxstartups\|maxsessions\|logingraceTime\|clientalive" /etc/ssh/sshd_config 2>&1 || true
+            echo ""
+
+            echo "=== TCP wrappers ==="
+            cat /etc/hosts.deny 2>&1 || echo "no hosts.deny"
+            echo "---"
+            cat /etc/hosts.allow 2>&1 || echo "no hosts.allow"
             echo ""
 
             echo "=== Done ==="
