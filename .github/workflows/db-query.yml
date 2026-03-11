@@ -8,7 +8,7 @@ jobs:
     name: Fix SSH Firewall
     runs-on: ubuntu-latest
     steps:
-      - name: SSH - diagnose and fix firewall
+      - name: SSH - diagnose and fix sshd
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -16,41 +16,22 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 3m
           script: |
-            echo "=== Current firewall status ==="
-            sudo ufw status verbose 2>&1 || echo "ufw not available"
+            echo "=== 50-cloud-init.conf content ==="
+            sudo cat /etc/ssh/sshd_config.d/50-cloud-init.conf 2>&1
             echo ""
 
-            echo "=== iptables SSH rules ==="
-            sudo iptables -L INPUT -n --line-numbers 2>&1 | head -30
+            echo "=== Full effective sshd config (first 60 lines) ==="
+            sudo sshd -T 2>&1 | head -60
             echo ""
 
-            echo "=== fail2ban status ==="
-            sudo fail2ban-client status 2>&1 || echo "fail2ban not running"
-            sudo fail2ban-client status sshd 2>&1 || echo "no sshd jail"
+            echo "=== Current unauthenticated SSH connections ==="
+            ss -tn state established '( sport = :22 )' 2>&1 | wc -l
+            ss -tn state established '( sport = :22 )' 2>&1 | head -20
             echo ""
 
-            echo "=== sshd config highlights ==="
-            sudo grep -E "^(AllowUsers|DenyUsers|AllowGroups|Match|MaxAuthTries|PermitRootLogin|PasswordAuthentication)" /etc/ssh/sshd_config 2>&1 || true
-            echo ""
-
-            echo "=== Before: all Port lines in sshd_config ==="
-            grep -n "^Port" /etc/ssh/sshd_config 2>&1
-            echo ""
-
-            echo "=== Fix: deduplicate Port lines - keep only first Port 22 and Port 8443 ==="
-            sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
-            # Remove ALL Port lines, then add back just what we need
-            sudo sed -i '/^Port /d' /etc/ssh/sshd_config
-            # Add Port 22 and Port 8443 after the Include line
-            sudo sed -i '/^Include \/etc\/ssh\/sshd_config.d/a Port 22\nPort 8443' /etc/ssh/sshd_config
-            echo ""
-
-            echo "=== After: all Port lines ==="
-            grep -n "^Port" /etc/ssh/sshd_config 2>&1
-            echo ""
-
-            echo "=== Also check sshd_config.d for Port lines ==="
-            grep -rn "^Port" /etc/ssh/sshd_config.d/ 2>&1 || echo "none"
+            echo "=== Fix: increase MaxStartups to handle scan traffic ==="
+            sudo sed -i '/^#\?MaxStartups/d' /etc/ssh/sshd_config
+            echo "MaxStartups 50:30:200" | sudo tee -a /etc/ssh/sshd_config
             echo ""
 
             echo "=== Validate config ==="
@@ -58,10 +39,10 @@ jobs:
             echo ""
 
             echo "=== Restart sshd ==="
-            sudo systemctl restart ssh 2>&1 || sudo systemctl restart sshd 2>&1
+            sudo systemctl restart ssh 2>&1
             echo ""
 
-            echo "=== sshd logs after restart ==="
+            echo "=== sshd logs ==="
             sudo journalctl -u ssh --no-pager -n 10 2>&1
             echo ""
 
