@@ -5,27 +5,62 @@ on:
 
 jobs:
   query:
-    name: Query Database
+    name: Start DTC and Query Database
     runs-on: ubuntu-latest
     steps:
-      - name: SSH and query users table
+      - name: SSH - check and start DTC services
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: deploy
           key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 5m
           script: |
-            echo "=== Docker containers ==="
+            set -e
+            echo "=== All running containers ==="
+            docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            echo ""
+
+            echo "=== Disk usage ==="
+            df -h /
+            echo ""
+
+            echo "=== Check DTC project files ==="
+            ls -la /opt/digital-twin/ 2>/dev/null || echo "/opt/digital-twin/ not found"
+            echo ""
+
+            echo "=== Check .env.prod ==="
+            test -f /opt/digital-twin/.env.prod && echo ".env.prod exists" || echo ".env.prod NOT found"
+            echo ""
+
+            echo "=== Check docker-compose.prod.yml ==="
+            test -f /opt/digital-twin/docker-compose.prod.yml && echo "docker-compose.prod.yml exists" || echo "docker-compose.prod.yml NOT found"
+            echo ""
+
+            echo "=== Stop claway-caddy to free port 80/443 ==="
+            docker stop claway-caddy 2>/dev/null || true
+            echo ""
+
+            echo "=== Start DTC services ==="
+            cd /opt/digital-twin
+            docker compose --env-file .env.prod -f docker-compose.prod.yml up -d postgres redis qdrant
+            echo "Waiting for postgres to be healthy..."
+            sleep 15
+            echo ""
+
+            echo "=== DTC container status ==="
             docker ps --format "table {{.Names}}\t{{.Status}}"
             echo ""
-            echo "=== User count ==="
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_users FROM users;"
+
+            echo "=== Query users ==="
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_users FROM users;" 2>&1 || echo "Query failed - DB may need migration"
             echo ""
-            echo "=== Recent users ==="
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT id, email, display_name, created_at FROM users ORDER BY created_at DESC LIMIT 20;"
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT id, email, display_name, created_at FROM users ORDER BY created_at DESC LIMIT 20;" 2>&1 || true
             echo ""
-            echo "=== Agents count ==="
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_agents FROM agents;"
+
+            echo "=== Query agents ==="
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_agents FROM agents;" 2>&1 || true
             echo ""
-            echo "=== Topics count ==="
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_topics FROM topics;"
+
+            echo "=== Query topics ==="
+            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_topics FROM topics;" 2>&1 || true
