@@ -33,30 +33,45 @@ jobs:
             sudo grep -E "^(AllowUsers|DenyUsers|AllowGroups|Match|MaxAuthTries|PermitRootLogin|PasswordAuthentication)" /etc/ssh/sshd_config 2>&1 || true
             echo ""
 
-            echo "=== sshd full config (non-comment) ==="
-            sudo grep -v '^#' /etc/ssh/sshd_config | grep -v '^$' 2>&1
+            echo "=== List sshd_config.d/ ==="
+            ls -la /etc/ssh/sshd_config.d/ 2>&1
             echo ""
 
-            echo "=== sshd host keys ==="
-            ls -la /etc/ssh/ssh_host_* 2>&1
+            echo "=== Show extra config files ==="
+            for f in /etc/ssh/sshd_config.d/*.conf; do
+              echo "--- $f ---"
+              cat "$f" 2>&1
+              echo ""
+            done
+
+            echo "=== Fix: remove duplicate Port entries from sshd_config.d ==="
+            for f in /etc/ssh/sshd_config.d/*.conf; do
+              if grep -q "^Port 22$" "$f" 2>/dev/null; then
+                echo "Removing Port 22 from $f"
+                sudo sed -i '/^Port 22$/d' "$f"
+              fi
+            done
             echo ""
 
-            echo "=== sshd logs (last 30 lines) ==="
-            sudo journalctl -u ssh --no-pager -n 30 2>&1 || sudo journalctl -u sshd --no-pager -n 30 2>&1
+            echo "=== Fix: ensure only one Port 22 in main config ==="
+            echo "Before:"
+            grep "^Port" /etc/ssh/sshd_config 2>&1
             echo ""
 
-            echo "=== Test local SSH connection ==="
-            ssh -v -o ConnectTimeout=5 -o StrictHostKeyChecking=no deploy@localhost "echo local-ok" 2>&1 || true
+            echo "=== Restart sshd ==="
+            sudo systemctl restart ssh 2>&1 || sudo systemctl restart sshd 2>&1
             echo ""
 
-            echo "=== MaxStartups and connection limits ==="
-            sudo grep -i "maxstartups\|maxsessions\|logingraceTime\|clientalive" /etc/ssh/sshd_config 2>&1 || true
+            echo "=== Verify sshd is running ==="
+            sudo systemctl status ssh --no-pager 2>&1 | head -15
             echo ""
 
-            echo "=== TCP wrappers ==="
-            cat /etc/hosts.deny 2>&1 || echo "no hosts.deny"
-            echo "---"
-            cat /etc/hosts.allow 2>&1 || echo "no hosts.allow"
+            echo "=== sshd logs after restart ==="
+            sudo journalctl -u ssh --no-pager -n 10 2>&1
+            echo ""
+
+            echo "=== Remove stale known_hosts on local ==="
+            echo "You may need to run: ssh-keygen -R 45.32.57.146"
             echo ""
 
             echo "=== Done ==="
