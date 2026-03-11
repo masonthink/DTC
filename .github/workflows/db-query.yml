@@ -1,66 +1,53 @@
-name: DB Query
+name: Fix SSH Firewall
 
 on:
   workflow_dispatch:
 
 jobs:
-  query:
-    name: Start DTC and Query Database
+  fix-firewall:
+    name: Fix SSH Firewall
     runs-on: ubuntu-latest
     steps:
-      - name: SSH - check and start DTC services
+      - name: SSH - diagnose and fix firewall
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: deploy
           key: ${{ secrets.VPS_SSH_KEY }}
-          command_timeout: 5m
+          command_timeout: 3m
           script: |
-            set -e
-            echo "=== All running containers ==="
-            docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            echo "=== Current firewall status ==="
+            sudo ufw status verbose 2>&1 || echo "ufw not available"
             echo ""
 
-            echo "=== Disk usage ==="
-            df -h /
+            echo "=== iptables SSH rules ==="
+            sudo iptables -L INPUT -n --line-numbers 2>&1 | head -30
             echo ""
 
-            echo "=== Check DTC project files ==="
-            ls -la /opt/digital-twin/ 2>/dev/null || echo "/opt/digital-twin/ not found"
+            echo "=== fail2ban status ==="
+            sudo fail2ban-client status 2>&1 || echo "fail2ban not running"
+            sudo fail2ban-client status sshd 2>&1 || echo "no sshd jail"
             echo ""
 
-            echo "=== Check .env.prod ==="
-            test -f /opt/digital-twin/.env.prod && echo ".env.prod exists" || echo ".env.prod NOT found"
+            echo "=== sshd config highlights ==="
+            sudo grep -E "^(AllowUsers|DenyUsers|AllowGroups|Match|MaxAuthTries|PermitRootLogin|PasswordAuthentication)" /etc/ssh/sshd_config 2>&1 || true
             echo ""
 
-            echo "=== Check docker-compose.prod.yml ==="
-            test -f /opt/digital-twin/docker-compose.prod.yml && echo "docker-compose.prod.yml exists" || echo "docker-compose.prod.yml NOT found"
+            echo "=== Fix: allow SSH from all sources ==="
+            sudo ufw allow ssh 2>&1 || true
+            sudo ufw allow 22/tcp 2>&1 || true
             echo ""
 
-            echo "=== Stop claway-caddy to free port 80/443 ==="
-            docker stop claway-caddy 2>/dev/null || true
+            echo "=== Fix: reset fail2ban sshd jail ==="
+            sudo fail2ban-client unban --all 2>&1 || true
             echo ""
 
-            echo "=== Start DTC services ==="
-            cd /opt/digital-twin
-            docker compose --env-file .env.prod -f docker-compose.prod.yml up -d postgres redis qdrant
-            echo "Waiting for postgres to be healthy..."
-            sleep 15
+            echo "=== Fix: ensure ufw default allows SSH ==="
+            sudo ufw status verbose 2>&1
             echo ""
 
-            echo "=== DTC container status ==="
-            docker ps --format "table {{.Names}}\t{{.Status}}"
+            echo "=== Reload sshd ==="
+            sudo systemctl reload sshd 2>&1 || sudo systemctl reload ssh 2>&1 || true
             echo ""
 
-            echo "=== Query users ==="
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_users FROM users;" 2>&1 || echo "Query failed - DB may need migration"
-            echo ""
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT id, email, display_name, created_at FROM users ORDER BY created_at DESC LIMIT 20;" 2>&1 || true
-            echo ""
-
-            echo "=== Query agents ==="
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_agents FROM agents;" 2>&1 || true
-            echo ""
-
-            echo "=== Query topics ==="
-            docker exec dtc-postgres psql -U dtc -d digital_twin_community -c "SELECT count(*) AS total_topics FROM topics;" 2>&1 || true
+            echo "=== Done ==="
