@@ -5,6 +5,7 @@ package notification
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -215,7 +216,19 @@ func buildEmailHTML(n *Notification) string {
 <p>%s</p>
 <br>
 <p>前往 <a href="https://digital-twin.community">数字分身社区</a> 查看详情</p>
-</body></html>`, n.Title, n.Body)
+</body></html>`, escapeHTML(n.Title), escapeHTML(n.Body))
+}
+
+// escapeHTML escapes HTML special characters to prevent XSS in email templates.
+func escapeHTML(s string) string {
+	replacer := strings.NewReplacer(
+		"&", "&amp;",
+		"<", "&lt;",
+		">", "&gt;",
+		`"`, "&quot;",
+		"'", "&#39;",
+	)
+	return replacer.Replace(s)
 }
 
 func truncate(s string, maxRunes int) string {

@@ -244,6 +244,25 @@ func Load() (*Config, error) {
 		}
 	}
 
+	// Fail-safe: refuse to start in production with sslmode=disable
+	if cfg.App.Env == "production" {
+		if strings.Contains(cfg.DB.DSN, "sslmode=disable") {
+			panic("DATABASE_URL must not use sslmode=disable in production")
+		}
+	}
+
+	// Fail-safe: refuse to start in production with weak JWT secret
+	if cfg.App.Env == "production" {
+		if len(cfg.JWT.Secret) < 32 {
+			panic("JWT_SECRET must be at least 32 characters in production (use: openssl rand -hex 32)")
+		}
+	}
+
+	// Fail-safe: refuse to start in production with debug mode
+	if cfg.App.Env == "production" && cfg.App.Debug {
+		panic("APP_DEBUG must not be true in production")
+	}
+
 	return cfg, nil
 }
 

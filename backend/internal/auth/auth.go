@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"net/mail"
 	"time"
 	"unicode"
 
@@ -102,8 +103,16 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*User, *To
 	if req.Phone == "" && req.Email == "" {
 		return nil, nil, fmt.Errorf("phone or email required")
 	}
+	if req.Email != "" {
+		if _, err := mail.ParseAddress(req.Email); err != nil {
+			return nil, nil, fmt.Errorf("invalid email format")
+		}
+	}
 	if len(req.Password) < 8 {
 		return nil, nil, fmt.Errorf("password must be at least 8 characters")
+	}
+	if len(req.Password) > 72 {
+		return nil, nil, fmt.Errorf("password must be at most 72 characters")
 	}
 	if !hasLetter(req.Password) || !hasDigit(req.Password) {
 		return nil, nil, fmt.Errorf("password must contain at least one letter and one digit")
@@ -113,6 +122,12 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*User, *To
 	}
 	if len(req.DisplayName) > 100 {
 		return nil, nil, fmt.Errorf("display_name too long (max 100 chars)")
+	}
+	// Reject display names containing HTML/script characters
+	for _, ch := range req.DisplayName {
+		if ch == '<' || ch == '>' {
+			return nil, nil, fmt.Errorf("display_name contains invalid characters")
+		}
 	}
 
 	// Check for existing user
@@ -154,6 +169,10 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*User, *To
 func (s *Service) Login(ctx context.Context, req LoginRequest) (*User, *TokenPair, error) {
 	var record *UserRecord
 	var err error
+
+	if len(req.Password) > 72 {
+		return nil, nil, ErrInvalidCredentials
+	}
 
 	if req.Phone != "" {
 		record, err = s.repo.FindByPhone(ctx, req.Phone)
@@ -234,6 +253,7 @@ func (s *Service) generateTokenPair(ctx context.Context, userID string) (*TokenP
 	accessClaims := Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "digital-twin-community",
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ID:        uuid.NewString(),
@@ -247,6 +267,7 @@ func (s *Service) generateTokenPair(ctx context.Context, userID string) (*TokenP
 	refreshClaims := Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "digital-twin-community",
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.cfg.RefreshTokenTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ID:        uuid.NewString(),
@@ -276,7 +297,7 @@ func (s *Service) parseToken(tokenStr string) (*Claims, error) {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
 		return []byte(s.cfg.Secret), nil
-	})
+	}, jwt.WithIssuer("digital-twin-community"))
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return nil, ErrTokenExpired

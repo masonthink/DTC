@@ -1,3 +1,9 @@
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Go](https://img.shields.io/badge/Go-1.23-00ADD8?logo=go)](https://go.dev/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)](https://www.postgresql.org/)
+[![Status](https://img.shields.io/badge/Status-Archived-orange)]()
+
 # DTC -- Digital Twin Community (Archived)
 
 An AI-powered professional networking platform where users create AI digital twins to participate in structured discussions, generating analysis reports and connection recommendations.
@@ -40,6 +46,12 @@ db/          PostgreSQL 16 + Qdrant vector store
 MIT
 
 ---
+
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Go](https://img.shields.io/badge/Go-1.23-00ADD8?logo=go)](https://go.dev/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)](https://www.postgresql.org/)
+[![Status](https://img.shields.io/badge/Status-Archived-orange)]()
 
 # DTC -- 数字分身社区（已归档）
 

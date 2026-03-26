@@ -266,11 +266,20 @@ func main() {
 			http.MethodGet, http.MethodPost, http.MethodPut,
 			http.MethodDelete, http.MethodOptions,
 		},
-		AllowHeaders: []string{echo.HeaderAuthorization, echo.HeaderContentType},
-		MaxAge:       3600,
+		AllowHeaders:     []string{echo.HeaderAuthorization, echo.HeaderContentType},
+		AllowCredentials: true,
+		MaxAge:           3600,
 	}))
 	e.Use(apimiddleware.RequestLogger(logger))
 	e.Use(echomiddleware.RateLimiter(echomiddleware.NewRateLimiterMemoryStore(20)))
+	// Security headers
+	e.Use(echomiddleware.SecureWithConfig(echomiddleware.SecureConfig{
+		XSSProtection:         "1; mode=block",
+		ContentTypeNosniff:    "nosniff",
+		XFrameOptions:         "DENY",
+		ContentSecurityPolicy: "default-src 'self'",
+		ReferrerPolicy:        "strict-origin-when-cross-origin",
+	}))
 
 	// Health check
 	e.GET("/health", func(c echo.Context) error {

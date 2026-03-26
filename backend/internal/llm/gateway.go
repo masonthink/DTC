@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 	"strings"
@@ -632,17 +633,15 @@ func (g *Gateway) doHTTPRequest(ctx context.Context, method, url string, headers
 	}
 	defer resp.Body.Close()
 
-	var buf []byte
-	buf = make([]byte, 0, 4096)
-	tmp := make([]byte, 4096)
-	for {
-		n, readErr := resp.Body.Read(tmp)
-		if n > 0 {
-			buf = append(buf, tmp[:n]...)
-		}
-		if readErr != nil {
-			break
-		}
+	// Limit response body to 10 MB to prevent OOM from malicious/broken responses
+	const maxResponseSize = 10 << 20
+	limitedReader := io.LimitReader(resp.Body, maxResponseSize+1)
+	buf, err := io.ReadAll(limitedReader)
+	if err != nil {
+		return nil, resp.StatusCode, fmt.Errorf("read response body: %w", err)
+	}
+	if len(buf) > maxResponseSize {
+		return nil, resp.StatusCode, fmt.Errorf("response body exceeds %d bytes limit", maxResponseSize)
 	}
 	return buf, resp.StatusCode, nil
 }

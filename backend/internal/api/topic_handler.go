@@ -78,6 +78,7 @@ func (h *TopicHandler) Cancel(c echo.Context) error {
 }
 
 // queryInt extracts an integer query parameter with a default value.
+// Values are clamped to [0, 1000] to prevent abuse.
 func queryInt(c echo.Context, key string, def int) int {
 	raw := c.QueryParam(key)
 	if raw == "" {
@@ -86,6 +87,9 @@ func queryInt(c echo.Context, key string, def int) int {
 	v, err := strconv.Atoi(raw)
 	if err != nil || v < 0 {
 		return def
+	}
+	if v > 1000 {
+		return 1000
 	}
 	return v
 }
